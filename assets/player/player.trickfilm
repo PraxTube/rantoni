@@ -1,0 +1,26 @@
+{
+    "idle": (
+        keyframes: KeyframesRange((start: 0, end: 2)),
+        duration: 0.3,
+    ),
+    "run": (
+        keyframes: KeyframesRange((start: 18, end: 20)),
+        duration: 0.3,
+    ),
+    "punch1": (
+        keyframes: KeyframesRange((start: 2, end: 3)),
+        duration: 0.25,
+    ),
+    "punch1recover": (
+        keyframes: KeyframesRange((start: 3, end: 4)),
+        duration: 0.15,
+    ),
+    "punch2": (
+        keyframes: KeyframesRange((start: 4, end: 5)),
+        duration: 0.25,
+    ),
+    "punch2recover": (
+        keyframes: KeyframesRange((start: 5, end: 6)),
+        duration: 0.15,
+    ),
+}
