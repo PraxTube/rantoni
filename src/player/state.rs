@@ -1,12 +1,13 @@
-use bevy::prelude::*;
+use bevy::{ecs::system::SystemId, prelude::*};
 use bevy_trickfilm::prelude::*;
+
+use crate::GameAssets;
 
 use super::{input::PlayerInput, Player};
 
 #[derive(Event)]
 pub struct PlayerChangedState {
     state: PlayerState,
-    #[allow(dead_code)]
     previous_state: PlayerState,
 }
 
@@ -15,56 +16,132 @@ pub enum PlayerState {
     #[default]
     Idling,
     Running,
-    Punching1,
-    Punching1Recover,
-    Punching2,
-    Punching2Recover,
+    Attacking,
+    Recovering,
 }
 
-#[derive(Component, Default)]
+#[derive(Debug, Default, PartialEq, Clone, Copy)]
+pub enum PlayerAttackState {
+    #[default]
+    Light1,
+    Light2,
+}
+
+#[derive(Debug, Default, PartialEq, Clone, Copy)]
+pub enum ChainAttack {
+    #[default]
+    None,
+    Light,
+    Heavy,
+}
+
+#[derive(Component)]
 pub struct PlayerStateMachine {
     state: PlayerState,
-    /// This is used to queue multiple non repeating states.
-    /// For example Punching1 -> Punchin2 etc.
-    /// This gets triggered as soon as the current state is done.
-    /// And instead of going into Idle the state machine will switch to this state.
-    queued_state: Option<PlayerState>,
+    attack_state: PlayerAttackState,
     previous_state: PlayerState,
     just_changed_state: bool,
+    chain_attack: ChainAttack,
+    update_animation: SystemId,
+}
+
+impl FromWorld for PlayerStateMachine {
+    fn from_world(world: &mut World) -> Self {
+        let update_animation = world.register_system(update_player_animation);
+        Self {
+            state: PlayerState::default(),
+            attack_state: PlayerAttackState::default(),
+            previous_state: PlayerState::default(),
+            just_changed_state: false,
+            chain_attack: ChainAttack::default(),
+            update_animation,
+        }
+    }
 }
 
 impl PlayerStateMachine {
     pub fn can_run(&self) -> bool {
         self.state == PlayerState::Idling
             || self.state == PlayerState::Running
-            || self.state == PlayerState::Punching1Recover
-            || self.state == PlayerState::Punching2Recover
+            || self.state == PlayerState::Recovering
     }
 
     fn can_punch(&self) -> bool {
-        self.can_run() || self.state == PlayerState::Punching1
+        self.can_run()
+            || self.state == PlayerState::Attacking
+                && self.attack_state == PlayerAttackState::Light1
     }
 
     pub fn state(&self) -> PlayerState {
         self.state
     }
 
-    pub fn set_state(&mut self, state: PlayerState) {
+    pub fn set_state(&mut self, commands: &mut Commands, state: PlayerState) {
         self.previous_state = self.state;
         self.just_changed_state = true;
         self.state = state;
+        commands.run_system(self.update_animation);
     }
 
-    pub fn take_queued_state(&mut self) -> Option<PlayerState> {
-        self.queued_state.take()
+    pub fn attack_state(&self) -> PlayerAttackState {
+        self.attack_state
     }
 
-    pub fn set_queued_state(&mut self, state: PlayerState) {
-        self.queued_state = Some(state);
+    pub fn attack_state_eq(&self, attack_state: PlayerAttackState) -> bool {
+        self.state == PlayerState::Attacking && self.attack_state == attack_state
+    }
+
+    pub fn set_attack_state(&mut self, commands: &mut Commands, attack_state: PlayerAttackState) {
+        self.set_state(commands, PlayerState::Attacking);
+        self.attack_state = attack_state;
+    }
+
+    pub fn chain_attack(&self) -> ChainAttack {
+        self.chain_attack
+    }
+
+    pub fn set_chain_attack(&mut self, chain_attack: ChainAttack) {
+        self.chain_attack = chain_attack;
+    }
+
+    fn state_animation(&self, assets: &Res<GameAssets>) -> (Handle<AnimationClip2D>, bool) {
+        match self.state {
+            PlayerState::Idling => (assets.player_animations[0].clone(), true),
+            PlayerState::Running => (assets.player_animations[1].clone(), true),
+            PlayerState::Attacking => match self.attack_state {
+                PlayerAttackState::Light1 => (assets.player_animations[2].clone(), false),
+                PlayerAttackState::Light2 => (assets.player_animations[4].clone(), false),
+            },
+            PlayerState::Recovering => match self.attack_state {
+                PlayerAttackState::Light1 => (assets.player_animations[3].clone(), false),
+                PlayerAttackState::Light2 => (assets.player_animations[5].clone(), false),
+            },
+        }
     }
 }
 
-fn transition_run_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut Player>) {
+fn update_player_animation(
+    assets: Res<GameAssets>,
+    mut q_player: Query<(&Player, &mut AnimationPlayer2D)>,
+) {
+    let (player, mut animator) = match q_player.get_single_mut() {
+        Ok(r) => r,
+        Err(_) => return,
+    };
+
+    let (animation, repeat) = player.state_machine.state_animation(&assets);
+    if repeat {
+        animator.play(animation).repeat();
+    } else {
+        animator.play(animation);
+    }
+}
+
+fn transition_run_state(
+    mut commands: Commands,
+    player_input: Res<PlayerInput>,
+    mut q_player: Query<&mut Player>,
+) {
     let Ok(mut player) = q_player.get_single_mut() else {
         return;
     };
@@ -74,13 +151,23 @@ fn transition_run_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut
     }
 
     if player_input.move_direction != Vec2::ZERO {
-        player.state_machine.set_state(PlayerState::Running);
+        if player.state_machine.state() != PlayerState::Running {
+            player
+                .state_machine
+                .set_state(&mut commands, PlayerState::Running);
+        }
     } else if player.state_machine.state() == PlayerState::Running {
-        player.state_machine.set_state(PlayerState::Idling);
+        player
+            .state_machine
+            .set_state(&mut commands, PlayerState::Idling);
     };
 }
 
-fn transition_punch_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut Player>) {
+fn transition_punch_state(
+    mut commands: Commands,
+    player_input: Res<PlayerInput>,
+    mut q_player: Query<&mut Player>,
+) {
     let Ok(mut player) = q_player.get_single_mut() else {
         return;
     };
@@ -91,50 +178,71 @@ fn transition_punch_state(player_input: Res<PlayerInput>, mut q_player: Query<&m
 
     if player_input.punched {
         player.punching_direction = player_input.aim_direction;
-        if player.state_machine.state() == PlayerState::Punching1 {
-            player
-                .state_machine
-                .set_queued_state(PlayerState::Punching2);
+        if player
+            .state_machine
+            .attack_state_eq(PlayerAttackState::Light1)
+        {
+            player.state_machine.set_chain_attack(ChainAttack::Light);
         } else {
-            player.state_machine.state = PlayerState::Punching1;
+            info!(
+                "punching, state: {:?}, a_state: {:?}",
+                player.state_machine.state(),
+                player.state_machine.attack_state()
+            );
             player
                 .state_machine
-                .set_queued_state(PlayerState::Punching1Recover);
+                .set_attack_state(&mut commands, PlayerAttackState::Light1);
+            info!(
+                "new state: {:?}, a_state: {:?}",
+                player.state_machine.state(),
+                player.state_machine.attack_state()
+            );
         }
     }
 }
 
-fn transition_idle_state(mut q_player: Query<(&mut Player, &AnimationPlayer2D)>) {
+fn transition_idle_state(
+    mut commands: Commands,
+    mut q_player: Query<(&mut Player, &AnimationPlayer2D)>,
+) {
     let Ok((mut player, animator)) = q_player.get_single_mut() else {
         return;
     };
 
     if animator.just_finished() {
-        let state = player
-            .state_machine
-            .take_queued_state()
-            .unwrap_or(PlayerState::Idling);
-        player.state_machine.set_state(state);
+        warn!("fin, state: {:?}", player.state_machine.state());
+        match player.state_machine.state() {
+            PlayerState::Idling => error!("should never happen! Idle should be repeating forever"),
+            PlayerState::Running => {
+                error!("should never happen! Running should be repeating forever")
+            }
+            PlayerState::Attacking => {
+                if player.state_machine.chain_attack() == ChainAttack::None {
+                    player
+                        .state_machine
+                        .set_state(&mut commands, PlayerState::Recovering);
+                } else {
+                    player.state_machine.set_chain_attack(ChainAttack::None);
+                    match player.state_machine.attack_state() {
+                        PlayerAttackState::Light1 => player
+                            .state_machine
+                            .set_attack_state(&mut commands, PlayerAttackState::Light2),
+                        PlayerAttackState::Light2 => player
+                            .state_machine
+                            .set_state(&mut commands, PlayerState::Recovering),
+                    };
+                }
+            }
+            PlayerState::Recovering => {
+                player
+                    .state_machine
+                    .set_state(&mut commands, PlayerState::Idling);
+            }
+        };
     }
 }
 
-fn set_punching2_recover_queue_state(
-    mut q_player: Query<&mut Player>,
-    mut ev_player_changed_state: EventReader<PlayerChangedState>,
-) {
-    let Ok(mut player) = q_player.get_single_mut() else {
-        return;
-    };
-    for ev in ev_player_changed_state.read() {
-        if ev.state == PlayerState::Punching2 {
-            player
-                .state_machine
-                .set_queued_state(PlayerState::Punching2Recover);
-        }
-    }
-}
-
-fn trigger_player_changed_state(
+pub fn trigger_player_changed_state(
     mut q_player: Query<&mut Player>,
     mut ev_player_changed_state: EventWriter<PlayerChangedState>,
 ) {
@@ -158,12 +266,12 @@ impl Plugin for PlayerStatePlugin {
         app.add_event::<PlayerChangedState>().add_systems(
             Update,
             (
+                transition_idle_state,
                 transition_run_state,
                 transition_punch_state,
-                transition_idle_state,
-                set_punching2_recover_queue_state,
                 trigger_player_changed_state,
-            ),
+            )
+                .chain(),
         );
     }
 }

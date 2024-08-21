@@ -3,16 +3,16 @@ use bevy_rancic::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::{GameAssets, GameState};
+use crate::{world::collision::WORLD_GROUP, GameAssets, GameState};
 
 use super::Player;
 
-fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
-    let collider = commands
+fn spawn_player(world: &mut World) {
+    let collider = world
         .spawn((
             Collider::ball(6.0),
             ActiveEvents::COLLISION_EVENTS,
-            CollisionGroups::default(),
+            CollisionGroups::new(WORLD_GROUP, WORLD_GROUP),
             TransformBundle::from_transform(Transform::from_translation(Vec3::new(
                 0.0, -12.0, 0.0,
             ))),
@@ -20,11 +20,15 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
         .id();
 
     let mut animator = AnimationPlayer2D::default();
-    animator.play(assets.player_animations[0].clone()).repeat();
+    animator
+        .play(world.resource::<GameAssets>().player_animations[0].clone())
+        .repeat();
 
-    commands
+    let player = Player::from_world(world);
+
+    world
         .spawn((
-            Player::default(),
+            player,
             RigidBody::Dynamic,
             LockedAxes::ROTATION_LOCKED,
             Velocity::zero(),
@@ -32,13 +36,10 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
             YSort(0.0),
             animator,
             SpriteBundle {
-                texture: assets.player_texture.clone(),
+                texture: world.resource::<GameAssets>().player_texture.clone(),
                 ..default()
             },
-            TextureAtlas {
-                layout: assets.player_layout.clone(),
-                ..default()
-            },
+            TextureAtlas::from(world.resource::<GameAssets>().player_layout.clone()),
         ))
         .push_children(&[collider]);
 }

@@ -2,6 +2,7 @@
 
 mod assets;
 mod audio;
+mod enemy;
 mod player;
 mod ui;
 mod world;
@@ -71,9 +72,10 @@ fn main() {
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .add_plugins((
             world::WorldPlugin,
-            player::PlayerPlugin,
             ui::UiPlugin,
             audio::GameAudioPlugin,
+            player::PlayerPlugin,
+            enemy::EnemyPlugin,
         ))
         .run();
 }

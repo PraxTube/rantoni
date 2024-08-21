@@ -1,3 +1,5 @@
+pub mod collision;
+
 use bevy::prelude::*;
 use bevy_rancic::prelude::*;
 
@@ -7,7 +9,8 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnExit(GameState::AssetLoading), (spawn_dummy_background,))
+        app.add_plugins(collision::WorldCollisionPlugin)
+            .add_systems(OnExit(GameState::AssetLoading), (spawn_dummy_background,))
             .add_systems(
                 PostUpdate,
                 update_camera_target.in_set(CameraSystem::TargetUpdate),

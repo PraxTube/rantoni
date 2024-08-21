@@ -13,12 +13,12 @@ pub struct GameAssets {
     pub player_layout: Handle<TextureAtlasLayout>,
     #[asset(
         paths(
-            "player/player.trickfilm#idle",
-            "player/player.trickfilm#run",
-            "player/player.trickfilm#punch1",
-            "player/player.trickfilm#punch1recover",
-            "player/player.trickfilm#punch2",
-            "player/player.trickfilm#punch2recover",
+            "player/player.trickfilm.ron#idle",
+            "player/player.trickfilm.ron#run",
+            "player/player.trickfilm.ron#punch1",
+            "player/player.trickfilm.ron#punch1recover",
+            "player/player.trickfilm.ron#punch2",
+            "player/player.trickfilm.ron#punch2recover",
         ),
         collection(typed)
     )]

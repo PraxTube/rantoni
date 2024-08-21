@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::*;
 use crate::GameState;
 
 use super::input::PlayerInput;
-use super::state::PlayerState;
+use super::state::{PlayerAttackState, PlayerState};
 use super::Player;
 
 fn reset_velocity(mut q_player: Query<&mut Velocity, With<Player>>) {
@@ -21,12 +21,10 @@ fn move_player(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &mu
     };
 
     let speed = match player.state_machine.state() {
-        super::state::PlayerState::Idling => 0.0,
-        super::state::PlayerState::Running => 300.0,
-        super::state::PlayerState::Punching1 => 0.0,
-        super::state::PlayerState::Punching1Recover => 0.0,
-        super::state::PlayerState::Punching2 => 0.0,
-        super::state::PlayerState::Punching2Recover => 0.0,
+        PlayerState::Idling => 0.0,
+        PlayerState::Running => 300.0,
+        PlayerState::Attacking => 0.0,
+        PlayerState::Recovering => 0.0,
     };
 
     let direction = player_input.move_direction;
@@ -38,9 +36,15 @@ fn move_player_punching(mut q_player: Query<(&Player, &mut Velocity)>) {
         return;
     };
 
-    if player.state_machine.state() == PlayerState::Punching1 {
+    if player
+        .state_machine
+        .attack_state_eq(PlayerAttackState::Light1)
+    {
         velocity.linvel = player.punching_direction * 50.0;
-    } else if player.state_machine.state() == PlayerState::Punching2 {
+    } else if player
+        .state_machine
+        .attack_state_eq(PlayerAttackState::Light2)
+    {
         velocity.linvel = player.punching_direction * 250.0;
     }
 }
