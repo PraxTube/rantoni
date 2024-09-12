@@ -1,4 +1,5 @@
 mod controller;
+mod gamepad;
 mod relay;
 
 pub use controller::PlayerInput;
@@ -9,6 +10,10 @@ pub struct InputPlugin;
 
 impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((controller::InputControllerPlugin, relay::InputRelayPlugin));
+        app.add_plugins((
+            controller::InputControllerPlugin,
+            relay::InputRelayPlugin,
+            gamepad::InputGamepadPlugin,
+        ));
     }
 }

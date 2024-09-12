@@ -6,6 +6,7 @@ use super::{input::PlayerInput, Player};
 #[derive(Event)]
 pub struct PlayerChangedState {
     state: PlayerState,
+    #[allow(dead_code)]
     previous_state: PlayerState,
 }
 
@@ -79,11 +80,8 @@ fn transition_run_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut
     };
 }
 
-fn transition_punch_state(
-    player_input: Res<PlayerInput>,
-    mut q_player: Query<(&Transform, &mut Player)>,
-) {
-    let Ok((transform, mut player)) = q_player.get_single_mut() else {
+fn transition_punch_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut Player>) {
+    let Ok(mut player) = q_player.get_single_mut() else {
         return;
     };
 
@@ -92,10 +90,7 @@ fn transition_punch_state(
     }
 
     if player_input.punched {
-        player.punching_direction = (player_input.mouse_world_coords
-            - transform.translation.truncate())
-        .normalize_or_zero();
-
+        player.punching_direction = player_input.aim_direction;
         if player.state_machine.state() == PlayerState::Punching1 {
             player
                 .state_machine
@@ -114,7 +109,7 @@ fn transition_idle_state(mut q_player: Query<(&mut Player, &AnimationPlayer2D)>)
         return;
     };
 
-    if animator.is_finished() {
+    if animator.just_finished() {
         let state = player
             .state_machine
             .take_queued_state()
