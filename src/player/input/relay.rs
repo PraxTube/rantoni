@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rancic::prelude::*;
 
-use super::controller::PlayerInput;
+use super::PlayerInput;
 
 fn toggle_fullscreen(
     player_input: Res<PlayerInput>,

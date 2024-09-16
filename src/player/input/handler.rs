@@ -8,25 +8,7 @@ use crate::player::Player;
 use crate::GameState;
 
 use super::gamepad::PlayerGamepad;
-
-#[derive(Resource, Default)]
-pub struct PlayerInput {
-    pub scroll: i32,
-    pub escape: bool,
-
-    pub move_direction: Vec2,
-    pub punched: bool,
-    pub aim_direction: Vec2,
-
-    pub mouse_world_coords: Vec2,
-
-    pub toggle_fullscreen: bool,
-    pub toggle_debug: bool,
-}
-
-fn reset_player_input(mut player_input: ResMut<PlayerInput>) {
-    *player_input = PlayerInput::default();
-}
+use super::PlayerInput;
 
 pub fn fetch_mouse_world_coords(
     mut player_input: ResMut<PlayerInput>,
@@ -222,8 +204,6 @@ impl Plugin for InputControllerPlugin {
                 .chain()
                 .run_if(in_state(GameState::Gaming))
                 .after(InputSystem),
-        )
-        .init_resource::<PlayerInput>()
-        .add_systems(PreUpdate, reset_player_input.before(InputSystem));
+        );
     }
 }
