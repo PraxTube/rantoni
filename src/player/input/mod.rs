@@ -5,6 +5,8 @@ mod handler;
 mod auto_input;
 mod relay;
 
+use std::ops::BitOrAssign;
+
 use bevy::{input::InputSystem, prelude::*};
 
 pub struct InputPlugin;
@@ -24,7 +26,7 @@ impl Plugin for InputPlugin {
     }
 }
 
-#[derive(Resource, Default)]
+#[derive(Resource, Default, Clone, Copy)]
 pub struct PlayerInput {
     pub scroll: i32,
     pub escape: bool,
@@ -37,6 +39,20 @@ pub struct PlayerInput {
 
     pub toggle_fullscreen: bool,
     pub toggle_debug: bool,
+}
+
+impl BitOrAssign for PlayerInput {
+    fn bitor_assign(&mut self, rhs: Self) {
+        if self.move_direction == Vec2::ZERO {
+            self.move_direction = rhs.move_direction;
+        }
+        if !self.punched {
+            self.punched = rhs.punched;
+        }
+        if self.aim_direction == Vec2::ZERO {
+            self.aim_direction = rhs.aim_direction;
+        }
+    }
 }
 
 fn reset_player_input(mut player_input: ResMut<PlayerInput>) {
