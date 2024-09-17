@@ -14,7 +14,7 @@ pub enum PlayerState {
     Recovering,
 }
 
-#[derive(Debug, Default, PartialEq, Clone, Copy)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Copy)]
 pub enum PlayerAttackState {
     #[default]
     Light1,
@@ -94,7 +94,7 @@ impl PlayerStateMachine {
         self.chain_attack = chain_attack;
     }
 
-    fn just_changed(&self) -> bool {
+    pub fn just_changed(&self) -> bool {
         self.just_changed
     }
 
@@ -114,6 +114,27 @@ impl PlayerStateMachine {
                 PlayerAttackState::Light1 => (assets.player_animations[3].clone(), false),
                 PlayerAttackState::Light2 => (assets.player_animations[5].clone(), false),
             },
+        }
+    }
+
+    pub fn state_hitbox_frames(&self) -> (usize, usize) {
+        match self.state {
+            PlayerState::Idling => {
+                error!("should never happen! idle doesn't have any hitbox frames");
+                (0, 0)
+            }
+            PlayerState::Running => {
+                error!("should never happen! run doesn't have any hitbox frames");
+                (0, 0)
+            }
+            PlayerState::Attacking => match self.attack_state {
+                PlayerAttackState::Light1 => (0, 1),
+                PlayerAttackState::Light2 => (0, 1),
+            },
+            PlayerState::Recovering => {
+                error!("should never happen! recover doesn't have any hitbox frames");
+                (0, 0)
+            }
         }
     }
 }

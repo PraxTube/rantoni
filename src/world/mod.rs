@@ -1,4 +1,4 @@
-pub mod collision;
+pub mod collisions;
 
 use bevy::prelude::*;
 use bevy_rancic::prelude::*;
@@ -9,7 +9,7 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(collision::WorldCollisionPlugin)
+        app.add_plugins(collisions::WorldCollisionPlugin)
             .add_systems(OnExit(GameState::AssetLoading), (spawn_dummy_background,))
             .add_systems(
                 PostUpdate,

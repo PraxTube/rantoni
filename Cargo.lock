@@ -1118,8 +1118,7 @@ dependencies = [
 [[package]]
 name = "bevy_trickfilm"
 version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7458e49eeab58d527d77c14162a7023754632d82f271bcb5bff2caf3cafed215"
+source = "git+https://github.com/PraxTube/bevy_trickfilm?branch=main#55cb4a039c8d1162f5a1b5ba643391472f34f8a3"
 dependencies = [
  "bevy",
  "ron",
