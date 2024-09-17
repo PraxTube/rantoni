@@ -22,17 +22,8 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct Player {
     pub state_machine: PlayerStateMachine,
     pub punching_direction: Vec2,
-}
-
-impl FromWorld for Player {
-    fn from_world(world: &mut World) -> Self {
-        Self {
-            state_machine: PlayerStateMachine::from_world(world),
-            punching_direction: Vec2::ZERO,
-        }
-    }
 }

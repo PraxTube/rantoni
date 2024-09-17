@@ -3,9 +3,25 @@ use bevy_rancic::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::{world::collision::WORLD_GROUP, GameAssets, GameState};
+use crate::{
+    world::collision::{spawn_hitbox_collision, PLAYER_GROUP, WORLD_GROUP},
+    GameAssets, GameState,
+};
 
 use super::Player;
+
+fn spawn_player_hitboxes(commands: &mut Commands) -> Entity {
+    let hitboxes = [spawn_hitbox_collision(
+        commands,
+        Vec2::new(10.0, 3.0),
+        Collider::cuboid(8.0, 2.0),
+        PLAYER_GROUP,
+    )];
+    commands
+        .spawn(SpatialBundle::default())
+        .push_children(&hitboxes)
+        .id()
+}
 
 fn spawn_player(world: &mut World) {
     let collider = world
@@ -24,11 +40,11 @@ fn spawn_player(world: &mut World) {
         .play(world.resource::<GameAssets>().player_animations[0].clone())
         .repeat();
 
-    let player = Player::from_world(world);
+    let hitboxes = spawn_player_hitboxes(&mut world.commands());
 
     world
         .spawn((
-            player,
+            Player::default(),
             RigidBody::Dynamic,
             LockedAxes::ROTATION_LOCKED,
             Velocity::zero(),
@@ -41,7 +57,7 @@ fn spawn_player(world: &mut World) {
             },
             TextureAtlas::from(world.resource::<GameAssets>().player_layout.clone()),
         ))
-        .push_children(&[collider]);
+        .push_children(&[collider, hitboxes]);
 }
 
 pub struct PlayerSpawnPlugin;
