@@ -24,7 +24,8 @@
         duration: 0.15,
     ),
     "stagger": (
-        keyframes: KeyframesRange((start: 36, end: 37)),
-        duration: 0.3,
+        keyframes: KeyframesRange((start: 36, end: 38)),
+        keyframe_timestamps: Some([0.0, 0.1]),
+        duration: 10.0,
     ),
 }

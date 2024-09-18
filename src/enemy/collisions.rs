@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
+use bevy_trickfilm::prelude::*;
 
 use crate::{
     enemy::state::EnemyState,
@@ -14,8 +15,8 @@ use crate::{
 use super::Enemy;
 
 fn player_hitbox_collisions(
-    q_players: Query<&Transform, With<Player>>,
-    mut q_enemies: Query<(&Transform, &mut Enemy), Without<PlayerHitboxRoot>>,
+    q_players: Query<&Player>,
+    mut q_enemies: Query<(&mut AnimationPlayer2D, &mut Enemy), Without<PlayerHitboxRoot>>,
     q_hitboxes: Query<&Hitbox>,
     q_hurtboxes: Query<&Hurtbox>,
     mut ev_collision_events: EventReader<CollisionEvent>,
@@ -50,26 +51,25 @@ fn player_hitbox_collisions(
             continue;
         };
 
-        let Ok(player_transform) = q_players.get(player_hitbox.root_entity) else {
+        let Ok(player) = q_players.get(player_hitbox.root_entity) else {
             continue;
         };
 
-        let Ok((enemy_transform, mut enemy)) = q_enemies.get_mut(enemy_hurtbox.root_entity) else {
+        let Ok((mut animator, mut enemy)) = q_enemies.get_mut(enemy_hurtbox.root_entity) else {
             continue;
         };
-
-        let direction = (enemy_transform.translation - player_transform.translation)
-            .truncate()
-            .normalize_or_zero();
 
         if let HitboxType::Player(attack_state) = player_hitbox.hitbox_type {
+            if enemy.state == EnemyState::Staggering {
+                animator.replay();
+            }
             enemy.state = EnemyState::Staggering;
             match attack_state {
                 crate::player::PlayerAttackState::Light1 => {
-                    enemy.stagger = Stagger::new(direction, 0.3, 100.0);
+                    enemy.stagger = Stagger::new(player.aim_direction, 0.3, 50.0);
                 }
                 crate::player::PlayerAttackState::Light2 => {
-                    enemy.stagger = Stagger::new(direction, 0.3, 300.0);
+                    enemy.stagger = Stagger::new(player.aim_direction, 0.3, 250.0);
                 }
             }
         }
