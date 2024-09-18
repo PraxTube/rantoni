@@ -14,8 +14,8 @@ fn flip_player_sprite(player_input: Res<PlayerInput>, mut q_player: Query<(&Play
         if player_input.move_direction.x != 0.0 {
             sprite.flip_x = player_input.move_direction.x < 0.0;
         }
-    } else if player.punching_direction.x != 0.0 {
-        sprite.flip_x = player.punching_direction.x < 0.0;
+    } else if player.aim_direction.x != 0.0 {
+        sprite.flip_x = player.aim_direction.x < 0.0;
     }
 }
 

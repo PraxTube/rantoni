@@ -10,8 +10,10 @@ use crate::{
 
 use super::{Player, PlayerAttackState};
 
-#[derive(Component, Default)]
-pub struct PlayerHitboxRoot;
+#[derive(Component)]
+pub struct PlayerHitboxRoot {
+    pub root_entity: Entity,
+}
 
 fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Entity {
     let hitboxes = [spawn_hitbox_collision(
@@ -20,12 +22,18 @@ fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Enti
             player_entity,
             HitboxType::Player(PlayerAttackState::Light1),
             PLAYER_GROUP,
+            Vec2::new(10.0, 3.0),
+            true,
         ),
-        Vec2::new(10.0, 3.0),
         Collider::cuboid(8.0, 2.0),
     )];
     commands
-        .spawn((PlayerHitboxRoot::default(), TransformBundle::default()))
+        .spawn((
+            PlayerHitboxRoot {
+                root_entity: player_entity,
+            },
+            TransformBundle::default(),
+        ))
         .push_children(&hitboxes)
         .id()
 }

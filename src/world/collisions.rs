@@ -27,6 +27,8 @@ pub struct Hitbox {
     pub root_entity: Entity,
     pub hitbox_type: HitboxType,
     pub memberships: Group,
+    pub offset: Vec2,
+    pub horizontal: bool,
     filters: Group,
 }
 
@@ -36,11 +38,19 @@ pub struct Hurtbox {
 }
 
 impl Hitbox {
-    pub fn new(root_entity: Entity, hitbox_type: HitboxType, group: Group) -> Self {
+    pub fn new(
+        root_entity: Entity,
+        hitbox_type: HitboxType,
+        group: Group,
+        offset: Vec2,
+        horizontal: bool,
+    ) -> Self {
         Self {
             root_entity,
             hitbox_type,
             memberships: group,
+            offset,
+            horizontal,
             filters: HURTBOX_GROUP,
         }
     }
@@ -53,11 +63,11 @@ impl Hitbox {
 pub fn spawn_hitbox_collision(
     commands: &mut Commands,
     hitbox: Hitbox,
-    offset: Vec2,
     collider: Collider,
 ) -> Entity {
     let mut hitbox = hitbox.clone();
     hitbox.memberships |= HITBOX_GROUP;
+    let transform = Transform::from_translation(hitbox.offset.extend(0.0));
     commands
         .spawn((
             hitbox,
@@ -68,7 +78,7 @@ pub fn spawn_hitbox_collision(
             // HURTBOX for example and no events on the HITBOX
             ActiveEvents::COLLISION_EVENTS,
             COLLISION_GROUPS_NONE,
-            TransformBundle::from_transform(Transform::from_translation(offset.extend(0.0))),
+            TransformBundle::from_transform(transform),
         ))
         .id()
 }

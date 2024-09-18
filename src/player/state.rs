@@ -152,7 +152,7 @@ fn transition_punch_state(player_input: Res<PlayerInput>, mut q_player: Query<&m
     }
 
     if player_input.punched {
-        player.punching_direction = player_input.aim_direction;
+        player.aim_direction = player_input.aim_direction;
         if player
             .state_machine
             .attack_state_eq(PlayerAttackState::Light1)
