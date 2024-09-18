@@ -58,21 +58,6 @@ fn fetch_scroll_events(
     }
 }
 
-fn input_scroll(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {
-    let mut zoom = 0;
-    if keys.just_pressed(KeyCode::Backspace) {
-        zoom -= 1;
-    }
-    if keys.just_pressed(KeyCode::Minus) {
-        zoom += 1;
-    }
-    player_input.scroll = zoom;
-}
-
-fn input_escape(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {
-    player_input.escape = keys.just_pressed(KeyCode::Escape);
-}
-
 fn player_movement(
     keys: Res<ButtonInput<KeyCode>>,
     axes: Res<Axis<GamepadAxis>>,
@@ -159,38 +144,64 @@ fn player_aim_direction(
     player_input.aim_direction = dir.normalize_or_zero();
 }
 
-fn input_attacks(
+fn handle_keyboard_inputs(
     keys: Res<ButtonInput<KeyCode>>,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
+    mut player_input: ResMut<PlayerInput>,
+) {
+    let mut input = PlayerInput {
+        escape: keys.just_pressed(KeyCode::Escape),
+        toggle_fullscreen: keys.just_pressed(KeyCode::KeyB),
+        toggle_debug: keys.just_pressed(KeyCode::F3),
+        ..default()
+    };
+
+    input.light_attack =
+        keys.just_pressed(KeyCode::KeyL) || mouse_buttons.just_pressed(MouseButton::Left);
+    input.heavy_attack =
+        keys.just_pressed(KeyCode::KeyN) || mouse_buttons.just_pressed(MouseButton::Right);
+
+    let mut zoom = 0;
+    if keys.just_pressed(KeyCode::Backspace) {
+        zoom -= 1;
+    }
+    if keys.just_pressed(KeyCode::Minus) {
+        zoom += 1;
+    }
+    input.scroll = zoom;
+
+    *player_input |= input;
+}
+
+fn handle_gamepad_inputs(
     gamepad_buttons: Res<ButtonInput<GamepadButton>>,
     player_gamepad: Res<PlayerGamepad>,
     mut player_input: ResMut<PlayerInput>,
 ) {
-    let light_attack_controller = if let Some(gamepad) = player_gamepad.gamepad {
-        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::South))
-    } else {
-        false
-    };
-    let heavy_attack_controller = if let Some(gamepad) = player_gamepad.gamepad {
-        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::West))
-    } else {
-        false
+    let mut input = PlayerInput::default();
+    let Some(gamepad) = player_gamepad.gamepad else {
+        return;
     };
 
-    player_input.light_attack = keys.just_pressed(KeyCode::KeyL)
-        || mouse_buttons.just_pressed(MouseButton::Left)
-        || light_attack_controller;
-    player_input.heavy_attack = keys.just_pressed(KeyCode::KeyN)
-        || mouse_buttons.just_pressed(MouseButton::Right)
-        || heavy_attack_controller;
-}
+    input.light_attack =
+        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::South));
+    input.heavy_attack =
+        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::West));
+    input.toggle_fullscreen =
+        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::DPadDown));
+    input.toggle_debug =
+        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::DPadUp));
 
-fn toggle_fullscreen(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {
-    player_input.toggle_fullscreen = keys.just_pressed(KeyCode::KeyB);
-}
+    let mut zoom = 0;
+    if gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::DPadLeft)) {
+        zoom -= 1;
+    }
+    if gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::DPadRight)) {
+        zoom += 1;
+    }
+    input.scroll = zoom;
 
-fn toggle_debug(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {
-    player_input.toggle_debug = keys.just_pressed(KeyCode::F3);
+    *player_input |= input;
 }
 
 pub struct InputControllerPlugin;
@@ -202,13 +213,10 @@ impl Plugin for InputControllerPlugin {
             (
                 fetch_mouse_world_coords,
                 fetch_scroll_events,
-                input_scroll,
-                input_escape,
-                input_attacks,
-                toggle_fullscreen,
-                toggle_debug,
                 player_movement,
                 player_aim_direction,
+                handle_keyboard_inputs,
+                handle_gamepad_inputs,
             )
                 .chain()
                 .run_if(in_state(GameState::Gaming))

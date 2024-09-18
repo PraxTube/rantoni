@@ -24,7 +24,7 @@ impl Default for InputTimeline {
                     false,
                     3.0,
                     PlayerInput {
-                        punched: true,
+                        light_attack: true,
                         aim_direction: Vec2::new(1.0, 0.0),
                         ..default()
                     },
@@ -33,7 +33,7 @@ impl Default for InputTimeline {
                     false,
                     3.2,
                     PlayerInput {
-                        punched: true,
+                        light_attack: true,
                         aim_direction: Vec2::new(-1.0, 0.0),
                         ..default()
                     },
@@ -42,7 +42,7 @@ impl Default for InputTimeline {
                     false,
                     4.0,
                     PlayerInput {
-                        punched: true,
+                        light_attack: true,
                         aim_direction: Vec2::new(-1.0, 0.0),
                         ..default()
                     },
@@ -51,7 +51,7 @@ impl Default for InputTimeline {
                     false,
                     4.26,
                     PlayerInput {
-                        punched: true,
+                        heavy_attack: true,
                         aim_direction: Vec2::new(1.0, 0.0),
                         ..default()
                     },
@@ -60,7 +60,7 @@ impl Default for InputTimeline {
                     false,
                     5.0,
                     PlayerInput {
-                        punched: true,
+                        light_attack: true,
                         aim_direction: Vec2::new(0.0, 0.0),
                         ..default()
                     },
@@ -69,7 +69,7 @@ impl Default for InputTimeline {
                     false,
                     5.5,
                     PlayerInput {
-                        punched: true,
+                        heavy_attack: true,
                         aim_direction: Vec2::new(-0.0001, 0.0),
                         ..default()
                     },

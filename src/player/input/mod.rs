@@ -1,4 +1,3 @@
-#[cfg(feature = "auto_input")]
 mod auto_input;
 mod gamepad;
 #[cfg(not(feature = "auto_input"))]
