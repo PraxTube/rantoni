@@ -1,4 +1,5 @@
 pub mod collisions;
+pub mod stagger;
 
 use bevy::prelude::*;
 use bevy_rancic::prelude::*;

@@ -2,8 +2,12 @@ use bevy::prelude::*;
 use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 
 use crate::{
+    enemy::state::EnemyState,
     player::{Player, PlayerHitboxRoot},
-    world::collisions::{Hitbox, HitboxType, Hurtbox},
+    world::{
+        collisions::{Hitbox, HitboxType, Hurtbox},
+        stagger::Stagger,
+    },
     GameState,
 };
 
@@ -50,21 +54,25 @@ fn player_hitbox_collisions(
             continue;
         };
 
-        let Ok((enemy_transform, _)) = q_enemies.get_mut(enemy_hurtbox.root_entity) else {
+        let Ok((enemy_transform, mut enemy)) = q_enemies.get_mut(enemy_hurtbox.root_entity) else {
             continue;
         };
 
-        if let HitboxType::Player(attack_state) = player_hitbox.hitbox_type {
-            match attack_state {
-                crate::player::PlayerAttackState::Light1 => info!("first"),
-                crate::player::PlayerAttackState::Light2 => info!("second"),
-            }
-        }
-
-        let dir = (enemy_transform.translation - player_transform.translation)
+        let direction = (enemy_transform.translation - player_transform.translation)
             .truncate()
             .normalize_or_zero();
-        info!("{}", dir);
+
+        if let HitboxType::Player(attack_state) = player_hitbox.hitbox_type {
+            enemy.state = EnemyState::Staggering;
+            match attack_state {
+                crate::player::PlayerAttackState::Light1 => {
+                    enemy.stagger = Stagger::new(direction, 0.3, 100.0);
+                }
+                crate::player::PlayerAttackState::Light2 => {
+                    enemy.stagger = Stagger::new(direction, 0.3, 300.0);
+                }
+            }
+        }
     }
 }
 

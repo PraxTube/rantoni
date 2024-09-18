@@ -19,6 +19,7 @@ pub struct GameAssets {
             "player/player.trickfilm.ron#punch1recover",
             "player/player.trickfilm.ron#punch2",
             "player/player.trickfilm.ron#punch2recover",
+            "player/player.trickfilm.ron#stagger",
         ),
         collection(typed)
     )]

@@ -23,4 +23,8 @@
         keyframes: KeyframesRange((start: 5, end: 6)),
         duration: 0.15,
     ),
+    "stagger": (
+        keyframes: KeyframesRange((start: 36, end: 37)),
+        duration: 0.3,
+    ),
 }
