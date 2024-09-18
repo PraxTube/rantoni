@@ -16,17 +16,30 @@ pub struct PlayerHitboxRoot {
 }
 
 fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Entity {
-    let hitboxes = [spawn_hitbox_collision(
-        commands,
-        Hitbox::new(
-            player_entity,
-            HitboxType::Player(PlayerAttackState::Light1),
-            PLAYER_GROUP,
-            Vec2::new(10.0, 3.0),
-            true,
+    let hitboxes = [
+        spawn_hitbox_collision(
+            commands,
+            Hitbox::new(
+                player_entity,
+                HitboxType::Player(PlayerAttackState::Light1),
+                PLAYER_GROUP,
+                Vec2::new(10.0, 3.0),
+                true,
+            ),
+            Collider::cuboid(8.0, 2.0),
         ),
-        Collider::cuboid(8.0, 2.0),
-    )];
+        spawn_hitbox_collision(
+            commands,
+            Hitbox::new(
+                player_entity,
+                HitboxType::Player(PlayerAttackState::Light2),
+                PLAYER_GROUP,
+                Vec2::new(8.0, 1.0),
+                true,
+            ),
+            Collider::cuboid(8.0, 2.0),
+        ),
+    ];
     commands
         .spawn((
             PlayerHitboxRoot {

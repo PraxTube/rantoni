@@ -54,9 +54,11 @@ fn player_hitbox_collisions(
             continue;
         };
 
-        if player_hitbox.hitbox_type == HitboxType::Player(crate::player::PlayerAttackState::Light1)
-        {
-            info!("seikai");
+        if let HitboxType::Player(attack_state) = player_hitbox.hitbox_type {
+            match attack_state {
+                crate::player::PlayerAttackState::Light1 => info!("first"),
+                crate::player::PlayerAttackState::Light2 => info!("second"),
+            }
         }
 
         let dir = (enemy_transform.translation - player_transform.translation)

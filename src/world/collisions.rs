@@ -14,6 +14,8 @@ pub const ENEMY_GROUP: Group = Group::GROUP_5;
 pub enum HitboxType {
     Player(PlayerAttackState),
     // Enemy(EnemyHitbox),
+    #[allow(dead_code)]
+    Placeholder,
 }
 
 #[derive(PartialEq, Eq, Clone)]
