@@ -52,6 +52,16 @@ impl BitOrAssign for PlayerInput {
         if self.aim_direction == Vec2::ZERO {
             self.aim_direction = rhs.aim_direction;
         }
+        if self.mouse_world_coords == Vec2::ZERO {
+            self.mouse_world_coords = rhs.mouse_world_coords;
+        }
+        if self.scroll == 0 {
+            self.scroll = rhs.scroll;
+        }
+
+        self.escape |= rhs.escape;
+        self.toggle_debug |= rhs.toggle_debug;
+        self.toggle_fullscreen |= rhs.toggle_fullscreen;
     }
 }
 

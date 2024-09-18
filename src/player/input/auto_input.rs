@@ -14,6 +14,14 @@ impl Default for InputTimeline {
             single_fire: vec![
                 (
                     false,
+                    0.1,
+                    PlayerInput {
+                        toggle_debug: true,
+                        ..default()
+                    },
+                ),
+                (
+                    false,
                     3.0,
                     PlayerInput {
                         punched: true,
@@ -48,6 +56,24 @@ impl Default for InputTimeline {
                         ..default()
                     },
                 ),
+                (
+                    false,
+                    5.0,
+                    PlayerInput {
+                        punched: true,
+                        aim_direction: Vec2::new(0.0, 0.0),
+                        ..default()
+                    },
+                ),
+                (
+                    false,
+                    5.5,
+                    PlayerInput {
+                        punched: true,
+                        aim_direction: Vec2::new(-0.0001, 0.0),
+                        ..default()
+                    },
+                ),
             ],
             continues_action: vec![
                 (
@@ -71,7 +97,7 @@ impl Default for InputTimeline {
     }
 }
 
-fn move_player(
+fn relay_input_timeline(
     time: Res<Time>,
     mut player_input: ResMut<PlayerInput>,
     mut input_timeline: ResMut<InputTimeline>,
@@ -98,6 +124,6 @@ pub struct InputTestingPlugin;
 impl Plugin for InputTestingPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<InputTimeline>()
-            .add_systems(PreUpdate, move_player.after(InputSystem));
+            .add_systems(PreUpdate, relay_input_timeline.after(InputSystem));
     }
 }
