@@ -1,8 +1,8 @@
+#[cfg(feature = "auto_input")]
+mod auto_input;
 mod gamepad;
 #[cfg(not(feature = "auto_input"))]
 mod handler;
-// #[cfg(feature = "auto_input")]
-mod auto_input;
 mod relay;
 
 use std::ops::BitOrAssign;
@@ -32,8 +32,9 @@ pub struct PlayerInput {
     pub escape: bool,
 
     pub move_direction: Vec2,
-    pub punched: bool,
     pub aim_direction: Vec2,
+    pub light_attack: bool,
+    pub heavy_attack: bool,
 
     pub mouse_world_coords: Vec2,
 
@@ -46,8 +47,11 @@ impl BitOrAssign for PlayerInput {
         if self.move_direction == Vec2::ZERO {
             self.move_direction = rhs.move_direction;
         }
-        if !self.punched {
-            self.punched = rhs.punched;
+        if !self.light_attack {
+            self.light_attack = rhs.light_attack;
+        }
+        if !self.heavy_attack {
+            self.heavy_attack = rhs.heavy_attack;
         }
         if self.aim_direction == Vec2::ZERO {
             self.aim_direction = rhs.aim_direction;

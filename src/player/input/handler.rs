@@ -159,21 +159,30 @@ fn player_aim_direction(
     player_input.aim_direction = dir.normalize_or_zero();
 }
 
-fn input_punched(
+fn input_attacks(
     keys: Res<ButtonInput<KeyCode>>,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
     gamepad_buttons: Res<ButtonInput<GamepadButton>>,
     player_gamepad: Res<PlayerGamepad>,
     mut player_input: ResMut<PlayerInput>,
 ) {
-    let controller_action = if let Some(gamepad) = player_gamepad.gamepad {
+    let light_attack_controller = if let Some(gamepad) = player_gamepad.gamepad {
+        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::South))
+    } else {
+        false
+    };
+    let heavy_attack_controller = if let Some(gamepad) = player_gamepad.gamepad {
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::West))
     } else {
         false
     };
-    player_input.punched = keys.just_pressed(KeyCode::KeyL)
+
+    player_input.light_attack = keys.just_pressed(KeyCode::KeyL)
         || mouse_buttons.just_pressed(MouseButton::Left)
-        || controller_action;
+        || light_attack_controller;
+    player_input.heavy_attack = keys.just_pressed(KeyCode::KeyN)
+        || mouse_buttons.just_pressed(MouseButton::Right)
+        || heavy_attack_controller;
 }
 
 fn toggle_fullscreen(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {
@@ -195,7 +204,7 @@ impl Plugin for InputControllerPlugin {
                 fetch_scroll_events,
                 input_scroll,
                 input_escape,
-                input_punched,
+                input_attacks,
                 toggle_fullscreen,
                 toggle_debug,
                 player_movement,
