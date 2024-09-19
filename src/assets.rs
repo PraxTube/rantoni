@@ -22,6 +22,8 @@ pub struct GameAssets {
             "player/player.trickfilm.ron#stagger",
             "player/player.trickfilm.ron#kick1",
             "player/player.trickfilm.ron#kick1recover",
+            "player/player.trickfilm.ron#kick2",
+            "player/player.trickfilm.ron#kick2recover",
         ),
         collection(typed)
     )]

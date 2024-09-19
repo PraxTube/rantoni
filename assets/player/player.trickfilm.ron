@@ -31,6 +31,14 @@
         keyframes: KeyframesRange((start: 22, end: 23)),
         duration: 0.2,
     ),
+    "kick2": (
+        keyframes: KeyframesRange((start: 23, end: 25)),
+        duration: 0.5,
+    ),
+    "kick2recover": (
+        keyframes: KeyframesRange((start: 25, end: 27)),
+        duration: 0.3,
+    ),
     "stagger": (
         keyframes: KeyframesRange((start: 36, end: 38)),
         keyframe_timestamps: Some([0.0, 0.1]),
