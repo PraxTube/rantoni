@@ -72,7 +72,10 @@ fn player_hitbox_collisions(
                     enemy.stagger = Stagger::new(player.aim_direction, 0.3, 250.0);
                 }
                 PlayerAttackState::Heavy1 => {
-                    enemy.stagger = Stagger::new(player.aim_direction, 0.35, 350.0);
+                    enemy.stagger = Stagger::new(player.aim_direction, 0.3, 0.0);
+                }
+                PlayerAttackState::Heavy2 => {
+                    enemy.stagger = Stagger::new(player.aim_direction, 0.35, 500.0);
                 }
             }
         }

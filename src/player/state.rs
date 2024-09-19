@@ -20,6 +20,7 @@ pub enum PlayerAttackState {
     Light1,
     Light2,
     Heavy1,
+    Heavy2,
 }
 
 #[derive(Debug, Default, PartialEq, Clone, Copy)]
@@ -50,9 +51,7 @@ impl PlayerStateMachine {
     }
 
     pub fn can_punch(&self) -> bool {
-        self.can_run()
-            || self.state == PlayerState::Attacking
-                && self.attack_state == PlayerAttackState::Light1
+        self.can_run() || self.state == PlayerState::Attacking
     }
 
     pub fn state(&self) -> PlayerState {
@@ -116,7 +115,12 @@ impl PlayerStateMachine {
                 ChainAttack::Heavy => self.set_attack_state(PlayerAttackState::Heavy1),
             },
             PlayerAttackState::Light2 => self.set_state(PlayerState::Recovering),
-            PlayerAttackState::Heavy1 => self.set_state(PlayerState::Recovering),
+            PlayerAttackState::Heavy1 => match self.chain_attack() {
+                ChainAttack::None => panic!("should never happen!"),
+                ChainAttack::Light => self.set_attack_state(PlayerAttackState::Light2),
+                ChainAttack::Heavy => self.set_attack_state(PlayerAttackState::Heavy2),
+            },
+            PlayerAttackState::Heavy2 => self.set_state(PlayerState::Recovering),
         };
         self.set_chain_attack(ChainAttack::None);
     }
@@ -129,11 +133,13 @@ impl PlayerStateMachine {
                 PlayerAttackState::Light1 => (assets.player_animations[2].clone(), false),
                 PlayerAttackState::Light2 => (assets.player_animations[4].clone(), false),
                 PlayerAttackState::Heavy1 => (assets.player_animations[7].clone(), false),
+                PlayerAttackState::Heavy2 => (assets.player_animations[9].clone(), false),
             },
             PlayerState::Recovering => match self.attack_state {
                 PlayerAttackState::Light1 => (assets.player_animations[3].clone(), false),
                 PlayerAttackState::Light2 => (assets.player_animations[5].clone(), false),
                 PlayerAttackState::Heavy1 => (assets.player_animations[8].clone(), false),
+                PlayerAttackState::Heavy2 => (assets.player_animations[10].clone(), false),
             },
         }
     }
@@ -152,6 +158,7 @@ impl PlayerStateMachine {
                 PlayerAttackState::Light1 => (0, 1),
                 PlayerAttackState::Light2 => (0, 1),
                 PlayerAttackState::Heavy1 => (1, 2),
+                PlayerAttackState::Heavy2 => (1, 2),
             },
             PlayerState::Recovering => {
                 error!("should never happen! recover doesn't have any hitbox frames");
@@ -177,27 +184,26 @@ fn transition_punch_state(player_input: Res<PlayerInput>, mut q_player: Query<&m
         player.aim_direction = player_input.aim_direction;
     }
 
-    if player_input.light_attack {
-        if player
-            .state_machine
-            .attack_state_eq(PlayerAttackState::Light1)
-        {
-            player.state_machine.set_chain_attack(ChainAttack::Light);
-        } else {
-            player
-                .state_machine
-                .set_attack_state(PlayerAttackState::Light1);
-        }
+    let chain_attack = if player_input.light_attack {
+        ChainAttack::Light
     } else if player_input.heavy_attack {
-        if player
-            .state_machine
-            .attack_state_eq(PlayerAttackState::Light1)
-        {
-            player.state_machine.set_chain_attack(ChainAttack::Heavy);
-        } else {
-            player
+        ChainAttack::Heavy
+    } else {
+        return;
+    };
+
+    if player.state_machine.state() == PlayerState::Attacking {
+        assert_ne!(chain_attack, ChainAttack::None);
+        player.state_machine.set_chain_attack(chain_attack);
+    } else {
+        match chain_attack {
+            ChainAttack::None => {}
+            ChainAttack::Light => player
                 .state_machine
-                .set_attack_state(PlayerAttackState::Heavy1);
+                .set_attack_state(PlayerAttackState::Light1),
+            ChainAttack::Heavy => player
+                .state_machine
+                .set_attack_state(PlayerAttackState::Heavy1),
         }
     }
 }
