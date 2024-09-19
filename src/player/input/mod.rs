@@ -21,11 +21,18 @@ impl Plugin for InputPlugin {
             gamepad::InputGamepadPlugin,
         ))
         .init_resource::<PlayerInput>()
+        .insert_resource(InputDevice::MouseKeyboard)
         .add_systems(PreUpdate, reset_player_input.before(InputSystem));
     }
 }
 
-#[derive(Resource, Default, Clone, Copy)]
+#[derive(Resource, PartialEq)]
+enum InputDevice {
+    MouseKeyboard,
+    Gamepad,
+}
+
+#[derive(Resource, Default, Clone, Copy, PartialEq)]
 pub struct PlayerInput {
     pub scroll: i32,
     pub escape: bool,

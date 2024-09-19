@@ -173,8 +173,11 @@ fn transition_punch_state(player_input: Res<PlayerInput>, mut q_player: Query<&m
         return;
     }
 
-    if player_input.light_attack {
+    if player_input.aim_direction != Vec2::ZERO {
         player.aim_direction = player_input.aim_direction;
+    }
+
+    if player_input.light_attack {
         if player
             .state_machine
             .attack_state_eq(PlayerAttackState::Light1)
@@ -186,7 +189,6 @@ fn transition_punch_state(player_input: Res<PlayerInput>, mut q_player: Query<&m
                 .set_attack_state(PlayerAttackState::Light1);
         }
     } else if player_input.heavy_attack {
-        player.aim_direction = player_input.aim_direction;
         if player
             .state_machine
             .attack_state_eq(PlayerAttackState::Light1)

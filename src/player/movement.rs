@@ -22,7 +22,7 @@ fn move_player(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &mu
 
     let speed = match player.state_machine.state() {
         PlayerState::Idling => 0.0,
-        PlayerState::Running => 300.0,
+        PlayerState::Running => 250.0,
         PlayerState::Attacking => 0.0,
         PlayerState::Recovering => 0.0,
     };
