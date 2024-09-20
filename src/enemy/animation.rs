@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::GameAssets;
+use crate::{world::stagger::StaggerState, GameAssets};
 
 use super::{
     state::{EnemyState, EnemyStateSystemSet},
@@ -27,7 +27,10 @@ fn update_animations(
     for (mut animator, enemy) in &mut q_enemies {
         let animation = match enemy.state {
             EnemyState::Idling => assets.player_animations[0].clone(),
-            EnemyState::Staggering => assets.player_animations[6].clone(),
+            EnemyState::Staggering => match enemy.stagger.state {
+                StaggerState::Normal => assets.player_animations[6].clone(),
+                StaggerState::Flying => assets.player_animations[13].clone(),
+            },
         };
 
         animator.play(animation).repeat();

@@ -39,8 +39,21 @@
         keyframes: KeyframesRange((start: 25, end: 27)),
         duration: 0.3,
     ),
-    "stagger": (
+    "stagger-normal": (
         keyframes: KeyframesRange((start: 36, end: 38)),
+        keyframe_timestamps: Some([0.0, 0.1]),
+        duration: 10.0,
+    ),
+    "punch3": (
+        keyframes: KeyframesRange((start: 6, end: 9)),
+        duration: 0.35,
+    ),
+    "punch3recover": (
+        keyframes: KeyframesRange((start: 9, end: 10)),
+        duration: 0.15,
+    ),
+    "stagger-flying": (
+        keyframes: KeyframesRange((start: 38, end: 40)),
         keyframe_timestamps: Some([0.0, 0.1]),
         duration: 10.0,
     ),

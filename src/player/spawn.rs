@@ -43,6 +43,17 @@ fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Enti
             commands,
             Hitbox::new(
                 player_entity,
+                HitboxType::Player(PlayerAttackState::Light3),
+                PLAYER_GROUP,
+                Vec2::new(12.0, 1.0),
+                true,
+            ),
+            Collider::cuboid(5.0, 12.0),
+        ),
+        spawn_hitbox_collision(
+            commands,
+            Hitbox::new(
+                player_entity,
                 HitboxType::Player(PlayerAttackState::Heavy1),
                 PLAYER_GROUP,
                 Vec2::new(12.0, -10.0),

@@ -19,11 +19,14 @@ pub struct GameAssets {
             "player/player.trickfilm.ron#punch1recover",
             "player/player.trickfilm.ron#punch2",
             "player/player.trickfilm.ron#punch2recover",
-            "player/player.trickfilm.ron#stagger",
+            "player/player.trickfilm.ron#stagger-normal",
             "player/player.trickfilm.ron#kick1",
             "player/player.trickfilm.ron#kick1recover",
             "player/player.trickfilm.ron#kick2",
             "player/player.trickfilm.ron#kick2recover",
+            "player/player.trickfilm.ron#punch3",
+            "player/player.trickfilm.ron#punch3recover",
+            "player/player.trickfilm.ron#stagger-flying",
         ),
         collection(typed)
     )]

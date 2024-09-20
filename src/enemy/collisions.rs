@@ -7,7 +7,7 @@ use crate::{
     player::{Player, PlayerAttackState, PlayerHitboxRoot},
     world::{
         collisions::{Hitbox, HitboxType, Hurtbox},
-        stagger::Stagger,
+        stagger::{Stagger, StaggerState},
     },
     GameState,
 };
@@ -66,16 +66,24 @@ fn player_hitbox_collisions(
             enemy.state = EnemyState::Staggering;
             match attack_state {
                 PlayerAttackState::Light1 => {
-                    enemy.stagger = Stagger::new(player.aim_direction, 0.3, 50.0);
+                    enemy.stagger =
+                        Stagger::new(StaggerState::Normal, player.aim_direction, 0.3, 50.0);
                 }
                 PlayerAttackState::Light2 => {
-                    enemy.stagger = Stagger::new(player.aim_direction, 0.3, 250.0);
+                    enemy.stagger =
+                        Stagger::new(StaggerState::Normal, player.aim_direction, 0.3, 250.0);
+                }
+                PlayerAttackState::Light3 => {
+                    enemy.stagger =
+                        Stagger::new(StaggerState::Flying, player.aim_direction, 0.2, 0.0);
                 }
                 PlayerAttackState::Heavy1 => {
-                    enemy.stagger = Stagger::new(player.aim_direction, 0.3, 0.0);
+                    enemy.stagger =
+                        Stagger::new(StaggerState::Normal, player.aim_direction, 0.3, 0.0);
                 }
                 PlayerAttackState::Heavy2 => {
-                    enemy.stagger = Stagger::new(player.aim_direction, 0.35, 500.0);
+                    enemy.stagger =
+                        Stagger::new(StaggerState::Normal, player.aim_direction, 0.35, 500.0);
                 }
             }
         }

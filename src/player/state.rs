@@ -21,6 +21,7 @@ pub enum PlayerAttackState {
     #[default]
     Light1,
     Light2,
+    Light3,
     Heavy1,
     Heavy2,
 }
@@ -154,7 +155,12 @@ impl PlayerStateMachine {
                 Attack::Light => Some(PlayerAttackState::Light2),
                 Attack::Heavy => Some(PlayerAttackState::Heavy1),
             },
-            PlayerAttackState::Light2 => None,
+            PlayerAttackState::Light2 => match attack {
+                Attack::None => panic!("should never happen!"),
+                Attack::Light => Some(PlayerAttackState::Light3),
+                Attack::Heavy => None,
+            },
+            PlayerAttackState::Light3 => None,
             PlayerAttackState::Heavy1 => match attack {
                 Attack::None => panic!("should never happen!"),
                 Attack::Light => Some(PlayerAttackState::Light2),
@@ -205,12 +211,14 @@ impl PlayerStateMachine {
             PlayerState::Attacking => match self.attack_state() {
                 PlayerAttackState::Light1 => (assets.player_animations[2].clone(), false),
                 PlayerAttackState::Light2 => (assets.player_animations[4].clone(), false),
+                PlayerAttackState::Light3 => (assets.player_animations[11].clone(), false),
                 PlayerAttackState::Heavy1 => (assets.player_animations[7].clone(), false),
                 PlayerAttackState::Heavy2 => (assets.player_animations[9].clone(), false),
             },
             PlayerState::Recovering => match self.attack_state() {
                 PlayerAttackState::Light1 => (assets.player_animations[3].clone(), false),
                 PlayerAttackState::Light2 => (assets.player_animations[5].clone(), false),
+                PlayerAttackState::Light3 => (assets.player_animations[12].clone(), false),
                 PlayerAttackState::Heavy1 => (assets.player_animations[8].clone(), false),
                 PlayerAttackState::Heavy2 => (assets.player_animations[10].clone(), false),
             },
@@ -230,6 +238,7 @@ impl PlayerStateMachine {
             PlayerState::Attacking => match self.attack_state() {
                 PlayerAttackState::Light1 => (0, 1),
                 PlayerAttackState::Light2 => (0, 1),
+                PlayerAttackState::Light3 => (1, 2),
                 PlayerAttackState::Heavy1 => (1, 2),
                 PlayerAttackState::Heavy2 => (1, 2),
             },
