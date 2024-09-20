@@ -10,6 +10,7 @@ pub enum Attack {
     Light3,
     Heavy1,
     Heavy2,
+    Heavy3,
 }
 
 #[derive(Debug, Default, PartialEq, Clone, Copy)]

@@ -57,4 +57,12 @@
         keyframe_timestamps: Some([0.0, 0.1]),
         duration: 10.0,
     ),
+    "kick3": (
+        keyframes: KeyframesRange((start: 27, end: 29)),
+        duration: 0.4,
+    ),
+    "kick3recover": (
+        keyframes: KeyframesRange((start: 29, end: 30)),
+        duration: 0.15,
+    ),
 }

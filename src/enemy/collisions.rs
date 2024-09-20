@@ -85,6 +85,10 @@ fn player_hitbox_collisions(
                     enemy.stagger =
                         Stagger::new(StaggerState::Normal, player.aim_direction, 0.35, 500.0);
                 }
+                Attack::Heavy3 => {
+                    enemy.stagger =
+                        Stagger::new(StaggerState::Normal, player.aim_direction, 0.25, 700.0);
+                }
             }
         }
     }

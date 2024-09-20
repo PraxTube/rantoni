@@ -106,15 +106,24 @@ impl PlayerStateMachine {
             Attack::Light2 => match attack_form {
                 AttackForm::None => panic!("should never happen!"),
                 AttackForm::Light => Some(Attack::Light3),
-                AttackForm::Heavy => None,
+                AttackForm::Heavy => Some(Attack::Heavy3),
             },
-            Attack::Light3 => None,
+            Attack::Light3 => match attack_form {
+                AttackForm::None => panic!("should never happen!"),
+                AttackForm::Light => None,
+                AttackForm::Heavy => Some(Attack::Heavy2),
+            },
             Attack::Heavy1 => match attack_form {
                 AttackForm::None => panic!("should never happen!"),
                 AttackForm::Light => Some(Attack::Light2),
                 AttackForm::Heavy => Some(Attack::Heavy2),
             },
-            Attack::Heavy2 => None,
+            Attack::Heavy2 => match attack_form {
+                AttackForm::None => panic!("should never happen!"),
+                AttackForm::Light => None,
+                AttackForm::Heavy => Some(Attack::Heavy3),
+            },
+            Attack::Heavy3 => None,
         }
     }
 
@@ -162,6 +171,7 @@ impl PlayerStateMachine {
                 Attack::Light3 => (assets.player_animations[11].clone(), false),
                 Attack::Heavy1 => (assets.player_animations[7].clone(), false),
                 Attack::Heavy2 => (assets.player_animations[9].clone(), false),
+                Attack::Heavy3 => (assets.player_animations[14].clone(), false),
             },
             PlayerState::Recovering => match self.attack() {
                 Attack::Light1 => (assets.player_animations[3].clone(), false),
@@ -169,6 +179,7 @@ impl PlayerStateMachine {
                 Attack::Light3 => (assets.player_animations[12].clone(), false),
                 Attack::Heavy1 => (assets.player_animations[8].clone(), false),
                 Attack::Heavy2 => (assets.player_animations[10].clone(), false),
+                Attack::Heavy3 => (assets.player_animations[15].clone(), false),
             },
         }
     }
@@ -189,6 +200,7 @@ impl PlayerStateMachine {
                 Attack::Light3 => (1, 2),
                 Attack::Heavy1 => (1, 2),
                 Attack::Heavy2 => (1, 2),
+                Attack::Heavy3 => (1, 2),
             },
             PlayerState::Recovering => {
                 error!("should never happen! recover doesn't have any hitbox frames");
