@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::*;
 use crate::GameState;
 
 use super::input::PlayerInput;
-use super::state::{PlayerAttackState, PlayerState};
+use super::state::{Attack, PlayerState};
 use super::Player;
 
 fn reset_velocity(mut q_player: Query<&mut Velocity, With<Player>>) {
@@ -36,15 +36,9 @@ fn move_player_punching(mut q_player: Query<(&Player, &mut Velocity)>) {
         return;
     };
 
-    if player
-        .state_machine
-        .attack_state_eq(PlayerAttackState::Light1)
-    {
+    if player.state_machine.attack_eq(Attack::Light1) {
         velocity.linvel = player.aim_direction * 50.0;
-    } else if player
-        .state_machine
-        .attack_state_eq(PlayerAttackState::Light2)
-    {
+    } else if player.state_machine.attack_eq(Attack::Light2) {
         velocity.linvel = player.aim_direction * 250.0;
     }
 }

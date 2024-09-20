@@ -4,7 +4,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{
     enemy::state::EnemyState,
-    player::{Player, PlayerAttackState, PlayerHitboxRoot},
+    player::{Attack, Player, PlayerHitboxRoot},
     world::{
         collisions::{Hitbox, HitboxType, Hurtbox},
         stagger::{Stagger, StaggerState},
@@ -59,29 +59,29 @@ fn player_hitbox_collisions(
             continue;
         };
 
-        if let HitboxType::Player(attack_state) = player_hitbox.hitbox_type {
+        if let HitboxType::Player(attack) = player_hitbox.hitbox_type {
             if enemy.state == EnemyState::Staggering {
                 animator.replay();
             }
             enemy.state = EnemyState::Staggering;
-            match attack_state {
-                PlayerAttackState::Light1 => {
+            match attack {
+                Attack::Light1 => {
                     enemy.stagger =
                         Stagger::new(StaggerState::Normal, player.aim_direction, 0.3, 50.0);
                 }
-                PlayerAttackState::Light2 => {
+                Attack::Light2 => {
                     enemy.stagger =
                         Stagger::new(StaggerState::Normal, player.aim_direction, 0.3, 250.0);
                 }
-                PlayerAttackState::Light3 => {
+                Attack::Light3 => {
                     enemy.stagger =
                         Stagger::new(StaggerState::Flying, player.aim_direction, 0.2, 0.0);
                 }
-                PlayerAttackState::Heavy1 => {
+                Attack::Heavy1 => {
                     enemy.stagger =
                         Stagger::new(StaggerState::Normal, player.aim_direction, 0.3, 0.0);
                 }
-                PlayerAttackState::Heavy2 => {
+                Attack::Heavy2 => {
                     enemy.stagger =
                         Stagger::new(StaggerState::Normal, player.aim_direction, 0.35, 500.0);
                 }

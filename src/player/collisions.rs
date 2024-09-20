@@ -21,7 +21,7 @@ fn toggle_hitboxes(
                 continue;
             }
 
-            if hitbox.hitbox_type == HitboxType::Player(player.state_machine.attack_state()) {
+            if hitbox.hitbox_type == HitboxType::Player(player.state_machine.attack()) {
                 let (start_frame, end_frame) = player.state_machine.state_hitbox_frames();
 
                 if animator.frame() == start_frame {

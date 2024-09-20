@@ -8,7 +8,7 @@ use crate::{
     GameAssets, GameState,
 };
 
-use super::{Player, PlayerAttackState};
+use super::{Attack, Player};
 
 #[derive(Component)]
 pub struct PlayerHitboxRoot {
@@ -21,7 +21,7 @@ fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Enti
             commands,
             Hitbox::new(
                 player_entity,
-                HitboxType::Player(PlayerAttackState::Light1),
+                HitboxType::Player(Attack::Light1),
                 PLAYER_GROUP,
                 Vec2::new(10.0, 3.0),
                 true,
@@ -32,7 +32,7 @@ fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Enti
             commands,
             Hitbox::new(
                 player_entity,
-                HitboxType::Player(PlayerAttackState::Light2),
+                HitboxType::Player(Attack::Light2),
                 PLAYER_GROUP,
                 Vec2::new(8.0, 1.0),
                 true,
@@ -43,7 +43,7 @@ fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Enti
             commands,
             Hitbox::new(
                 player_entity,
-                HitboxType::Player(PlayerAttackState::Light3),
+                HitboxType::Player(Attack::Light3),
                 PLAYER_GROUP,
                 Vec2::new(12.0, 1.0),
                 true,
@@ -54,7 +54,7 @@ fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Enti
             commands,
             Hitbox::new(
                 player_entity,
-                HitboxType::Player(PlayerAttackState::Heavy1),
+                HitboxType::Player(Attack::Heavy1),
                 PLAYER_GROUP,
                 Vec2::new(12.0, -10.0),
                 true,
@@ -65,7 +65,7 @@ fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Enti
             commands,
             Hitbox::new(
                 player_entity,
-                HitboxType::Player(PlayerAttackState::Heavy2),
+                HitboxType::Player(Attack::Heavy2),
                 PLAYER_GROUP,
                 Vec2::new(14.0, -8.0),
                 true,

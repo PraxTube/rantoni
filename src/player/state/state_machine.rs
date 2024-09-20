@@ -5,7 +5,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::GameAssets;
 
-use super::{Attack, AttackHandler, PlayerAttackState, PlayerState};
+use super::{Attack, AttackForm, AttackHandler, PlayerState};
 
 #[derive(Component, Default)]
 pub struct PlayerStateMachine {
@@ -45,30 +45,31 @@ impl PlayerStateMachine {
         self.state = state;
     }
 
-    pub fn attack_state(&self) -> PlayerAttackState {
-        self.attack_handler.attack_state()
+    pub fn attack(&self) -> Attack {
+        self.attack_handler.attack()
     }
 
-    pub fn attack_state_eq(&self, attack_state: PlayerAttackState) -> bool {
-        self.state == PlayerState::Attacking && self.attack_state() == attack_state
+    pub fn attack_eq(&self, attack: Attack) -> bool {
+        self.state == PlayerState::Attacking && self.attack() == attack
     }
 
-    pub fn set_attack_state(&mut self, attack_state: PlayerAttackState) {
+    /// Set the attack and also the state to attacking.
+    pub fn set_attack(&mut self, attack: Attack) {
         if self.just_changed {
             error!("Trying to set state even though it was already changed this frame. Should never happen, you probably forgot a flag check");
             return;
         }
         self.set_state(PlayerState::Attacking);
-        self.attack_handler.set_attack_state(attack_state);
+        self.attack_handler.set_attack(attack);
         self.attack_handler.set_chainable(true);
     }
 
-    pub fn chained_attack(&self) -> Attack {
+    pub fn chained_attack(&self) -> AttackForm {
         self.attack_handler.chained_attack()
     }
 
-    pub fn set_chained_attack(&mut self, attack: Attack) {
-        self.attack_handler.set_chained_attack(attack);
+    pub fn set_chained_attack(&mut self, chained_attack: AttackForm) {
+        self.attack_handler.set_chained_attack(chained_attack);
     }
 
     pub fn just_changed(&self) -> bool {
@@ -87,50 +88,50 @@ impl PlayerStateMachine {
         self.attack_handler.handle_attack_chain_timer(delta);
     }
 
-    pub fn default_attack(&mut self, attack: Attack) {
-        match attack {
-            Attack::None => {}
-            Attack::Light => self.set_attack_state(PlayerAttackState::Light1),
-            Attack::Heavy => self.set_attack_state(PlayerAttackState::Heavy1),
+    pub fn default_attack(&mut self, attack_form: AttackForm) {
+        match attack_form {
+            AttackForm::None => {}
+            AttackForm::Light => self.set_attack(Attack::Light1),
+            AttackForm::Heavy => self.set_attack(Attack::Heavy1),
         }
     }
 
-    pub fn combo_attack(&self, attack: Attack) -> Option<PlayerAttackState> {
-        match self.attack_state() {
-            PlayerAttackState::Light1 => match attack {
-                Attack::None => panic!("should never happen!"),
-                Attack::Light => Some(PlayerAttackState::Light2),
-                Attack::Heavy => Some(PlayerAttackState::Heavy1),
+    pub fn combo_attack(&self, attack_form: AttackForm) -> Option<Attack> {
+        match self.attack() {
+            Attack::Light1 => match attack_form {
+                AttackForm::None => panic!("should never happen!"),
+                AttackForm::Light => Some(Attack::Light2),
+                AttackForm::Heavy => Some(Attack::Heavy1),
             },
-            PlayerAttackState::Light2 => match attack {
-                Attack::None => panic!("should never happen!"),
-                Attack::Light => Some(PlayerAttackState::Light3),
-                Attack::Heavy => None,
+            Attack::Light2 => match attack_form {
+                AttackForm::None => panic!("should never happen!"),
+                AttackForm::Light => Some(Attack::Light3),
+                AttackForm::Heavy => None,
             },
-            PlayerAttackState::Light3 => None,
-            PlayerAttackState::Heavy1 => match attack {
-                Attack::None => panic!("should never happen!"),
-                Attack::Light => Some(PlayerAttackState::Light2),
-                Attack::Heavy => Some(PlayerAttackState::Heavy2),
+            Attack::Light3 => None,
+            Attack::Heavy1 => match attack_form {
+                AttackForm::None => panic!("should never happen!"),
+                AttackForm::Light => Some(Attack::Light2),
+                AttackForm::Heavy => Some(Attack::Heavy2),
             },
-            PlayerAttackState::Heavy2 => None,
+            Attack::Heavy2 => None,
         }
     }
 
     pub fn transition_chain_attack(&mut self) {
-        if self.chained_attack() == Attack::None {
+        if self.chained_attack() == AttackForm::None {
             self.set_state(PlayerState::Recovering);
             return;
         }
 
         match self.combo_attack(self.chained_attack()) {
-            Some(attack_state) => self.set_attack_state(attack_state),
+            Some(attack) => self.set_attack(attack),
             None => self.set_state(PlayerState::Recovering),
         }
-        self.set_chained_attack(Attack::None);
+        self.set_chained_attack(AttackForm::None);
     }
 
-    pub fn transition_attack(&mut self, attack: Attack) {
+    pub fn transition_attack(&mut self, attack_form: AttackForm) {
         if self.just_changed() {
             return;
         }
@@ -139,15 +140,15 @@ impl PlayerStateMachine {
         }
 
         if self.state() == PlayerState::Attacking {
-            assert_ne!(attack, Attack::None);
-            self.set_chained_attack(attack);
+            assert_ne!(attack_form, AttackForm::None);
+            self.set_chained_attack(attack_form);
         } else if self.attack_handler.chainable() {
-            match self.combo_attack(attack) {
-                Some(attack_state) => self.set_attack_state(attack_state),
-                None => self.default_attack(attack),
+            match self.combo_attack(attack_form) {
+                Some(attack) => self.set_attack(attack),
+                None => self.default_attack(attack_form),
             }
         } else {
-            self.default_attack(attack);
+            self.default_attack(attack_form);
         }
     }
 
@@ -155,19 +156,19 @@ impl PlayerStateMachine {
         match self.state {
             PlayerState::Idling => (assets.player_animations[0].clone(), true),
             PlayerState::Running => (assets.player_animations[1].clone(), true),
-            PlayerState::Attacking => match self.attack_state() {
-                PlayerAttackState::Light1 => (assets.player_animations[2].clone(), false),
-                PlayerAttackState::Light2 => (assets.player_animations[4].clone(), false),
-                PlayerAttackState::Light3 => (assets.player_animations[11].clone(), false),
-                PlayerAttackState::Heavy1 => (assets.player_animations[7].clone(), false),
-                PlayerAttackState::Heavy2 => (assets.player_animations[9].clone(), false),
+            PlayerState::Attacking => match self.attack() {
+                Attack::Light1 => (assets.player_animations[2].clone(), false),
+                Attack::Light2 => (assets.player_animations[4].clone(), false),
+                Attack::Light3 => (assets.player_animations[11].clone(), false),
+                Attack::Heavy1 => (assets.player_animations[7].clone(), false),
+                Attack::Heavy2 => (assets.player_animations[9].clone(), false),
             },
-            PlayerState::Recovering => match self.attack_state() {
-                PlayerAttackState::Light1 => (assets.player_animations[3].clone(), false),
-                PlayerAttackState::Light2 => (assets.player_animations[5].clone(), false),
-                PlayerAttackState::Light3 => (assets.player_animations[12].clone(), false),
-                PlayerAttackState::Heavy1 => (assets.player_animations[8].clone(), false),
-                PlayerAttackState::Heavy2 => (assets.player_animations[10].clone(), false),
+            PlayerState::Recovering => match self.attack() {
+                Attack::Light1 => (assets.player_animations[3].clone(), false),
+                Attack::Light2 => (assets.player_animations[5].clone(), false),
+                Attack::Light3 => (assets.player_animations[12].clone(), false),
+                Attack::Heavy1 => (assets.player_animations[8].clone(), false),
+                Attack::Heavy2 => (assets.player_animations[10].clone(), false),
             },
         }
     }
@@ -182,12 +183,12 @@ impl PlayerStateMachine {
                 error!("should never happen! run doesn't have any hitbox frames");
                 (0, 0)
             }
-            PlayerState::Attacking => match self.attack_state() {
-                PlayerAttackState::Light1 => (0, 1),
-                PlayerAttackState::Light2 => (0, 1),
-                PlayerAttackState::Light3 => (1, 2),
-                PlayerAttackState::Heavy1 => (1, 2),
-                PlayerAttackState::Heavy2 => (1, 2),
+            PlayerState::Attacking => match self.attack() {
+                Attack::Light1 => (0, 1),
+                Attack::Light2 => (0, 1),
+                Attack::Light3 => (1, 2),
+                Attack::Heavy1 => (1, 2),
+                Attack::Heavy2 => (1, 2),
             },
             PlayerState::Recovering => {
                 error!("should never happen! recover doesn't have any hitbox frames");

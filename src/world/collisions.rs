@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rancic::prelude::COLLISION_GROUPS_NONE;
 use bevy_rapier2d::prelude::*;
 
-use crate::player::PlayerAttackState;
+use crate::player::Attack;
 
 pub const HURTBOX_GROUP: Group = Group::GROUP_1;
 pub const HITBOX_GROUP: Group = Group::GROUP_2;
@@ -12,7 +12,7 @@ pub const ENEMY_GROUP: Group = Group::GROUP_5;
 
 #[derive(PartialEq, Eq, Clone)]
 pub enum HitboxType {
-    Player(PlayerAttackState),
+    Player(Attack),
     // Enemy(EnemyHitbox),
     #[allow(dead_code)]
     Placeholder,

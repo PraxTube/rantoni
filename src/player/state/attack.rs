@@ -3,7 +3,7 @@ use std::time::Duration;
 use bevy::prelude::*;
 
 #[derive(Debug, Default, PartialEq, Eq, Clone, Copy)]
-pub enum PlayerAttackState {
+pub enum Attack {
     #[default]
     Light1,
     Light2,
@@ -13,7 +13,7 @@ pub enum PlayerAttackState {
 }
 
 #[derive(Debug, Default, PartialEq, Clone, Copy)]
-pub enum Attack {
+pub enum AttackForm {
     #[default]
     None,
     Light,
@@ -21,8 +21,8 @@ pub enum Attack {
 }
 
 pub struct AttackHandler {
-    attack_state: PlayerAttackState,
-    chained_attack: Attack,
+    attack: Attack,
+    chained_attack: AttackForm,
     chainable: bool,
     chain_buffer_timer: Timer,
 }
@@ -30,8 +30,8 @@ pub struct AttackHandler {
 impl Default for AttackHandler {
     fn default() -> Self {
         Self {
-            attack_state: PlayerAttackState::default(),
-            chained_attack: Attack::default(),
+            attack: Attack::default(),
+            chained_attack: AttackForm::default(),
             chainable: false,
             chain_buffer_timer: Timer::from_seconds(0.3, TimerMode::Once),
         }
@@ -39,19 +39,19 @@ impl Default for AttackHandler {
 }
 
 impl AttackHandler {
-    pub fn attack_state(&self) -> PlayerAttackState {
-        self.attack_state
+    pub fn attack(&self) -> Attack {
+        self.attack
     }
 
-    pub fn set_attack_state(&mut self, attack_state: PlayerAttackState) {
-        self.attack_state = attack_state;
+    pub fn set_attack(&mut self, attack: Attack) {
+        self.attack = attack;
     }
 
-    pub fn chained_attack(&self) -> Attack {
+    pub fn chained_attack(&self) -> AttackForm {
         self.chained_attack
     }
 
-    pub fn set_chained_attack(&mut self, chained_attack: Attack) {
+    pub fn set_chained_attack(&mut self, chained_attack: AttackForm) {
         self.chained_attack = chained_attack;
     }
 

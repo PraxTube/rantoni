@@ -1,7 +1,7 @@
 mod attack;
 mod state_machine;
 
-pub use attack::{Attack, AttackHandler, PlayerAttackState};
+pub use attack::{Attack, AttackForm, AttackHandler};
 pub use state_machine::PlayerStateMachine;
 
 use bevy::prelude::*;
@@ -17,7 +17,7 @@ impl Plugin for PlayerStatePlugin {
             Update,
             (
                 reset_just_changed,
-                transition_attack_state,
+                transition_attacking_state,
                 transition_idle_state,
                 transition_run_state,
             )
@@ -49,16 +49,16 @@ pub enum PlayerState {
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct PlayerStateSystemSet;
 
-fn transition_attack_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
+fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
     for mut player in &mut q_players {
-        let attack = if player_input.light_attack {
-            Attack::Light
+        let attack_form = if player_input.light_attack {
+            AttackForm::Light
         } else if player_input.heavy_attack {
-            Attack::Heavy
+            AttackForm::Heavy
         } else {
             continue;
         };
-        player.state_machine.transition_attack(attack);
+        player.state_machine.transition_attack(attack_form);
     }
 }
 
