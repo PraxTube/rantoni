@@ -1,13 +1,14 @@
 mod attack;
 mod state_machine;
 
-pub use attack::{Attack, AttackForm, AttackHandler};
+pub use attack::AttackHandler;
 pub use state_machine::PlayerStateMachine;
 
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::player::{input::PlayerInput, Player};
+use crate::state::{AttackForm, DudeState};
 
 pub struct PlayerStatePlugin;
 
@@ -35,15 +36,6 @@ impl Plugin for PlayerStatePlugin {
                 .after(PlayerStateSystemSet),
         );
     }
-}
-
-#[derive(Debug, Default, PartialEq, Clone, Copy)]
-pub enum PlayerState {
-    #[default]
-    Idling,
-    Running,
-    Attacking,
-    Recovering,
 }
 
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
@@ -75,11 +67,11 @@ fn transition_run_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut
     }
 
     if player_input.move_direction != Vec2::ZERO {
-        if player.state_machine.state() != PlayerState::Running {
-            player.state_machine.set_state(PlayerState::Running);
+        if player.state_machine.state() != DudeState::Running {
+            player.state_machine.set_state(DudeState::Running);
         }
-    } else if player.state_machine.state() == PlayerState::Running {
-        player.state_machine.set_state(PlayerState::Idling);
+    } else if player.state_machine.state() == DudeState::Running {
+        player.state_machine.set_state(DudeState::Idling);
     };
 }
 
@@ -96,14 +88,14 @@ fn transition_idle_state(mut q_player: Query<(&mut Player, &AnimationPlayer2D)>)
     }
 
     match player.state_machine.state() {
-        PlayerState::Idling | PlayerState::Running => {
+        DudeState::Idling | DudeState::Running => {
             error!("should never happen! The current state's animation should be repeating forever and never finish")
         }
-        PlayerState::Attacking => {
+        DudeState::Attacking => {
             player.state_machine.transition_chain_attack();
         }
-        PlayerState::Recovering => {
-            player.state_machine.set_state(PlayerState::Idling);
+        DudeState::Recovering => {
+            player.state_machine.set_state(DudeState::Idling);
         }
     };
 }
@@ -134,8 +126,8 @@ fn start_attack_chain_timer(mut q_players: Query<&mut Player>) {
             continue;
         }
 
-        if player.state_machine.previous_state() == PlayerState::Attacking
-            && player.state_machine.state() != PlayerState::Attacking
+        if player.state_machine.previous_state() == DudeState::Attacking
+            && player.state_machine.state() != DudeState::Attacking
         {
             player.state_machine.start_attack_chain_timer();
         }

@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use crate::state::{Attack, DudeState};
 use crate::GameState;
 
 use super::input::PlayerInput;
-use super::state::{Attack, PlayerState};
 use super::Player;
 
 fn reset_velocity(mut q_player: Query<&mut Velocity, With<Player>>) {
@@ -21,10 +21,10 @@ fn move_player(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &mu
     };
 
     let speed = match player.state_machine.state() {
-        PlayerState::Idling => 0.0,
-        PlayerState::Running => 250.0,
-        PlayerState::Attacking => 0.0,
-        PlayerState::Recovering => 0.0,
+        DudeState::Idling => 0.0,
+        DudeState::Running => 250.0,
+        DudeState::Attacking => 0.0,
+        DudeState::Recovering => 0.0,
     };
 
     let direction = player_input.move_direction;

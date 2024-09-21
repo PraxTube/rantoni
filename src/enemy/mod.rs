@@ -7,7 +7,7 @@ mod state;
 use bevy::prelude::*;
 use state::EnemyState;
 
-use crate::world::stagger::Stagger;
+use crate::state::Stagger;
 
 pub struct EnemyPlugin;
 

@@ -4,6 +4,7 @@ mod assets;
 mod audio;
 mod enemy;
 mod player;
+mod state;
 mod ui;
 mod world;
 

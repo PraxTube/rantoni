@@ -4,11 +4,9 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{
     enemy::state::EnemyState,
-    player::{Attack, Player, PlayerHitboxRoot},
-    world::{
-        collisions::{Hitbox, HitboxType, Hurtbox},
-        stagger::{Stagger, StaggerState},
-    },
+    player::{Player, PlayerHitboxRoot},
+    state::{Attack, Stagger, StaggerState},
+    world::collisions::{Hitbox, HitboxType, Hurtbox},
     GameState,
 };
 

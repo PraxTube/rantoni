@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rancic::prelude::COLLISION_GROUPS_NONE;
 use bevy_rapier2d::prelude::*;
 
-use crate::player::Attack;
+use crate::state::Attack;
 
 pub const HURTBOX_GROUP: Group = Group::GROUP_1;
 pub const HITBOX_GROUP: Group = Group::GROUP_2;

@@ -3,16 +3,17 @@ use bevy_rancic::prelude::COLLISION_GROUPS_NONE;
 use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
+use crate::state::DudeState;
 use crate::world::collisions::{Hitbox, HitboxType};
 
-use super::{state::PlayerState, Player, PlayerHitboxRoot, PlayerStateSystemSet};
+use super::{Player, PlayerHitboxRoot, PlayerStateSystemSet};
 
 fn toggle_hitboxes(
     q_players: Query<(Entity, &AnimationPlayer2D, &Player)>,
     mut q_hitboxes: Query<(&mut CollisionGroups, &Hitbox)>,
 ) {
     for (player_entity, animator, player) in &q_players {
-        if player.state_machine.state() != PlayerState::Attacking {
+        if player.state_machine.state() != DudeState::Attacking {
             continue;
         }
 

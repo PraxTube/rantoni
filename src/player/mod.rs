@@ -7,7 +7,7 @@ mod spawn;
 mod state;
 
 pub use spawn::PlayerHitboxRoot;
-pub use state::{Attack, PlayerStateSystemSet};
+pub use state::PlayerStateSystemSet;
 
 use bevy::prelude::*;
 use state::PlayerStateMachine;

@@ -4,11 +4,12 @@ use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
+    state::Attack,
     world::collisions::{spawn_hitbox_collision, Hitbox, HitboxType, PLAYER_GROUP, WORLD_GROUP},
     GameAssets, GameState,
 };
 
-use super::{Attack, Player};
+use super::Player;
 
 #[derive(Component)]
 pub struct PlayerHitboxRoot {

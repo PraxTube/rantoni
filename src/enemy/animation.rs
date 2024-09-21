@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::{world::stagger::StaggerState, GameAssets};
+use crate::{state::StaggerState, GameAssets};
 
 use super::{
     state::{EnemyState, EnemyStateSystemSet},
