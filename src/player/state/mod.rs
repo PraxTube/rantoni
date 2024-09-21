@@ -94,7 +94,7 @@ fn transition_idle_state(mut q_player: Query<(&mut Player, &AnimationPlayer2D)>)
         DudeState::Attacking => {
             player.state_machine.transition_chain_attack();
         }
-        DudeState::Recovering => {
+        DudeState::Recovering | DudeState::Staggering => {
             player.state_machine.set_state(DudeState::Idling);
         }
     };

@@ -11,4 +11,5 @@ pub enum DudeState {
     Running,
     Attacking,
     Recovering,
+    Staggering,
 }

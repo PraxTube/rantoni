@@ -1,16 +1,16 @@
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::{state::StaggerState, GameAssets};
-
-use super::{
-    state::{EnemyState, EnemyStateSystemSet},
-    Enemy,
+use crate::{
+    state::{DudeState, StaggerState},
+    GameAssets,
 };
+
+use super::{state::EnemyStateSystemSet, Enemy};
 
 fn flip_sprites(mut q_enemies: Query<(&mut Sprite, &mut Enemy)>) {
     for (mut sprite, enemy) in &mut q_enemies {
-        if enemy.state == EnemyState::Staggering {
+        if enemy.state == DudeState::Staggering {
             if enemy.stagger.direction.x == 0.0 {
                 continue;
             }
@@ -26,11 +26,12 @@ fn update_animations(
 ) {
     for (mut animator, enemy) in &mut q_enemies {
         let animation = match enemy.state {
-            EnemyState::Idling => assets.player_animations[0].clone(),
-            EnemyState::Staggering => match enemy.stagger.state {
+            DudeState::Idling => assets.player_animations[0].clone(),
+            DudeState::Staggering => match enemy.stagger.state {
                 StaggerState::Normal => assets.player_animations[6].clone(),
                 StaggerState::Flying => assets.player_animations[13].clone(),
             },
+            _ => todo!(),
         };
 
         animator.play(animation).repeat();

@@ -25,6 +25,7 @@ fn move_player(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &mu
         DudeState::Running => 250.0,
         DudeState::Attacking => 0.0,
         DudeState::Recovering => 0.0,
+        DudeState::Staggering => 0.0,
     };
 
     let direction = player_input.move_direction;

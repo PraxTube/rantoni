@@ -1,11 +1,13 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use super::{state::EnemyState, Enemy};
+use crate::state::DudeState;
+
+use super::Enemy;
 
 fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
     for (mut velocity, enemy) in &mut q_enemies {
-        if enemy.state == EnemyState::Staggering {
+        if enemy.state == DudeState::Staggering {
             velocity.linvel = enemy.stagger.direction * enemy.stagger.intensity;
         }
     }

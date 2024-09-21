@@ -3,9 +3,8 @@ use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    enemy::state::EnemyState,
     player::{Player, PlayerHitboxRoot},
-    state::{Attack, Stagger, StaggerState},
+    state::{Attack, DudeState, Stagger, StaggerState},
     world::collisions::{Hitbox, HitboxType, Hurtbox},
     GameState,
 };
@@ -58,10 +57,10 @@ fn player_hitbox_collisions(
         };
 
         if let HitboxType::Player(attack) = player_hitbox.hitbox_type {
-            if enemy.state == EnemyState::Staggering {
+            if enemy.state == DudeState::Staggering {
                 animator.replay();
             }
-            enemy.state = EnemyState::Staggering;
+            enemy.state = DudeState::Staggering;
             match attack {
                 Attack::Light1 => {
                     enemy.stagger =

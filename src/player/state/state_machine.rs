@@ -182,6 +182,7 @@ impl PlayerStateMachine {
                 Attack::Heavy2 => (assets.player_animations[10].clone(), false),
                 Attack::Heavy3 => (assets.player_animations[15].clone(), false),
             },
+            DudeState::Staggering => (assets.player_animations[6].clone(), false),
         }
     }
 
@@ -205,6 +206,10 @@ impl PlayerStateMachine {
             },
             DudeState::Recovering => {
                 error!("should never happen! recover doesn't have any hitbox frames");
+                (0, 0)
+            }
+            DudeState::Staggering => {
+                error!("should never happen! staggering doesn't have any hitbox frames");
                 (0, 0)
             }
         }
