@@ -5,16 +5,16 @@ pub enum DudeAnimations {
     Punch1Recover,
     Punch2,
     Punch2Recover,
-    StaggerNormal,
+    Punch3,
+    Punch3Recover,
     Kick1,
     Kick1Recover,
     Kick2,
     Kick2Recover,
-    Punch3,
-    Punch3Recover,
-    StaggerFlying,
     Kick3,
     Kick3Recover,
+    StaggerNormal,
+    StaggerFlying,
 }
 
 impl DudeAnimations {

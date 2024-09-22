@@ -7,35 +7,35 @@
         keyframes: KeyframesRange((start: 18, end: 20)),
         duration: 0.3,
     ),
-    "punch1": (
+    "attack-light1": (
         keyframes: KeyframesRange((start: 2, end: 3)),
         duration: 0.25,
     ),
-    "punch1recover": (
+    "recover-light1": (
         keyframes: KeyframesRange((start: 3, end: 4)),
         duration: 0.15,
     ),
-    "punch2": (
+    "attack-light2": (
         keyframes: KeyframesRange((start: 4, end: 5)),
         duration: 0.25,
     ),
-    "punch2recover": (
+    "recover-light2": (
         keyframes: KeyframesRange((start: 5, end: 6)),
         duration: 0.15,
     ),
-    "kick1": (
+    "attack-heavy1": (
         keyframes: KeyframesRange((start: 20, end: 22)),
         duration: 0.4,
     ),
-    "kick1recover": (
+    "recover-heavy1": (
         keyframes: KeyframesRange((start: 22, end: 23)),
         duration: 0.2,
     ),
-    "kick2": (
+    "attack-heavy2": (
         keyframes: KeyframesRange((start: 23, end: 25)),
         duration: 0.5,
     ),
-    "kick2recover": (
+    "recover-heavy2": (
         keyframes: KeyframesRange((start: 25, end: 27)),
         duration: 0.3,
     ),
@@ -44,11 +44,11 @@
         keyframe_timestamps: Some([0.0, 0.1]),
         duration: 10.0,
     ),
-    "punch3": (
+    "attack-light3": (
         keyframes: KeyframesRange((start: 6, end: 9)),
         duration: 0.35,
     ),
-    "punch3recover": (
+    "recover-light3": (
         keyframes: KeyframesRange((start: 9, end: 10)),
         duration: 0.15,
     ),
@@ -57,11 +57,11 @@
         keyframe_timestamps: Some([0.0, 0.1]),
         duration: 10.0,
     ),
-    "kick3": (
+    "attack-heavy3": (
         keyframes: KeyframesRange((start: 27, end: 29)),
         duration: 0.4,
     ),
-    "kick3recover": (
+    "recover-heavy3": (
         keyframes: KeyframesRange((start: 29, end: 30)),
         duration: 0.15,
     ),
