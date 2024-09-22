@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
+    assets::DudeAnimations,
     state::{DudeState, StaggerState},
     GameAssets,
 };
@@ -26,10 +27,14 @@ fn update_animations(
 ) {
     for (mut animator, enemy) in &mut q_enemies {
         let animation = match enemy.state {
-            DudeState::Idling => assets.player_animations[0].clone(),
+            DudeState::Idling => assets.dude_animations[DudeAnimations::Idle.index()].clone(),
             DudeState::Staggering => match enemy.stagger.state {
-                StaggerState::Normal => assets.player_animations[6].clone(),
-                StaggerState::Flying => assets.player_animations[13].clone(),
+                StaggerState::Normal => {
+                    assets.dude_animations[DudeAnimations::StaggerNormal.index()].clone()
+                }
+                StaggerState::Flying => {
+                    assets.dude_animations[DudeAnimations::StaggerFlying.index()].clone()
+                }
             },
             _ => todo!(),
         };

@@ -3,6 +3,7 @@ use std::time::Duration;
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
+use crate::assets::DudeAnimations;
 use crate::state::{Attack, AttackForm};
 use crate::GameAssets;
 
@@ -164,25 +165,70 @@ impl PlayerStateMachine {
 
     pub fn state_animation(&self, assets: &Res<GameAssets>) -> (Handle<AnimationClip2D>, bool) {
         match self.state {
-            DudeState::Idling => (assets.player_animations[0].clone(), true),
-            DudeState::Running => (assets.player_animations[1].clone(), true),
+            DudeState::Idling => (
+                assets.dude_animations[DudeAnimations::Idle.index()].clone(),
+                true,
+            ),
+            DudeState::Running => (
+                assets.dude_animations[DudeAnimations::Run.index()].clone(),
+                true,
+            ),
             DudeState::Attacking => match self.attack() {
-                Attack::Light1 => (assets.player_animations[2].clone(), false),
-                Attack::Light2 => (assets.player_animations[4].clone(), false),
-                Attack::Light3 => (assets.player_animations[11].clone(), false),
-                Attack::Heavy1 => (assets.player_animations[7].clone(), false),
-                Attack::Heavy2 => (assets.player_animations[9].clone(), false),
-                Attack::Heavy3 => (assets.player_animations[14].clone(), false),
+                Attack::Light1 => (
+                    assets.dude_animations[DudeAnimations::Punch1.index()].clone(),
+                    false,
+                ),
+                Attack::Light2 => (
+                    assets.dude_animations[DudeAnimations::Punch2.index()].clone(),
+                    false,
+                ),
+                Attack::Light3 => (
+                    assets.dude_animations[DudeAnimations::Punch3.index()].clone(),
+                    false,
+                ),
+                Attack::Heavy1 => (
+                    assets.dude_animations[DudeAnimations::Kick1.index()].clone(),
+                    false,
+                ),
+                Attack::Heavy2 => (
+                    assets.dude_animations[DudeAnimations::Kick2.index()].clone(),
+                    false,
+                ),
+                Attack::Heavy3 => (
+                    assets.dude_animations[DudeAnimations::Kick3.index()].clone(),
+                    false,
+                ),
             },
             DudeState::Recovering => match self.attack() {
-                Attack::Light1 => (assets.player_animations[3].clone(), false),
-                Attack::Light2 => (assets.player_animations[5].clone(), false),
-                Attack::Light3 => (assets.player_animations[12].clone(), false),
-                Attack::Heavy1 => (assets.player_animations[8].clone(), false),
-                Attack::Heavy2 => (assets.player_animations[10].clone(), false),
-                Attack::Heavy3 => (assets.player_animations[15].clone(), false),
+                Attack::Light1 => (
+                    assets.dude_animations[DudeAnimations::Punch1Recover.index()].clone(),
+                    false,
+                ),
+                Attack::Light2 => (
+                    assets.dude_animations[DudeAnimations::Punch2Recover.index()].clone(),
+                    false,
+                ),
+                Attack::Light3 => (
+                    assets.dude_animations[DudeAnimations::Punch3Recover.index()].clone(),
+                    false,
+                ),
+                Attack::Heavy1 => (
+                    assets.dude_animations[DudeAnimations::Kick1Recover.index()].clone(),
+                    false,
+                ),
+                Attack::Heavy2 => (
+                    assets.dude_animations[DudeAnimations::Kick2Recover.index()].clone(),
+                    false,
+                ),
+                Attack::Heavy3 => (
+                    assets.dude_animations[DudeAnimations::Kick3Recover.index()].clone(),
+                    false,
+                ),
             },
-            DudeState::Staggering => (assets.player_animations[6].clone(), false),
+            DudeState::Staggering => (
+                assets.dude_animations[DudeAnimations::StaggerNormal.index()].clone(),
+                false,
+            ),
         }
     }
 

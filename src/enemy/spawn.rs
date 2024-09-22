@@ -4,6 +4,7 @@ use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
+    assets::DudeAnimations,
     world::collisions::{spawn_hurtbox_collision, ENEMY_GROUP, WORLD_GROUP},
     GameAssets, GameState,
 };
@@ -31,7 +32,7 @@ fn spawn_dummy_enemy(mut commands: Commands, assets: Res<GameAssets>) {
                 },
                 ..default()
             },
-            TextureAtlas::from(assets.player_layout.clone()),
+            TextureAtlas::from(assets.dude_layout.clone()),
         ))
         .id();
 
@@ -55,7 +56,9 @@ fn spawn_dummy_enemy(mut commands: Commands, assets: Res<GameAssets>) {
         .id();
 
     let mut animator = AnimationPlayer2D::default();
-    animator.play(assets.player_animations[0].clone()).repeat();
+    animator
+        .play(assets.dude_animations[DudeAnimations::Idle.index()].clone())
+        .repeat();
 
     commands
         .entity(entity)

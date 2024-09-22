@@ -4,6 +4,7 @@ use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
+    assets::DudeAnimations,
     state::Attack,
     world::collisions::{spawn_hitbox_collision, Hitbox, HitboxType, PLAYER_GROUP, WORLD_GROUP},
     GameAssets, GameState,
@@ -109,7 +110,7 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
                 texture: assets.player_texture.clone(),
                 ..default()
             },
-            TextureAtlas::from(assets.player_layout.clone()),
+            TextureAtlas::from(assets.dude_layout.clone()),
         ))
         .id();
 
@@ -125,7 +126,9 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
         .id();
 
     let mut animator = AnimationPlayer2D::default();
-    animator.play(assets.player_animations[0].clone()).repeat();
+    animator
+        .play(assets.dude_animations[DudeAnimations::Idle.index()].clone())
+        .repeat();
 
     let hitboxes = spawn_player_hitboxes(&mut commands, player_entity);
 
