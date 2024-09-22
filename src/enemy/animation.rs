@@ -2,44 +2,40 @@ use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    assets::DudeAnimations,
-    state::{DudeState, StaggerState},
+    state::{dude_state_animation, Attack, DudeState, Stagger},
     GameAssets,
 };
 
 use super::{state::EnemyStateSystemSet, Enemy};
 
-fn flip_sprites(mut q_enemies: Query<(&mut Sprite, &mut Enemy)>) {
-    for (mut sprite, enemy) in &mut q_enemies {
+fn flip_sprites(mut q_enemies: Query<(&mut Sprite, &mut Enemy, &Stagger)>) {
+    for (mut sprite, enemy, stagger) in &mut q_enemies {
         if enemy.state_machine.state() == DudeState::Staggering {
-            if enemy.stagger.direction.x == 0.0 {
+            if stagger.direction.x == 0.0 {
                 continue;
             }
 
-            sprite.flip_x = enemy.stagger.direction.x > 0.0;
+            sprite.flip_x = stagger.direction.x > 0.0;
         }
     }
 }
 
 fn update_animations(
     assets: Res<GameAssets>,
-    mut q_enemies: Query<(&mut AnimationPlayer2D, &Enemy)>,
+    mut q_enemies: Query<(&mut AnimationPlayer2D, &Enemy, &Stagger)>,
 ) {
-    for (mut animator, enemy) in &mut q_enemies {
-        let animation = match enemy.state_machine.state() {
-            DudeState::Idling => assets.dude_animations[DudeAnimations::Idle.index()].clone(),
-            DudeState::Staggering => match enemy.stagger.state {
-                StaggerState::Normal => {
-                    assets.dude_animations[DudeAnimations::StaggerNormal.index()].clone()
-                }
-                StaggerState::Flying => {
-                    assets.dude_animations[DudeAnimations::StaggerFlying.index()].clone()
-                }
-            },
-            _ => todo!(),
-        };
-
-        animator.play(animation).repeat();
+    for (mut animator, enemy, stagger) in &mut q_enemies {
+        let (animation, repeat) = dude_state_animation(
+            enemy.state_machine.state(),
+            Attack::default(),
+            stagger.state,
+            &assets,
+        );
+        if repeat {
+            animator.play(animation).repeat();
+        } else {
+            animator.play(animation);
+        }
     }
 }
 

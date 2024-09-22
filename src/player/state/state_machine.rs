@@ -1,10 +1,8 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use bevy_trickfilm::prelude::*;
 
-use crate::state::{dude_state_animation, dude_state_hitbox_frames, Attack, AttackForm, DudeState};
-use crate::GameAssets;
+use crate::state::{Attack, AttackForm, DudeState};
 
 use super::AttackHandler;
 
@@ -37,7 +35,16 @@ impl PlayerStateMachine {
 
     pub fn set_state(&mut self, state: DudeState) {
         if self.just_changed {
-            error!("Trying to set state even though it was already changed this frame. Should never happen, you probably forgot a flag check");
+            let msg = format!(
+                "
+Trying to set state in PLAYER even though it was already changed this frame.
+Should never happen, you probably forgot a flag check.
+Current state: {:?}
+Attempted new state: {:?}",
+                self.state(),
+                state
+            );
+            error!(msg);
             return;
         }
 
@@ -160,13 +167,5 @@ impl PlayerStateMachine {
         } else {
             self.default_attack(attack_form);
         }
-    }
-
-    pub fn state_animation(&self, assets: &Res<GameAssets>) -> (Handle<AnimationClip2D>, bool) {
-        dude_state_animation(self.state(), self.attack(), assets)
-    }
-
-    pub fn state_hitbox_frames(&self) -> (usize, usize) {
-        dude_state_hitbox_frames(self.state(), self.attack())
     }
 }

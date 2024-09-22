@@ -4,7 +4,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{
     player::{Player, PlayerHitboxRoot},
-    state::DudeState,
+    state::{DudeState, Stagger},
     world::collisions::{Hitbox, HitboxType, Hurtbox},
     GameState,
 };
@@ -13,7 +13,10 @@ use super::Enemy;
 
 fn player_hitbox_collisions(
     q_players: Query<&Player>,
-    mut q_enemies: Query<(&mut AnimationPlayer2D, &mut Enemy), Without<PlayerHitboxRoot>>,
+    mut q_enemies: Query<
+        (&mut AnimationPlayer2D, &mut Enemy, &mut Stagger),
+        Without<PlayerHitboxRoot>,
+    >,
     q_hitboxes: Query<&Hitbox>,
     q_hurtboxes: Query<&Hurtbox>,
     mut ev_collision_events: EventReader<CollisionEvent>,
@@ -52,7 +55,9 @@ fn player_hitbox_collisions(
             continue;
         };
 
-        let Ok((mut animator, mut enemy)) = q_enemies.get_mut(enemy_hurtbox.root_entity) else {
+        let Ok((mut animator, mut enemy, mut stagger)) =
+            q_enemies.get_mut(enemy_hurtbox.root_entity)
+        else {
             continue;
         };
 
@@ -62,9 +67,7 @@ fn player_hitbox_collisions(
             } else {
                 enemy.state_machine.set_state(DudeState::Staggering);
             }
-            enemy
-                .stagger
-                .on_attack(attack, player.aim_direction, 1.0, 1.0);
+            stagger.update(attack, player.aim_direction, 1.0, 1.0);
         }
     }
 }

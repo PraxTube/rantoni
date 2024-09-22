@@ -1,8 +1,6 @@
 use bevy::prelude::*;
-use bevy_trickfilm::prelude::*;
 
-use crate::state::{dude_state_animation, dude_state_hitbox_frames, Attack, DudeState};
-use crate::GameAssets;
+use crate::state::{Attack, DudeState};
 
 #[derive(Component, Default)]
 pub struct EnemyStateMachine {
@@ -14,9 +12,7 @@ pub struct EnemyStateMachine {
 
 impl EnemyStateMachine {
     pub fn can_run(&self) -> bool {
-        self.state == DudeState::Idling
-            || self.state == DudeState::Running
-            || self.state == DudeState::Recovering
+        self.state == DudeState::Idling || self.state == DudeState::Running
     }
 
     pub fn can_punch(&self) -> bool {
@@ -33,7 +29,16 @@ impl EnemyStateMachine {
 
     pub fn set_state(&mut self, state: DudeState) {
         if self.just_changed {
-            error!("Trying to set state even though it was already changed this frame. Should never happen, you probably forgot a flag check");
+            let msg = format!(
+                "
+Trying to set state in ENEMY even though it was already changed this frame.
+Should never happen, you probably forgot a flag check.
+Current state: {:?}
+Attempted new state: {:?}",
+                self.state(),
+                state
+            );
+            error!(msg);
             return;
         }
 
@@ -66,13 +71,5 @@ impl EnemyStateMachine {
 
     pub fn set_just_changed(&mut self, just_changed: bool) {
         self.just_changed = just_changed;
-    }
-
-    pub fn state_animation(&self, assets: &Res<GameAssets>) -> (Handle<AnimationClip2D>, bool) {
-        dude_state_animation(self.state(), self.attack(), assets)
-    }
-
-    pub fn state_hitbox_frames(&self) -> (usize, usize) {
-        dude_state_hitbox_frames(self.state(), self.attack())
     }
 }

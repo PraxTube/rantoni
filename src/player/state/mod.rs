@@ -43,6 +43,8 @@ pub struct PlayerStateSystemSet;
 
 fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
     for mut player in &mut q_players {
+        // You would have to actually figure out which controls belong to which player in local
+        // multiplayer
         let attack_form = if player_input.light_attack {
             AttackForm::Light
         } else if player_input.heavy_attack {

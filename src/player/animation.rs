@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::GameAssets;
+use crate::{
+    state::{dude_state_animation, StaggerState},
+    GameAssets,
+};
 
 use super::{input::PlayerInput, state::PlayerStateSystemSet, Player};
 
@@ -27,7 +30,12 @@ fn update_player_animation(
         return;
     };
 
-    let (animation, repeat) = player.state_machine.state_animation(&assets);
+    let (animation, repeat) = dude_state_animation(
+        player.state_machine.state(),
+        player.state_machine.attack(),
+        StaggerState::default(),
+        &assets,
+    );
     if repeat {
         animator.play(animation).repeat();
     } else {

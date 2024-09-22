@@ -75,6 +75,7 @@ fn main() {
             world::WorldPlugin,
             ui::UiPlugin,
             audio::GameAudioPlugin,
+            state::StatePlugin,
             player::PlayerPlugin,
             enemy::EnemyPlugin,
         ))

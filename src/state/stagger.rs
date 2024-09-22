@@ -2,19 +2,19 @@ use bevy::prelude::*;
 
 use super::Attack;
 
-#[derive(Default)]
+#[derive(Default, Clone, Copy)]
 pub enum StaggerState {
     #[default]
     Normal,
     Flying,
 }
 
-#[derive(Default)]
+#[derive(Component, Default)]
 pub struct Stagger {
     pub state: StaggerState,
     pub direction: Vec2,
-    pub timer: Timer,
     pub intensity: f32,
+    timer: Timer,
 }
 
 impl Stagger {
@@ -25,7 +25,7 @@ impl Stagger {
         self.intensity = intensity;
     }
 
-    pub fn on_attack(
+    pub fn update(
         &mut self,
         attack: Attack,
         direction: Vec2,
@@ -82,5 +82,23 @@ impl Stagger {
                 );
             }
         }
+    }
+
+    pub fn just_finished(&self) -> bool {
+        self.timer.just_finished()
+    }
+}
+
+fn tick_stagger_timers(time: Res<Time>, mut q_staggers: Query<&mut Stagger>) {
+    for mut stagger in &mut q_staggers {
+        stagger.timer.tick(time.delta());
+    }
+}
+
+pub struct StaggerPlugin;
+
+impl Plugin for StaggerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(PreUpdate, (tick_stagger_timers,));
     }
 }

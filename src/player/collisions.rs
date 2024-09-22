@@ -3,7 +3,7 @@ use bevy_rancic::prelude::COLLISION_GROUPS_NONE;
 use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::state::DudeState;
+use crate::state::{dude_state_hitbox_frames, DudeState};
 use crate::world::collisions::{Hitbox, HitboxType};
 
 use super::{Player, PlayerHitboxRoot, PlayerStateSystemSet};
@@ -23,8 +23,10 @@ fn toggle_hitboxes(
             }
 
             if hitbox.hitbox_type == HitboxType::Player(player.state_machine.attack()) {
-                let (start_frame, end_frame) = player.state_machine.state_hitbox_frames();
-
+                let (start_frame, end_frame) = dude_state_hitbox_frames(
+                    player.state_machine.state(),
+                    player.state_machine.attack(),
+                );
                 if animator.frame() == start_frame {
                     *collisions_groups = hitbox.collision_groups();
                 } else if animator.frame() == end_frame {

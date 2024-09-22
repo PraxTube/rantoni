@@ -5,6 +5,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{
     assets::DudeAnimations,
+    state::Stagger,
     world::collisions::{spawn_hurtbox_collision, ENEMY_GROUP, WORLD_GROUP},
     GameAssets, GameState,
 };
@@ -15,6 +16,7 @@ fn spawn_dummy_enemy(mut commands: Commands, assets: Res<GameAssets>) {
     let entity = commands
         .spawn((
             Enemy::default(),
+            Stagger::default(),
             RigidBody::Dynamic,
             LockedAxes::ROTATION_LOCKED,
             Velocity::zero(),

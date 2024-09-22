@@ -9,6 +9,14 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{assets::DudeAnimations, GameAssets};
 
+pub struct StatePlugin;
+
+impl Plugin for StatePlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugins((stagger::StaggerPlugin,));
+    }
+}
+
 #[derive(Debug, Default, PartialEq, Clone, Copy)]
 pub enum DudeState {
     #[default]
@@ -22,6 +30,7 @@ pub enum DudeState {
 pub fn dude_state_animation(
     state: DudeState,
     attack: Attack,
+    stagger_state: StaggerState,
     assets: &Res<GameAssets>,
 ) -> (Handle<AnimationClip2D>, bool) {
     match state {
@@ -85,10 +94,16 @@ pub fn dude_state_animation(
                 false,
             ),
         },
-        DudeState::Staggering => (
-            assets.dude_animations[DudeAnimations::StaggerNormal.index()].clone(),
-            false,
-        ),
+        DudeState::Staggering => match stagger_state {
+            StaggerState::Normal => (
+                assets.dude_animations[DudeAnimations::StaggerNormal.index()].clone(),
+                false,
+            ),
+            StaggerState::Flying => (
+                assets.dude_animations[DudeAnimations::StaggerFlying.index()].clone(),
+                false,
+            ),
+        },
     }
 }
 

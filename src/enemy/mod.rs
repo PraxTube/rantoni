@@ -7,7 +7,10 @@ mod state;
 use bevy::prelude::*;
 use state::EnemyStateMachine;
 
-use crate::state::Stagger;
+const MAX_AGGRO_DISTANCE: f32 = 500.0;
+const MIN_AGGRO_DISTANCE: f32 = 100.0;
+const MIN_TARGET_DISTANCE: f32 = 50.0;
+const MOVE_SPEED: f32 = 150.0;
 
 pub struct EnemyPlugin;
 
@@ -25,6 +28,8 @@ impl Plugin for EnemyPlugin {
 
 #[derive(Component, Default)]
 pub struct Enemy {
+    move_direction: Vec2,
+    target_pos: Vec2,
+    target: Option<Entity>,
     state_machine: EnemyStateMachine,
-    stagger: Stagger,
 }
