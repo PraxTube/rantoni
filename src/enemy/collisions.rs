@@ -4,7 +4,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{
     player::{Player, PlayerHitboxRoot},
-    state::{Attack, DudeState, Stagger, StaggerState},
+    state::DudeState,
     world::collisions::{Hitbox, HitboxType, Hurtbox},
     GameState,
 };
@@ -62,32 +62,9 @@ fn player_hitbox_collisions(
             } else {
                 enemy.state_machine.set_state(DudeState::Staggering);
             }
-            match attack {
-                Attack::Light1 => {
-                    enemy.stagger =
-                        Stagger::new(StaggerState::Normal, player.aim_direction, 0.3, 50.0);
-                }
-                Attack::Light2 => {
-                    enemy.stagger =
-                        Stagger::new(StaggerState::Normal, player.aim_direction, 0.3, 250.0);
-                }
-                Attack::Light3 => {
-                    enemy.stagger =
-                        Stagger::new(StaggerState::Flying, player.aim_direction, 0.2, 0.0);
-                }
-                Attack::Heavy1 => {
-                    enemy.stagger =
-                        Stagger::new(StaggerState::Normal, player.aim_direction, 0.3, 0.0);
-                }
-                Attack::Heavy2 => {
-                    enemy.stagger =
-                        Stagger::new(StaggerState::Normal, player.aim_direction, 0.35, 500.0);
-                }
-                Attack::Heavy3 => {
-                    enemy.stagger =
-                        Stagger::new(StaggerState::Normal, player.aim_direction, 0.25, 700.0);
-                }
-            }
+            enemy
+                .stagger
+                .on_attack(attack, player.aim_direction, 1.0, 1.0);
         }
     }
 }
