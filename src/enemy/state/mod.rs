@@ -1,3 +1,5 @@
+mod state_machine;
+
 use bevy::prelude::*;
 
 use crate::state::DudeState;
