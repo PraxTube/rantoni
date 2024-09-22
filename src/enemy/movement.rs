@@ -7,7 +7,7 @@ use super::Enemy;
 
 fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
     for (mut velocity, enemy) in &mut q_enemies {
-        if enemy.state == DudeState::Staggering {
+        if enemy.state_machine.state() == DudeState::Staggering {
             velocity.linvel = enemy.stagger.direction * enemy.stagger.intensity;
         }
     }

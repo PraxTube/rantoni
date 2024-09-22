@@ -57,10 +57,11 @@ fn player_hitbox_collisions(
         };
 
         if let HitboxType::Player(attack) = player_hitbox.hitbox_type {
-            if enemy.state == DudeState::Staggering {
+            if enemy.state_machine.state() == DudeState::Staggering {
                 animator.replay();
+            } else {
+                enemy.state_machine.set_state(DudeState::Staggering);
             }
-            enemy.state = DudeState::Staggering;
             match attack {
                 Attack::Light1 => {
                     enemy.stagger =

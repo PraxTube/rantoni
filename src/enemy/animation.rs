@@ -11,7 +11,7 @@ use super::{state::EnemyStateSystemSet, Enemy};
 
 fn flip_sprites(mut q_enemies: Query<(&mut Sprite, &mut Enemy)>) {
     for (mut sprite, enemy) in &mut q_enemies {
-        if enemy.state == DudeState::Staggering {
+        if enemy.state_machine.state() == DudeState::Staggering {
             if enemy.stagger.direction.x == 0.0 {
                 continue;
             }
@@ -26,7 +26,7 @@ fn update_animations(
     mut q_enemies: Query<(&mut AnimationPlayer2D, &Enemy)>,
 ) {
     for (mut animator, enemy) in &mut q_enemies {
-        let animation = match enemy.state {
+        let animation = match enemy.state_machine.state() {
             DudeState::Idling => assets.dude_animations[DudeAnimations::Idle.index()].clone(),
             DudeState::Staggering => match enemy.stagger.state {
                 StaggerState::Normal => {

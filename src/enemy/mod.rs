@@ -5,8 +5,9 @@ mod spawn;
 mod state;
 
 use bevy::prelude::*;
+use state::EnemyStateMachine;
 
-use crate::state::{DudeState, Stagger};
+use crate::state::Stagger;
 
 pub struct EnemyPlugin;
 
@@ -24,6 +25,6 @@ impl Plugin for EnemyPlugin {
 
 #[derive(Component, Default)]
 pub struct Enemy {
-    state: DudeState,
+    state_machine: EnemyStateMachine,
     stagger: Stagger,
 }
