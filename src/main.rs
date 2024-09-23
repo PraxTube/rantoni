@@ -13,6 +13,8 @@ pub type GameRng = rand_xoshiro::Xoshiro256PlusPlus;
 
 use bevy::asset::AssetMetaCheck;
 use bevy::prelude::*;
+use bevy::render::settings::WgpuSettings;
+use bevy::render::RenderPlugin;
 use bevy::window::{PresentMode, Window, WindowMode, WindowResolution};
 
 use bevy_asset_loader::prelude::*;
@@ -50,6 +52,18 @@ fn main() {
                         resolution: WindowResolution::new(1280.0, 720.0),
                         ..default()
                     }),
+                    ..default()
+                })
+                .set(RenderPlugin {
+                    render_creation: bevy::render::settings::RenderCreation::Automatic(
+                        WgpuSettings {
+                            limits: bevy::render::settings::WgpuLimits {
+                                max_texture_dimension_1d: 100000,
+                                ..default()
+                            },
+                            ..default()
+                        },
+                    ),
                     ..default()
                 })
                 .build(),

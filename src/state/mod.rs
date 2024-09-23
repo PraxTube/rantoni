@@ -1,6 +1,8 @@
 mod attack;
 mod stagger;
 
+use std::f32::consts::PI;
+
 pub use attack::{Attack, AttackForm};
 pub use stagger::{Stagger, StaggerState};
 
@@ -27,83 +29,140 @@ pub enum DudeState {
     Staggering,
 }
 
+/// Returns the index offset when taking 8-directional animations into account.
+fn direction_index_offset(direction: Vec2) -> usize {
+    let angle = direction.angle_between(Vec2::Y);
+
+    if angle.abs() < PI / 8.0 {
+        // Top
+        0
+    } else if angle.abs() < 3.0 / 8.0 * PI {
+        // Diagonal Up
+        if angle > 0.0 {
+            // Top Right
+            1
+        } else {
+            // Top Left
+            7
+        }
+    } else if angle.abs() < 5.0 / 8.0 * PI {
+        // Side
+        if angle > 0.0 {
+            // Right
+            2
+        } else {
+            // Left
+            6
+        }
+    } else if angle.abs() < 7.0 / 8.0 * PI {
+        // Diagonal Down
+        if angle > 0.0 {
+            // Bottom Right
+            3
+        } else {
+            // Bottom Left
+            5
+        }
+    } else {
+        // Bottom
+        4
+    }
+}
+
+fn match_attack_state(
+    assets: &Res<GameAssets>,
+    attack: Attack,
+    direction: Vec2,
+) -> (Handle<Image>, Handle<AnimationClip2D>, bool) {
+    let animation_state = match attack {
+        Attack::Light1 => DudeAnimations::Punch1,
+        Attack::Light2 => DudeAnimations::Punch2,
+        Attack::Light3 => DudeAnimations::Punch3,
+        Attack::Heavy1 => DudeAnimations::Kick1,
+        Attack::Heavy2 => DudeAnimations::Kick2,
+        Attack::Heavy3 => DudeAnimations::Kick3,
+    };
+    let index = animation_state.index();
+    let animation_index = index * 8 + direction_index_offset(direction);
+
+    (
+        assets.dude_textures[index].clone(),
+        assets.dude_animations[animation_index].clone(),
+        false,
+    )
+}
+
+fn match_recover_state(
+    assets: &Res<GameAssets>,
+    attack: Attack,
+    direction: Vec2,
+) -> (Handle<Image>, Handle<AnimationClip2D>, bool) {
+    let animation_state = match attack {
+        Attack::Light1 => DudeAnimations::Punch1Recover,
+        Attack::Light2 => DudeAnimations::Punch2Recover,
+        Attack::Light3 => DudeAnimations::Punch3Recover,
+        Attack::Heavy1 => DudeAnimations::Kick1Recover,
+        Attack::Heavy2 => DudeAnimations::Kick2Recover,
+        Attack::Heavy3 => DudeAnimations::Kick3Recover,
+    };
+    let index = animation_state.index();
+    let animation_index = index * 8 + direction_index_offset(direction);
+
+    (
+        assets.dude_textures[index].clone(),
+        assets.dude_animations[animation_index].clone(),
+        false,
+    )
+}
+
+fn match_stagger_state(
+    assets: &Res<GameAssets>,
+    stagger_state: StaggerState,
+    direction: Vec2,
+) -> (Handle<Image>, Handle<AnimationClip2D>, bool) {
+    let animation_state = match stagger_state {
+        StaggerState::Normal => DudeAnimations::StaggerNormal,
+        StaggerState::Flying => DudeAnimations::StaggerFlying,
+    };
+    let index = animation_state.index();
+    let animation_index = index * 8 + direction_index_offset(direction);
+
+    (
+        assets.dude_textures[index].clone(),
+        assets.dude_animations[animation_index].clone(),
+        false,
+    )
+}
+
 pub fn dude_state_animation(
+    assets: &Res<GameAssets>,
     state: DudeState,
     attack: Attack,
     stagger_state: StaggerState,
-    assets: &Res<GameAssets>,
-) -> (Handle<AnimationClip2D>, bool) {
+    direction: Vec2,
+) -> (Handle<Image>, Handle<AnimationClip2D>, bool) {
     match state {
-        DudeState::Idling => (
-            assets.dude_animations[DudeAnimations::Idle.index()].clone(),
-            true,
-        ),
-        DudeState::Running => (
-            assets.dude_animations[DudeAnimations::Run.index()].clone(),
-            true,
-        ),
-        DudeState::Attacking => match attack {
-            Attack::Light1 => (
-                assets.dude_animations[DudeAnimations::Punch1.index()].clone(),
-                false,
-            ),
-            Attack::Light2 => (
-                assets.dude_animations[DudeAnimations::Punch2.index()].clone(),
-                false,
-            ),
-            Attack::Light3 => (
-                assets.dude_animations[DudeAnimations::Punch3.index()].clone(),
-                false,
-            ),
-            Attack::Heavy1 => (
-                assets.dude_animations[DudeAnimations::Kick1.index()].clone(),
-                false,
-            ),
-            Attack::Heavy2 => (
-                assets.dude_animations[DudeAnimations::Kick2.index()].clone(),
-                false,
-            ),
-            Attack::Heavy3 => (
-                assets.dude_animations[DudeAnimations::Kick3.index()].clone(),
-                false,
-            ),
-        },
-        DudeState::Recovering => match attack {
-            Attack::Light1 => (
-                assets.dude_animations[DudeAnimations::Punch1Recover.index()].clone(),
-                false,
-            ),
-            Attack::Light2 => (
-                assets.dude_animations[DudeAnimations::Punch2Recover.index()].clone(),
-                false,
-            ),
-            Attack::Light3 => (
-                assets.dude_animations[DudeAnimations::Punch3Recover.index()].clone(),
-                false,
-            ),
-            Attack::Heavy1 => (
-                assets.dude_animations[DudeAnimations::Kick1Recover.index()].clone(),
-                false,
-            ),
-            Attack::Heavy2 => (
-                assets.dude_animations[DudeAnimations::Kick2Recover.index()].clone(),
-                false,
-            ),
-            Attack::Heavy3 => (
-                assets.dude_animations[DudeAnimations::Kick3Recover.index()].clone(),
-                false,
-            ),
-        },
-        DudeState::Staggering => match stagger_state {
-            StaggerState::Normal => (
-                assets.dude_animations[DudeAnimations::StaggerNormal.index()].clone(),
-                false,
-            ),
-            StaggerState::Flying => (
-                assets.dude_animations[DudeAnimations::StaggerFlying.index()].clone(),
-                false,
-            ),
-        },
+        DudeState::Idling => {
+            let index = DudeAnimations::Idle.index();
+            let animation_index = index * 8 + direction_index_offset(direction);
+            (
+                assets.dude_textures[index].clone(),
+                assets.dude_animations[animation_index].clone(),
+                true,
+            )
+        }
+        DudeState::Running => {
+            let index = DudeAnimations::Run.index();
+            let animation_index = index * 8 + direction_index_offset(direction);
+            (
+                assets.dude_textures[index].clone(),
+                assets.dude_animations[animation_index].clone(),
+                true,
+            )
+        }
+        DudeState::Attacking => match_attack_state(&assets, attack, direction),
+        DudeState::Recovering => match_recover_state(&assets, attack, direction),
+        DudeState::Staggering => match_stagger_state(&assets, stagger_state, direction),
     }
 }
 

@@ -26,7 +26,7 @@ fn spawn_dummy_enemy(mut commands: Commands, assets: Res<GameAssets>) {
             },
             YSort(0.0),
             SpriteBundle {
-                texture: assets.player_texture.clone(),
+                texture: assets.dude_textures[0].clone(),
                 transform: Transform::from_translation(Vec3::new(100.0, 100.0, 0.0)),
                 sprite: Sprite {
                     color: RED.into(),

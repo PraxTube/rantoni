@@ -107,7 +107,7 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
             Ccd::enabled(),
             YSort(0.0),
             SpriteBundle {
-                texture: assets.player_texture.clone(),
+                texture: assets.dude_textures[0].clone(),
                 ..default()
             },
             TextureAtlas::from(assets.dude_layout.clone()),

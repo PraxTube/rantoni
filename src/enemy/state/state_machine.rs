@@ -11,14 +11,6 @@ pub struct EnemyStateMachine {
 }
 
 impl EnemyStateMachine {
-    pub fn can_run(&self) -> bool {
-        self.state == DudeState::Idling || self.state == DudeState::Running
-    }
-
-    pub fn can_punch(&self) -> bool {
-        self.can_run() || self.state == DudeState::Attacking
-    }
-
     pub fn previous_state(&self) -> DudeState {
         self.previous_state
     }

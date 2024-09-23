@@ -1,9 +1,9 @@
 pub enum DudeAnimations {
     Idle,
-    Run,
     Punch1,
-    Punch1Recover,
     Punch2,
+    Run,
+    Punch1Recover,
     Punch2Recover,
     Punch3,
     Punch3Recover,
