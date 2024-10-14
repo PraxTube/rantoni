@@ -51,7 +51,7 @@ impl Stagger {
             }
             Attack::Light3 => {
                 self.reset_state(
-                    StaggerState::Flying,
+                    StaggerState::Normal,
                     direction,
                     0.2 * duration_multiplier,
                     0.0 * intensity_multiplier,

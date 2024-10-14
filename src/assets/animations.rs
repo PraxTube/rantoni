@@ -7,13 +7,14 @@ pub enum DudeAnimations {
     Light2Recover,
     Light3,
     Light3Recover,
+    StaggerNormal,
     Heavy1,
     Heavy1Recover,
     Heavy2,
     Heavy2Recover,
     Heavy3,
     Heavy3Recover,
-    StaggerNormal,
+    // TODO
     StaggerFlying,
 }
 

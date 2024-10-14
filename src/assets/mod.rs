@@ -21,6 +21,7 @@ pub struct GameAssets {
             "dude/dude_punch_recover.png",
             "dude/dude_front_kick.png",
             "dude/dude_front_kick_recover.png",
+            "dude/dude_stagger.png",
         ),
         collection(typed)
     )]
@@ -94,6 +95,14 @@ pub struct GameAssets {
             "dude/dude.trickfilm.ron#front_kick_recover-o5",
             "dude/dude.trickfilm.ron#front_kick_recover-o6",
             "dude/dude.trickfilm.ron#front_kick_recover-o7",
+            "dude/dude.trickfilm.ron#stagger-o0",
+            "dude/dude.trickfilm.ron#stagger-o1",
+            "dude/dude.trickfilm.ron#stagger-o2",
+            "dude/dude.trickfilm.ron#stagger-o3",
+            "dude/dude.trickfilm.ron#stagger-o4",
+            "dude/dude.trickfilm.ron#stagger-o5",
+            "dude/dude.trickfilm.ron#stagger-o6",
+            "dude/dude.trickfilm.ron#stagger-o7",
         ),
         collection(typed)
     )]
