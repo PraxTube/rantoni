@@ -23,7 +23,7 @@ pub struct GameAssets {
     )]
     pub dude_textures: Vec<Handle<Image>>,
 
-    #[asset(texture_atlas_layout(tile_size_x = 100, tile_size_y = 100, columns = 40, rows = 8))]
+    #[asset(texture_atlas_layout(tile_size_x = 100, tile_size_y = 100, columns = 35, rows = 8))]
     pub dude_layout: Handle<TextureAtlasLayout>,
     #[asset(
         paths(
