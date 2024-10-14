@@ -17,6 +17,7 @@ pub struct GameAssets {
             "dude/dude_jab.png",
             "dude/dude_punch.png",
             "dude/dude_run.png",
+            "dude/dude_jab_recover.png",
         ),
         collection(typed)
     )]
@@ -58,6 +59,14 @@ pub struct GameAssets {
             "dude/dude.trickfilm.ron#run-o5",
             "dude/dude.trickfilm.ron#run-o6",
             "dude/dude.trickfilm.ron#run-o7",
+            "dude/dude.trickfilm.ron#jab_recover-o0",
+            "dude/dude.trickfilm.ron#jab_recover-o1",
+            "dude/dude.trickfilm.ron#jab_recover-o2",
+            "dude/dude.trickfilm.ron#jab_recover-o3",
+            "dude/dude.trickfilm.ron#jab_recover-o4",
+            "dude/dude.trickfilm.ron#jab_recover-o5",
+            "dude/dude.trickfilm.ron#jab_recover-o6",
+            "dude/dude.trickfilm.ron#jab_recover-o7",
         ),
         collection(typed)
     )]
