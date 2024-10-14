@@ -1,34 +1,98 @@
 {
+	"front_kick-o0": (
+		keyframes: KeyframesRange((start: 0, end: 10)),
+		duration: 0.33333334,
+	),
+	"front_kick-o1": (
+		keyframes: KeyframesRange((start: 30, end: 40)),
+		duration: 0.33333334,
+	),
+	"front_kick-o2": (
+		keyframes: KeyframesRange((start: 60, end: 70)),
+		duration: 0.33333334,
+	),
+	"front_kick-o3": (
+		keyframes: KeyframesRange((start: 90, end: 100)),
+		duration: 0.33333334,
+	),
+	"front_kick-o4": (
+		keyframes: KeyframesRange((start: 120, end: 130)),
+		duration: 0.33333334,
+	),
+	"front_kick-o5": (
+		keyframes: KeyframesRange((start: 150, end: 160)),
+		duration: 0.33333334,
+	),
+	"front_kick-o6": (
+		keyframes: KeyframesRange((start: 180, end: 190)),
+		duration: 0.33333334,
+	),
+	"front_kick-o7": (
+		keyframes: KeyframesRange((start: 210, end: 220)),
+		duration: 0.33333334,
+	),
+	"front_kick_recover-o0": (
+		keyframes: KeyframesRange((start: 0, end: 10)),
+		duration: 0.33333334,
+	),
+	"front_kick_recover-o1": (
+		keyframes: KeyframesRange((start: 30, end: 40)),
+		duration: 0.33333334,
+	),
+	"front_kick_recover-o2": (
+		keyframes: KeyframesRange((start: 60, end: 70)),
+		duration: 0.33333334,
+	),
+	"front_kick_recover-o3": (
+		keyframes: KeyframesRange((start: 90, end: 100)),
+		duration: 0.33333334,
+	),
+	"front_kick_recover-o4": (
+		keyframes: KeyframesRange((start: 120, end: 130)),
+		duration: 0.33333334,
+	),
+	"front_kick_recover-o5": (
+		keyframes: KeyframesRange((start: 150, end: 160)),
+		duration: 0.33333334,
+	),
+	"front_kick_recover-o6": (
+		keyframes: KeyframesRange((start: 180, end: 190)),
+		duration: 0.33333334,
+	),
+	"front_kick_recover-o7": (
+		keyframes: KeyframesRange((start: 210, end: 220)),
+		duration: 0.33333334,
+	),
 	"idle-o0": (
 		keyframes: KeyframesRange((start: 0, end: 20)),
 		duration: 0.6666667,
 	),
 	"idle-o1": (
-		keyframes: KeyframesRange((start: 35, end: 55)),
+		keyframes: KeyframesRange((start: 30, end: 50)),
 		duration: 0.6666667,
 	),
 	"idle-o2": (
-		keyframes: KeyframesRange((start: 70, end: 90)),
+		keyframes: KeyframesRange((start: 60, end: 80)),
 		duration: 0.6666667,
 	),
 	"idle-o3": (
-		keyframes: KeyframesRange((start: 105, end: 125)),
+		keyframes: KeyframesRange((start: 90, end: 110)),
 		duration: 0.6666667,
 	),
 	"idle-o4": (
-		keyframes: KeyframesRange((start: 140, end: 160)),
+		keyframes: KeyframesRange((start: 120, end: 140)),
 		duration: 0.6666667,
 	),
 	"idle-o5": (
-		keyframes: KeyframesRange((start: 175, end: 195)),
+		keyframes: KeyframesRange((start: 150, end: 170)),
 		duration: 0.6666667,
 	),
 	"idle-o6": (
-		keyframes: KeyframesRange((start: 210, end: 230)),
+		keyframes: KeyframesRange((start: 180, end: 200)),
 		duration: 0.6666667,
 	),
 	"idle-o7": (
-		keyframes: KeyframesRange((start: 245, end: 265)),
+		keyframes: KeyframesRange((start: 210, end: 230)),
 		duration: 0.6666667,
 	),
 	"jab-o0": (
@@ -36,31 +100,31 @@
 		duration: 0.33333334,
 	),
 	"jab-o1": (
-		keyframes: KeyframesRange((start: 35, end: 45)),
+		keyframes: KeyframesRange((start: 30, end: 40)),
 		duration: 0.33333334,
 	),
 	"jab-o2": (
-		keyframes: KeyframesRange((start: 70, end: 80)),
+		keyframes: KeyframesRange((start: 60, end: 70)),
 		duration: 0.33333334,
 	),
 	"jab-o3": (
-		keyframes: KeyframesRange((start: 105, end: 115)),
+		keyframes: KeyframesRange((start: 90, end: 100)),
 		duration: 0.33333334,
 	),
 	"jab-o4": (
-		keyframes: KeyframesRange((start: 140, end: 150)),
+		keyframes: KeyframesRange((start: 120, end: 130)),
 		duration: 0.33333334,
 	),
 	"jab-o5": (
-		keyframes: KeyframesRange((start: 175, end: 185)),
+		keyframes: KeyframesRange((start: 150, end: 160)),
 		duration: 0.33333334,
 	),
 	"jab-o6": (
-		keyframes: KeyframesRange((start: 210, end: 220)),
+		keyframes: KeyframesRange((start: 180, end: 190)),
 		duration: 0.33333334,
 	),
 	"jab-o7": (
-		keyframes: KeyframesRange((start: 245, end: 255)),
+		keyframes: KeyframesRange((start: 210, end: 220)),
 		duration: 0.33333334,
 	),
 	"jab_recover-o0": (
@@ -68,95 +132,159 @@
 		duration: 0.3,
 	),
 	"jab_recover-o1": (
-		keyframes: KeyframesRange((start: 35, end: 44)),
+		keyframes: KeyframesRange((start: 30, end: 39)),
 		duration: 0.3,
 	),
 	"jab_recover-o2": (
-		keyframes: KeyframesRange((start: 70, end: 79)),
+		keyframes: KeyframesRange((start: 60, end: 69)),
 		duration: 0.3,
 	),
 	"jab_recover-o3": (
-		keyframes: KeyframesRange((start: 105, end: 114)),
+		keyframes: KeyframesRange((start: 90, end: 99)),
 		duration: 0.3,
 	),
 	"jab_recover-o4": (
-		keyframes: KeyframesRange((start: 140, end: 149)),
+		keyframes: KeyframesRange((start: 120, end: 129)),
 		duration: 0.3,
 	),
 	"jab_recover-o5": (
-		keyframes: KeyframesRange((start: 175, end: 184)),
+		keyframes: KeyframesRange((start: 150, end: 159)),
 		duration: 0.3,
 	),
 	"jab_recover-o6": (
-		keyframes: KeyframesRange((start: 210, end: 219)),
+		keyframes: KeyframesRange((start: 180, end: 189)),
 		duration: 0.3,
 	),
 	"jab_recover-o7": (
-		keyframes: KeyframesRange((start: 245, end: 254)),
+		keyframes: KeyframesRange((start: 210, end: 219)),
 		duration: 0.3,
 	),
 	"punch-o0": (
-		keyframes: KeyframesRange((start: 0, end: 35)),
-		duration: 1.1666666,
+		keyframes: KeyframesRange((start: 0, end: 14)),
+		duration: 0.46666667,
 	),
 	"punch-o1": (
-		keyframes: KeyframesRange((start: 35, end: 70)),
-		duration: 1.1666666,
+		keyframes: KeyframesRange((start: 30, end: 44)),
+		duration: 0.46666667,
 	),
 	"punch-o2": (
-		keyframes: KeyframesRange((start: 70, end: 105)),
-		duration: 1.1666666,
+		keyframes: KeyframesRange((start: 60, end: 74)),
+		duration: 0.46666667,
 	),
 	"punch-o3": (
-		keyframes: KeyframesRange((start: 105, end: 140)),
-		duration: 1.1666666,
+		keyframes: KeyframesRange((start: 90, end: 104)),
+		duration: 0.46666667,
 	),
 	"punch-o4": (
-		keyframes: KeyframesRange((start: 140, end: 175)),
-		duration: 1.1666666,
+		keyframes: KeyframesRange((start: 120, end: 134)),
+		duration: 0.46666667,
 	),
 	"punch-o5": (
-		keyframes: KeyframesRange((start: 175, end: 210)),
-		duration: 1.1666666,
+		keyframes: KeyframesRange((start: 150, end: 164)),
+		duration: 0.46666667,
 	),
 	"punch-o6": (
-		keyframes: KeyframesRange((start: 210, end: 245)),
-		duration: 1.1666666,
+		keyframes: KeyframesRange((start: 180, end: 194)),
+		duration: 0.46666667,
 	),
 	"punch-o7": (
-		keyframes: KeyframesRange((start: 245, end: 280)),
-		duration: 1.1666666,
+		keyframes: KeyframesRange((start: 210, end: 224)),
+		duration: 0.46666667,
+	),
+	"punch_recover-o0": (
+		keyframes: KeyframesRange((start: 0, end: 22)),
+		duration: 0.73333335,
+	),
+	"punch_recover-o1": (
+		keyframes: KeyframesRange((start: 30, end: 52)),
+		duration: 0.73333335,
+	),
+	"punch_recover-o2": (
+		keyframes: KeyframesRange((start: 60, end: 82)),
+		duration: 0.73333335,
+	),
+	"punch_recover-o3": (
+		keyframes: KeyframesRange((start: 90, end: 112)),
+		duration: 0.73333335,
+	),
+	"punch_recover-o4": (
+		keyframes: KeyframesRange((start: 120, end: 142)),
+		duration: 0.73333335,
+	),
+	"punch_recover-o5": (
+		keyframes: KeyframesRange((start: 150, end: 172)),
+		duration: 0.73333335,
+	),
+	"punch_recover-o6": (
+		keyframes: KeyframesRange((start: 180, end: 202)),
+		duration: 0.73333335,
+	),
+	"punch_recover-o7": (
+		keyframes: KeyframesRange((start: 210, end: 232)),
+		duration: 0.73333335,
+	),
+	"roundhouse_kick-o0": (
+		keyframes: KeyframesRange((start: 0, end: 30)),
+		duration: 1,
+	),
+	"roundhouse_kick-o1": (
+		keyframes: KeyframesRange((start: 30, end: 60)),
+		duration: 1,
+	),
+	"roundhouse_kick-o2": (
+		keyframes: KeyframesRange((start: 60, end: 90)),
+		duration: 1,
+	),
+	"roundhouse_kick-o3": (
+		keyframes: KeyframesRange((start: 90, end: 120)),
+		duration: 1,
+	),
+	"roundhouse_kick-o4": (
+		keyframes: KeyframesRange((start: 120, end: 150)),
+		duration: 1,
+	),
+	"roundhouse_kick-o5": (
+		keyframes: KeyframesRange((start: 150, end: 180)),
+		duration: 1,
+	),
+	"roundhouse_kick-o6": (
+		keyframes: KeyframesRange((start: 180, end: 210)),
+		duration: 1,
+	),
+	"roundhouse_kick-o7": (
+		keyframes: KeyframesRange((start: 210, end: 240)),
+		duration: 1,
 	),
 	"run-o0": (
 		keyframes: KeyframesRange((start: 0, end: 15)),
 		duration: 0.5,
 	),
 	"run-o1": (
-		keyframes: KeyframesRange((start: 35, end: 50)),
+		keyframes: KeyframesRange((start: 30, end: 45)),
 		duration: 0.5,
 	),
 	"run-o2": (
-		keyframes: KeyframesRange((start: 70, end: 85)),
+		keyframes: KeyframesRange((start: 60, end: 75)),
 		duration: 0.5,
 	),
 	"run-o3": (
-		keyframes: KeyframesRange((start: 105, end: 120)),
+		keyframes: KeyframesRange((start: 90, end: 105)),
 		duration: 0.5,
 	),
 	"run-o4": (
-		keyframes: KeyframesRange((start: 140, end: 155)),
+		keyframes: KeyframesRange((start: 120, end: 135)),
 		duration: 0.5,
 	),
 	"run-o5": (
-		keyframes: KeyframesRange((start: 175, end: 190)),
+		keyframes: KeyframesRange((start: 150, end: 165)),
 		duration: 0.5,
 	),
 	"run-o6": (
-		keyframes: KeyframesRange((start: 210, end: 225)),
+		keyframes: KeyframesRange((start: 180, end: 195)),
 		duration: 0.5,
 	),
 	"run-o7": (
-		keyframes: KeyframesRange((start: 245, end: 260)),
+		keyframes: KeyframesRange((start: 210, end: 225)),
 		duration: 0.5,
 	),
 }

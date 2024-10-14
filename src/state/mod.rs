@@ -75,12 +75,12 @@ fn match_attack_state(
     direction: Vec2,
 ) -> (Handle<Image>, Handle<AnimationClip2D>, bool) {
     let animation_state = match attack {
-        Attack::Light1 => DudeAnimations::Punch1,
-        Attack::Light2 => DudeAnimations::Punch2,
-        Attack::Light3 => DudeAnimations::Punch3,
-        Attack::Heavy1 => DudeAnimations::Kick1,
-        Attack::Heavy2 => DudeAnimations::Kick2,
-        Attack::Heavy3 => DudeAnimations::Kick3,
+        Attack::Light1 => DudeAnimations::Light1,
+        Attack::Light2 => DudeAnimations::Light2,
+        Attack::Light3 => DudeAnimations::Light3,
+        Attack::Heavy1 => DudeAnimations::Heavy1,
+        Attack::Heavy2 => DudeAnimations::Heavy2,
+        Attack::Heavy3 => DudeAnimations::Heavy3,
     };
     let index = animation_state.index();
     let animation_index = index * 8 + direction_index_offset(direction);
@@ -98,12 +98,12 @@ fn match_recover_state(
     direction: Vec2,
 ) -> (Handle<Image>, Handle<AnimationClip2D>, bool) {
     let animation_state = match attack {
-        Attack::Light1 => DudeAnimations::Punch1Recover,
-        Attack::Light2 => DudeAnimations::Punch2Recover,
-        Attack::Light3 => DudeAnimations::Punch3Recover,
-        Attack::Heavy1 => DudeAnimations::Kick1Recover,
-        Attack::Heavy2 => DudeAnimations::Kick2Recover,
-        Attack::Heavy3 => DudeAnimations::Kick3Recover,
+        Attack::Light1 => DudeAnimations::Light1Recover,
+        Attack::Light2 => DudeAnimations::Light2Recover,
+        Attack::Light3 => DudeAnimations::Light3Recover,
+        Attack::Heavy1 => DudeAnimations::Heavy1Recover,
+        Attack::Heavy2 => DudeAnimations::Heavy2Recover,
+        Attack::Heavy3 => DudeAnimations::Heavy3Recover,
     };
     let index = animation_state.index();
     let animation_index = index * 8 + direction_index_offset(direction);
