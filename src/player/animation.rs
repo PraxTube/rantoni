@@ -22,13 +22,13 @@ fn update_current_direction(player_input: Res<PlayerInput>, mut q_player: Query<
 
 fn update_player_animation(
     assets: Res<GameAssets>,
-    mut q_player: Query<(&Player, &mut Handle<Image>, &mut AnimationPlayer2D)>,
+    mut q_player: Query<(&mut Player, &mut Handle<Image>, &mut AnimationPlayer2D)>,
 ) {
-    let Ok((player, mut player_texture, mut animator)) = q_player.get_single_mut() else {
+    let Ok((mut player, mut player_texture, mut animator)) = q_player.get_single_mut() else {
         return;
     };
 
-    let (texture, animation, repeat) = dude_state_animation(
+    let (texture, animation, repeat, animation_state) = dude_state_animation(
         &assets,
         player.state_machine.state(),
         player.state_machine.attack(),
@@ -39,6 +39,10 @@ fn update_player_animation(
     if &animation == animator.animation_clip() {
         return;
     }
+    if !repeat && animation_state == player.state_machine.animation_state() {
+        return;
+    }
+    player.state_machine.set_animation_state(animation_state);
 
     if repeat {
         animator.play(animation).repeat();

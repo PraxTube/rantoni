@@ -1,4 +1,6 @@
+#[derive(Default, Clone, Copy, PartialEq)]
 pub enum DudeAnimations {
+    #[default]
     Idle,
     Run,
     Light1,

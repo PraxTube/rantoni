@@ -2,7 +2,10 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::state::{Attack, AttackForm, DudeState};
+use crate::{
+    assets::DudeAnimations,
+    state::{Attack, AttackForm, DudeState},
+};
 
 use super::AttackHandler;
 
@@ -12,6 +15,7 @@ pub struct PlayerStateMachine {
     state: DudeState,
     previous_state: DudeState,
     attack_handler: AttackHandler,
+    animation_state: DudeAnimations,
 }
 
 impl PlayerStateMachine {
@@ -51,6 +55,14 @@ Attempted new state: {:?}",
         self.set_just_changed(true);
         self.previous_state = self.state;
         self.state = state;
+    }
+
+    pub fn animation_state(&self) -> DudeAnimations {
+        self.animation_state
+    }
+
+    pub fn set_animation_state(&mut self, animation_state: DudeAnimations) {
+        self.animation_state = animation_state;
     }
 
     pub fn attack(&self) -> Attack {

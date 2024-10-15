@@ -73,7 +73,7 @@ fn match_attack_state(
     assets: &Res<GameAssets>,
     attack: Attack,
     direction: Vec2,
-) -> (Handle<Image>, Handle<AnimationClip2D>, bool) {
+) -> (Handle<Image>, Handle<AnimationClip2D>, bool, DudeAnimations) {
     let animation_state = match attack {
         Attack::Light1 => DudeAnimations::Light1,
         Attack::Light2 => DudeAnimations::Light2,
@@ -89,6 +89,7 @@ fn match_attack_state(
         assets.dude_textures[index].clone(),
         assets.dude_animations[animation_index].clone(),
         false,
+        animation_state,
     )
 }
 
@@ -96,7 +97,7 @@ fn match_recover_state(
     assets: &Res<GameAssets>,
     attack: Attack,
     direction: Vec2,
-) -> (Handle<Image>, Handle<AnimationClip2D>, bool) {
+) -> (Handle<Image>, Handle<AnimationClip2D>, bool, DudeAnimations) {
     let animation_state = match attack {
         Attack::Light1 => DudeAnimations::Light1Recover,
         Attack::Light2 => DudeAnimations::Light2Recover,
@@ -112,6 +113,7 @@ fn match_recover_state(
         assets.dude_textures[index].clone(),
         assets.dude_animations[animation_index].clone(),
         false,
+        animation_state,
     )
 }
 
@@ -119,7 +121,7 @@ fn match_stagger_state(
     assets: &Res<GameAssets>,
     stagger_state: StaggerState,
     direction: Vec2,
-) -> (Handle<Image>, Handle<AnimationClip2D>, bool) {
+) -> (Handle<Image>, Handle<AnimationClip2D>, bool, DudeAnimations) {
     let animation_state = match stagger_state {
         StaggerState::Normal => DudeAnimations::StaggerNormal,
         StaggerState::Flying => DudeAnimations::StaggerFlying,
@@ -131,6 +133,7 @@ fn match_stagger_state(
         assets.dude_textures[index].clone(),
         assets.dude_animations[animation_index].clone(),
         false,
+        animation_state,
     )
 }
 
@@ -140,7 +143,7 @@ pub fn dude_state_animation(
     attack: Attack,
     stagger_state: StaggerState,
     direction: Vec2,
-) -> (Handle<Image>, Handle<AnimationClip2D>, bool) {
+) -> (Handle<Image>, Handle<AnimationClip2D>, bool, DudeAnimations) {
     match state {
         DudeState::Idling => {
             let index = DudeAnimations::Idle.index();
@@ -149,6 +152,7 @@ pub fn dude_state_animation(
                 assets.dude_textures[index].clone(),
                 assets.dude_animations[animation_index].clone(),
                 true,
+                DudeAnimations::Idle,
             )
         }
         DudeState::Running => {
@@ -158,6 +162,7 @@ pub fn dude_state_animation(
                 assets.dude_textures[index].clone(),
                 assets.dude_animations[animation_index].clone(),
                 true,
+                DudeAnimations::Run,
             )
         }
         DudeState::Attacking => match_attack_state(&assets, attack, direction),

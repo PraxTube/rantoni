@@ -13,7 +13,7 @@ fn update_animations(
     mut q_enemies: Query<(&mut Handle<Image>, &mut AnimationPlayer2D, &Enemy, &Stagger)>,
 ) {
     for (mut enemy_texture, mut animator, enemy, stagger) in &mut q_enemies {
-        let (texture, animation, repeat) = dude_state_animation(
+        let (texture, animation, repeat, _) = dude_state_animation(
             &assets,
             enemy.state_machine.state(),
             Attack::default(),
