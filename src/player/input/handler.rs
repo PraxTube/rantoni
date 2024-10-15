@@ -65,7 +65,6 @@ fn handle_keyboard_inputs(
         move_direction += Vec2::NEG_X;
     }
     input.move_direction = move_direction.normalize_or_zero();
-    input.aim_direction = input.move_direction;
 
     let mut zoom = 0;
     if keys.just_pressed(KeyCode::Backspace) {
@@ -148,7 +147,6 @@ fn handle_gamepad_inputs(
         Vec2::new(x, y).normalize_or_zero()
     };
     input.move_direction = left_stick_direction;
-    input.aim_direction = left_stick_direction;
 
     if input != PlayerInput::default() {
         *input_device = InputDevice::Gamepad;

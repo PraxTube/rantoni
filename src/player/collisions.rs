@@ -73,7 +73,7 @@ fn flip_hitbox_positions(
                 };
 
                 if hitbox.horizontal {
-                    let pos = if player.aim_direction.x < 0.0 {
+                    let pos = if player.current_direction.x < 0.0 {
                         Vec2::new(-hitbox.offset.x, hitbox.offset.y)
                     } else {
                         hitbox.offset

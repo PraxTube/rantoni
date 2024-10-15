@@ -25,7 +25,7 @@ impl Default for InputTimeline {
                     3.0,
                     PlayerInput {
                         light_attack: true,
-                        aim_direction: Vec2::new(1.0, 0.0),
+                        move_direction: Vec2::new(1.0, 0.0),
                         ..default()
                     },
                 ),
@@ -34,7 +34,7 @@ impl Default for InputTimeline {
                     3.2,
                     PlayerInput {
                         light_attack: true,
-                        aim_direction: Vec2::new(-1.0, 0.0),
+                        move_direction: Vec2::new(-1.0, 0.0),
                         ..default()
                     },
                 ),
@@ -43,7 +43,7 @@ impl Default for InputTimeline {
                     4.0,
                     PlayerInput {
                         light_attack: true,
-                        aim_direction: Vec2::new(-1.0, 0.0),
+                        move_direction: Vec2::new(-1.0, 0.0),
                         ..default()
                     },
                 ),
@@ -52,7 +52,7 @@ impl Default for InputTimeline {
                     4.26,
                     PlayerInput {
                         heavy_attack: true,
-                        aim_direction: Vec2::new(1.0, 0.0),
+                        move_direction: Vec2::new(1.0, 0.0),
                         ..default()
                     },
                 ),
@@ -61,7 +61,7 @@ impl Default for InputTimeline {
                     5.0,
                     PlayerInput {
                         light_attack: true,
-                        aim_direction: Vec2::new(0.0, 0.0),
+                        move_direction: Vec2::new(0.0, 0.0),
                         ..default()
                     },
                 ),
@@ -70,7 +70,7 @@ impl Default for InputTimeline {
                     5.5,
                     PlayerInput {
                         heavy_attack: true,
-                        aim_direction: Vec2::new(-0.0001, 0.0),
+                        move_direction: Vec2::new(-0.0001, 0.0),
                         ..default()
                     },
                 ),

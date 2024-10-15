@@ -67,7 +67,7 @@ fn player_hitbox_collisions(
             } else {
                 enemy.state_machine.set_state(DudeState::Staggering);
             }
-            stagger.update(attack, player.aim_direction, 1.0, 1.0);
+            stagger.update(attack, player.current_direction, 1.0, 1.0);
         }
     }
 }

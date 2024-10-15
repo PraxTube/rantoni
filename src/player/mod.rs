@@ -30,6 +30,5 @@ impl Plugin for PlayerPlugin {
 #[derive(Component, Default)]
 pub struct Player {
     pub state_machine: PlayerStateMachine,
-    pub aim_direction: Vec2,
     pub current_direction: Vec2,
 }

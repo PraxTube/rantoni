@@ -38,9 +38,9 @@ fn move_player_punching(mut q_player: Query<(&Player, &mut Velocity)>) {
     };
 
     if player.state_machine.attack_eq(Attack::Light1) {
-        velocity.linvel = player.aim_direction * 50.0;
+        velocity.linvel = player.current_direction * 50.0;
     } else if player.state_machine.attack_eq(Attack::Light2) {
-        velocity.linvel = player.aim_direction * 250.0;
+        velocity.linvel = player.current_direction * 250.0;
     }
 }
 

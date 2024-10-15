@@ -27,11 +27,7 @@ impl Plugin for PlayerStatePlugin {
         )
         .add_systems(
             Update,
-            (
-                update_aim_direction,
-                start_attack_chain_timer,
-                handle_attack_chain_timer,
-            )
+            (start_attack_chain_timer, handle_attack_chain_timer)
                 .chain()
                 .after(PlayerStateSystemSet),
         );
@@ -108,18 +104,6 @@ fn reset_just_changed(mut q_player: Query<&mut Player>) {
     };
 
     player.state_machine.set_just_changed(false);
-}
-
-fn update_aim_direction(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
-    for mut player in &mut q_players {
-        if player_input.aim_direction == Vec2::ZERO {
-            continue;
-        }
-
-        if player.state_machine.just_changed() {
-            player.aim_direction = player_input.aim_direction;
-        }
-    }
 }
 
 fn start_attack_chain_timer(mut q_players: Query<&mut Player>) {
