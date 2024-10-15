@@ -1,35 +1,35 @@
 {
 	"front_kick-o0": (
-		keyframes: KeyframesRange((start: 0, end: 10)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 0, end: 7)),
+		duration: 0.23333333,
 	),
 	"front_kick-o1": (
-		keyframes: KeyframesRange((start: 30, end: 40)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 30, end: 37)),
+		duration: 0.23333333,
 	),
 	"front_kick-o2": (
-		keyframes: KeyframesRange((start: 60, end: 70)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 60, end: 67)),
+		duration: 0.23333333,
 	),
 	"front_kick-o3": (
-		keyframes: KeyframesRange((start: 90, end: 100)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 90, end: 97)),
+		duration: 0.23333333,
 	),
 	"front_kick-o4": (
-		keyframes: KeyframesRange((start: 120, end: 130)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 120, end: 127)),
+		duration: 0.23333333,
 	),
 	"front_kick-o5": (
-		keyframes: KeyframesRange((start: 150, end: 160)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 150, end: 157)),
+		duration: 0.23333333,
 	),
 	"front_kick-o6": (
-		keyframes: KeyframesRange((start: 180, end: 190)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 180, end: 187)),
+		duration: 0.23333333,
 	),
 	"front_kick-o7": (
-		keyframes: KeyframesRange((start: 210, end: 220)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 210, end: 217)),
+		duration: 0.23333333,
 	),
 	"front_kick_recover-o0": (
 		keyframes: KeyframesRange((start: 0, end: 10)),
@@ -96,36 +96,36 @@
 		duration: 0.6666667,
 	),
 	"jab-o0": (
-		keyframes: KeyframesRange((start: 0, end: 10)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 0, end: 9)),
+		duration: 0.3,
 	),
 	"jab-o1": (
-		keyframes: KeyframesRange((start: 30, end: 40)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 30, end: 39)),
+		duration: 0.3,
 	),
 	"jab-o2": (
-		keyframes: KeyframesRange((start: 60, end: 70)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 60, end: 69)),
+		duration: 0.3,
 	),
 	"jab-o3": (
-		keyframes: KeyframesRange((start: 90, end: 100)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 90, end: 99)),
+		duration: 0.3,
 	),
 	"jab-o4": (
-		keyframes: KeyframesRange((start: 120, end: 130)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 120, end: 129)),
+		duration: 0.3,
 	),
 	"jab-o5": (
-		keyframes: KeyframesRange((start: 150, end: 160)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 150, end: 159)),
+		duration: 0.3,
 	),
 	"jab-o6": (
-		keyframes: KeyframesRange((start: 180, end: 190)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 180, end: 189)),
+		duration: 0.3,
 	),
 	"jab-o7": (
-		keyframes: KeyframesRange((start: 210, end: 220)),
-		duration: 0.33333334,
+		keyframes: KeyframesRange((start: 210, end: 219)),
+		duration: 0.3,
 	),
 	"jab_recover-o0": (
 		keyframes: KeyframesRange((start: 0, end: 9)),
@@ -160,36 +160,36 @@
 		duration: 0.3,
 	),
 	"punch-o0": (
-		keyframes: KeyframesRange((start: 0, end: 14)),
-		duration: 0.46666667,
+		keyframes: KeyframesRange((start: 0, end: 9)),
+		duration: 0.3,
 	),
 	"punch-o1": (
-		keyframes: KeyframesRange((start: 30, end: 44)),
-		duration: 0.46666667,
+		keyframes: KeyframesRange((start: 30, end: 39)),
+		duration: 0.3,
 	),
 	"punch-o2": (
-		keyframes: KeyframesRange((start: 60, end: 74)),
-		duration: 0.46666667,
+		keyframes: KeyframesRange((start: 60, end: 69)),
+		duration: 0.3,
 	),
 	"punch-o3": (
-		keyframes: KeyframesRange((start: 90, end: 104)),
-		duration: 0.46666667,
+		keyframes: KeyframesRange((start: 90, end: 99)),
+		duration: 0.3,
 	),
 	"punch-o4": (
-		keyframes: KeyframesRange((start: 120, end: 134)),
-		duration: 0.46666667,
+		keyframes: KeyframesRange((start: 120, end: 129)),
+		duration: 0.3,
 	),
 	"punch-o5": (
-		keyframes: KeyframesRange((start: 150, end: 164)),
-		duration: 0.46666667,
+		keyframes: KeyframesRange((start: 150, end: 159)),
+		duration: 0.3,
 	),
 	"punch-o6": (
-		keyframes: KeyframesRange((start: 180, end: 194)),
-		duration: 0.46666667,
+		keyframes: KeyframesRange((start: 180, end: 189)),
+		duration: 0.3,
 	),
 	"punch-o7": (
-		keyframes: KeyframesRange((start: 210, end: 224)),
-		duration: 0.46666667,
+		keyframes: KeyframesRange((start: 210, end: 219)),
+		duration: 0.3,
 	),
 	"punch_recover-o0": (
 		keyframes: KeyframesRange((start: 0, end: 22)),
