@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_rancic::prelude::COLLISION_GROUPS_NONE;
+use bevy_rancic::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
@@ -10,14 +10,14 @@ use super::{Player, PlayerHitboxRoot, PlayerStateSystemSet};
 
 fn toggle_hitboxes(
     q_players: Query<(Entity, &AnimationPlayer2D, &Player)>,
-    mut q_hitboxes: Query<(&mut CollisionGroups, &Hitbox)>,
+    mut q_hitboxes: Query<(&mut CollisionGroups, &mut ColliderDebugColor, &Hitbox)>,
 ) {
     for (player_entity, animator, player) in &q_players {
         if player.state_machine.state() != DudeState::Attacking {
             continue;
         }
 
-        for (mut collisions_groups, hitbox) in &mut q_hitboxes {
+        for (mut collisions_groups, mut collider_color, hitbox) in &mut q_hitboxes {
             if hitbox.root_entity != player_entity {
                 continue;
             }
@@ -29,8 +29,10 @@ fn toggle_hitboxes(
                 );
                 if animator.frame() == start_frame {
                     *collisions_groups = hitbox.collision_groups();
+                    *collider_color = COLLIDER_COLOR_WHITE;
                 } else if animator.frame() == end_frame {
                     *collisions_groups = COLLISION_GROUPS_NONE;
+                    *collider_color = COLLIDER_COLOR_BLACK;
                 }
             }
         }

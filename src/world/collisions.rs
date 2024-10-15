@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_rancic::prelude::COLLISION_GROUPS_NONE;
+use bevy_rancic::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::state::Attack;
@@ -80,6 +80,7 @@ pub fn spawn_hitbox_collision(
             // HURTBOX for example and no events on the HITBOX
             ActiveEvents::COLLISION_EVENTS,
             COLLISION_GROUPS_NONE,
+            COLLIDER_COLOR_BLACK,
             TransformBundle::from_transform(transform),
         ))
         .id()
