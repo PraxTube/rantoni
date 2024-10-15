@@ -21,19 +21,23 @@ fn toggle_hitboxes(
             if hitbox.root_entity != player_entity {
                 continue;
             }
+            if hitbox.hitbox_direction != player.state_machine.attack_direction() {
+                continue;
+            }
+            if hitbox.hitbox_type != HitboxType::Player(player.state_machine.attack()) {
+                continue;
+            }
 
-            if hitbox.hitbox_type == HitboxType::Player(player.state_machine.attack()) {
-                let (start_frame, end_frame) = dude_state_hitbox_frames(
-                    player.state_machine.state(),
-                    player.state_machine.attack(),
-                );
-                if animator.frame() == start_frame {
-                    *collisions_groups = hitbox.collision_groups();
-                    *collider_color = COLLIDER_COLOR_WHITE;
-                } else if animator.frame() == end_frame {
-                    *collisions_groups = COLLISION_GROUPS_NONE;
-                    *collider_color = COLLIDER_COLOR_BLACK;
-                }
+            let (start_frame, end_frame) = dude_state_hitbox_frames(
+                player.state_machine.state(),
+                player.state_machine.attack(),
+            );
+            if animator.frame() == start_frame {
+                *collisions_groups = hitbox.collision_groups();
+                *collider_color = COLLIDER_COLOR_WHITE;
+            } else if animator.frame() == end_frame {
+                *collisions_groups = COLLISION_GROUPS_NONE;
+                *collider_color = COLLIDER_COLOR_BLACK;
             }
         }
     }

@@ -2,10 +2,14 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::state::{Attack, AttackForm};
+use crate::{
+    state::{Attack, AttackForm},
+    world::collisions::HitboxDirection,
+};
 
 pub struct AttackHandler {
     attack: Attack,
+    attack_direction: HitboxDirection,
     chained_attack: AttackForm,
     chainable: bool,
     chain_buffer_timer: Timer,
@@ -15,6 +19,7 @@ impl Default for AttackHandler {
     fn default() -> Self {
         Self {
             attack: Attack::default(),
+            attack_direction: HitboxDirection::Up,
             chained_attack: AttackForm::default(),
             chainable: false,
             chain_buffer_timer: Timer::from_seconds(0.3, TimerMode::Once),
@@ -29,6 +34,14 @@ impl AttackHandler {
 
     pub fn set_attack(&mut self, attack: Attack) {
         self.attack = attack;
+    }
+
+    pub fn attack_direction(&self) -> HitboxDirection {
+        self.attack_direction
+    }
+
+    pub fn set_attack_direction(&mut self, direction: Vec2) {
+        self.attack_direction = HitboxDirection::from(direction);
     }
 
     pub fn chained_attack(&self) -> AttackForm {

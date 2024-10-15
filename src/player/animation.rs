@@ -48,6 +48,9 @@ fn update_player_animation(
         animator.play(animation).repeat();
     } else {
         animator.play(animation);
+        // TODO: Handle this better, maybe you want to put this outside the if else statement?
+        let direction = player.current_direction;
+        player.state_machine.set_attack_direction(direction);
     }
 
     *player_texture = texture;

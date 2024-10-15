@@ -6,7 +6,9 @@ use bevy_trickfilm::prelude::*;
 use crate::{
     assets::DudeAnimations,
     state::Attack,
-    world::collisions::{spawn_hitbox_collision, Hitbox, HitboxType, PLAYER_GROUP, WORLD_GROUP},
+    world::collisions::{
+        spawn_hitbox_collision, Hitbox, HitboxDirection, HitboxType, PLAYER_GROUP, WORLD_GROUP,
+    },
     GameAssets, GameState,
 };
 
@@ -24,6 +26,7 @@ fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Enti
             Hitbox::new(
                 player_entity,
                 HitboxType::Player(Attack::Light1),
+                HitboxDirection::Side,
                 PLAYER_GROUP,
                 Vec2::new(10.0, 3.0),
                 true,
@@ -35,6 +38,7 @@ fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Enti
             Hitbox::new(
                 player_entity,
                 HitboxType::Player(Attack::Light2),
+                HitboxDirection::Side,
                 PLAYER_GROUP,
                 Vec2::new(8.0, 1.0),
                 true,
@@ -46,6 +50,7 @@ fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Enti
             Hitbox::new(
                 player_entity,
                 HitboxType::Player(Attack::Light3),
+                HitboxDirection::Side,
                 PLAYER_GROUP,
                 Vec2::new(12.0, 1.0),
                 true,
@@ -57,6 +62,7 @@ fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Enti
             Hitbox::new(
                 player_entity,
                 HitboxType::Player(Attack::Heavy1),
+                HitboxDirection::Side,
                 PLAYER_GROUP,
                 Vec2::new(12.0, -10.0),
                 true,
@@ -68,6 +74,7 @@ fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Enti
             Hitbox::new(
                 player_entity,
                 HitboxType::Player(Attack::Heavy2),
+                HitboxDirection::Side,
                 PLAYER_GROUP,
                 Vec2::new(14.0, -8.0),
                 true,
@@ -79,6 +86,7 @@ fn spawn_player_hitboxes(commands: &mut Commands, player_entity: Entity) -> Enti
             Hitbox::new(
                 player_entity,
                 HitboxType::Player(Attack::Heavy3),
+                HitboxDirection::Side,
                 PLAYER_GROUP,
                 Vec2::new(14.0, 8.0),
                 true,

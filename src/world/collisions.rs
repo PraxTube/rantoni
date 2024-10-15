@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use bevy::prelude::*;
 use bevy_rancic::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -18,16 +20,37 @@ pub enum HitboxType {
     Placeholder,
 }
 
-#[derive(PartialEq, Eq, Clone)]
-pub enum EnemyHitbox {
-    // Light,
-    // Heavy,
+#[derive(Clone, Copy, PartialEq)]
+pub enum HitboxDirection {
+    Up,
+    DiagonalUp,
+    Side,
+    DiagonalDown,
+    Down,
+}
+
+impl From<Vec2> for HitboxDirection {
+    fn from(direction: Vec2) -> Self {
+        let angle = direction.angle_between(Vec2::Y).abs();
+        if angle < PI / 8.0 {
+            Self::Up
+        } else if angle < 3.0 * PI / 8.0 {
+            Self::DiagonalUp
+        } else if angle < 5.0 * PI / 8.0 {
+            Self::Side
+        } else if angle < 7.0 * PI / 8.0 {
+            Self::DiagonalDown
+        } else {
+            Self::Down
+        }
+    }
 }
 
 #[derive(Component, Clone)]
 pub struct Hitbox {
     pub root_entity: Entity,
     pub hitbox_type: HitboxType,
+    pub hitbox_direction: HitboxDirection,
     pub memberships: Group,
     pub offset: Vec2,
     pub horizontal: bool,
@@ -43,6 +66,7 @@ impl Hitbox {
     pub fn new(
         root_entity: Entity,
         hitbox_type: HitboxType,
+        hitbox_direction: HitboxDirection,
         group: Group,
         offset: Vec2,
         horizontal: bool,
@@ -50,6 +74,7 @@ impl Hitbox {
         Self {
             root_entity,
             hitbox_type,
+            hitbox_direction,
             memberships: group,
             offset,
             horizontal,
