@@ -4,7 +4,6 @@ use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, Window};
 use bevy_rancic::prelude::*;
 
-use crate::player::Player;
 use crate::GameState;
 
 use super::gamepad::PlayerGamepad;
@@ -30,25 +29,6 @@ pub fn fetch_mouse_world_coords(
         .map(|ray| ray.origin.truncate())
     {
         player_input.mouse_world_coords = world_position;
-    }
-}
-
-fn player_aim_direction_keyboard(
-    mut player_input: ResMut<PlayerInput>,
-    q_player: Query<&Transform, With<Player>>,
-    input_device: Res<InputDevice>,
-) {
-    if *input_device != InputDevice::MouseKeyboard {
-        return;
-    }
-
-    let dir = match q_player.get_single() {
-        Ok(transform) => player_input.mouse_world_coords - transform.translation.truncate(),
-        Err(_) => Vec2::ZERO,
-    };
-
-    if dir != Vec2::ZERO {
-        player_input.aim_direction = dir.normalize_or_zero();
     }
 }
 
@@ -85,6 +65,7 @@ fn handle_keyboard_inputs(
         move_direction += Vec2::NEG_X;
     }
     input.move_direction = move_direction.normalize_or_zero();
+    input.aim_direction = input.move_direction;
 
     let mut zoom = 0;
     if keys.just_pressed(KeyCode::Backspace) {
@@ -183,7 +164,6 @@ impl Plugin for InputControllerPlugin {
             PreUpdate,
             (
                 fetch_mouse_world_coords,
-                player_aim_direction_keyboard,
                 handle_keyboard_inputs,
                 handle_gamepad_inputs,
             )

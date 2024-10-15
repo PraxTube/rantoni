@@ -48,12 +48,10 @@ fn spawn_dummy_enemy(mut commands: Commands, assets: Res<GameAssets>) {
 
     let collider = commands
         .spawn((
-            Collider::ball(6.0),
+            Collider::ball(10.0),
             ActiveEvents::COLLISION_EVENTS,
             CollisionGroups::new(WORLD_GROUP | ENEMY_GROUP, WORLD_GROUP),
-            TransformBundle::from_transform(Transform::from_translation(Vec3::new(
-                0.0, -12.0, 0.0,
-            ))),
+            TransformBundle::from_transform(Transform::from_translation(Vec3::new(0.0, 0.0, 0.0))),
         ))
         .id();
 
