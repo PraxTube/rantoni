@@ -42,7 +42,7 @@ fn spawn_dummy_enemy(mut commands: Commands, assets: Res<GameAssets>) {
         &mut commands,
         entity,
         Vec2::new(0.0, 0.0),
-        Collider::cuboid(8.0, 16.0),
+        Collider::cuboid(8.0, 24.0),
         ENEMY_GROUP,
     );
 
