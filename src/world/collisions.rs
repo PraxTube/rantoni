@@ -22,26 +22,41 @@ pub enum HitboxType {
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum HitboxDirection {
-    Up,
-    DiagonalUp,
-    Side,
-    DiagonalDown,
-    Down,
+    Top,
+    TopRight,
+    Right,
+    BottomRight,
+    Bottom,
+    BottomLeft,
+    Left,
+    TopLeft,
 }
 
 impl From<Vec2> for HitboxDirection {
     fn from(direction: Vec2) -> Self {
-        let angle = direction.angle_between(Vec2::Y).abs();
-        if angle < PI / 8.0 {
-            Self::Up
-        } else if angle < 3.0 * PI / 8.0 {
-            Self::DiagonalUp
-        } else if angle < 5.0 * PI / 8.0 {
-            Self::Side
-        } else if angle < 7.0 * PI / 8.0 {
-            Self::DiagonalDown
+        let angle = direction.angle_between(Vec2::Y);
+        if angle.abs() < PI / 8.0 {
+            Self::Top
+        } else if angle.abs() < 3.0 * PI / 8.0 {
+            if angle > 0.0 {
+                Self::TopRight
+            } else {
+                Self::TopLeft
+            }
+        } else if angle.abs() < 5.0 * PI / 8.0 {
+            if angle > 0.0 {
+                Self::Right
+            } else {
+                Self::Left
+            }
+        } else if angle.abs() < 7.0 * PI / 8.0 {
+            if angle > 0.0 {
+                Self::BottomRight
+            } else {
+                Self::BottomLeft
+            }
         } else {
-            Self::Down
+            Self::Bottom
         }
     }
 }
@@ -53,7 +68,6 @@ pub struct Hitbox {
     pub hitbox_direction: HitboxDirection,
     pub memberships: Group,
     pub offset: Vec2,
-    pub horizontal: bool,
     filters: Group,
 }
 
@@ -69,7 +83,6 @@ impl Hitbox {
         hitbox_direction: HitboxDirection,
         group: Group,
         offset: Vec2,
-        horizontal: bool,
     ) -> Self {
         Self {
             root_entity,
@@ -77,7 +90,6 @@ impl Hitbox {
             hitbox_direction,
             memberships: group,
             offset,
-            horizontal,
             filters: HURTBOX_GROUP,
         }
     }

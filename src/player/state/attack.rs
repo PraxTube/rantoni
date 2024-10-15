@@ -19,7 +19,7 @@ impl Default for AttackHandler {
     fn default() -> Self {
         Self {
             attack: Attack::default(),
-            attack_direction: HitboxDirection::Up,
+            attack_direction: HitboxDirection::Top,
             chained_attack: AttackForm::default(),
             chainable: false,
             chain_buffer_timer: Timer::from_seconds(0.3, TimerMode::Once),

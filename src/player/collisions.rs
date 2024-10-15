@@ -6,7 +6,7 @@ use bevy_trickfilm::prelude::*;
 use crate::state::{dude_state_hitbox_frames, DudeState};
 use crate::world::collisions::{Hitbox, HitboxType};
 
-use super::{Player, PlayerHitboxRoot, PlayerStateSystemSet};
+use super::{Player, PlayerStateSystemSet};
 
 fn toggle_hitboxes(
     q_players: Query<(Entity, &AnimationPlayer2D, &Player)>,
@@ -61,42 +61,13 @@ fn disable_all_hitboxes(
     }
 }
 
-fn flip_hitbox_positions(
-    q_players: Query<(Entity, &Player)>,
-    q_player_root_hitboxes: Query<(&Children, &PlayerHitboxRoot)>,
-    mut q_hitboxes: Query<(&mut Transform, &Hitbox)>,
-) {
-    for (player_entity, player) in &q_players {
-        for (children, root_hitbox) in &q_player_root_hitboxes {
-            if root_hitbox.root_entity != player_entity {
-                continue;
-            }
-
-            for child in children {
-                let Ok((mut transform, hitbox)) = q_hitboxes.get_mut(*child) else {
-                    continue;
-                };
-
-                if hitbox.horizontal {
-                    let pos = if player.current_direction.x < 0.0 {
-                        Vec2::new(-hitbox.offset.x, hitbox.offset.y)
-                    } else {
-                        hitbox.offset
-                    };
-                    transform.translation = pos.extend(0.0);
-                }
-            }
-        }
-    }
-}
-
 pub struct PlayerCollisionsPlugin;
 
 impl Plugin for PlayerCollisionsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (flip_hitbox_positions, disable_all_hitboxes, toggle_hitboxes)
+            (disable_all_hitboxes, toggle_hitboxes)
                 .chain()
                 .after(PlayerStateSystemSet)
                 .after(AnimationPlayer2DSystemSet),
