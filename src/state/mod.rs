@@ -124,7 +124,6 @@ fn match_stagger_state(
 ) -> (Handle<Image>, Handle<AnimationClip2D>, bool, DudeAnimations) {
     let animation_state = match stagger_state {
         StaggerState::Normal => DudeAnimations::StaggerNormal,
-        StaggerState::Flying => DudeAnimations::StaggerFlying,
     };
     let index = animation_state.index();
     let animation_index = index * 8 + direction_index_offset(direction);

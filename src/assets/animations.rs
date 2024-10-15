@@ -16,8 +16,6 @@ pub enum DudeAnimations {
     Heavy2Recover,
     Heavy3,
     Heavy3Recover,
-    // TODO
-    StaggerFlying,
 }
 
 impl DudeAnimations {

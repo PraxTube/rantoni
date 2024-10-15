@@ -6,7 +6,6 @@ use super::Attack;
 pub enum StaggerState {
     #[default]
     Normal,
-    Flying,
 }
 
 #[derive(Component, Default)]
