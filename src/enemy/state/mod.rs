@@ -25,7 +25,10 @@ impl Plugin for EnemyStatePlugin {
                 .chain()
                 .in_set(EnemyStateSystemSet),
         )
-        .add_systems(Update, ((reset_enmey_targets,)).before(EnemyStateSystemSet));
+        .add_systems(
+            Update,
+            ((reset_enemey_targets,)).before(EnemyStateSystemSet),
+        );
     }
 }
 
@@ -87,7 +90,7 @@ fn transition_run_state(
     }
 }
 
-fn reset_enmey_targets(mut q_enemies: Query<(&Transform, &mut Enemy)>) {
+fn reset_enemey_targets(mut q_enemies: Query<(&Transform, &mut Enemy)>) {
     for (transform, mut enemy) in &mut q_enemies {
         if enemy.target.is_none() {
             continue;
