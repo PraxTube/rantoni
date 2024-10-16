@@ -14,23 +14,24 @@ pub struct PlayerStatePlugin;
 
 impl Plugin for PlayerStatePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (
-                reset_just_changed,
-                transition_attacking_state,
-                transition_idle_state,
-                transition_run_state,
+        app.add_plugins((attack::PlayerAttackStatePlugin,))
+            .add_systems(
+                Update,
+                (
+                    reset_just_changed,
+                    transition_attacking_state,
+                    transition_idle_state,
+                    transition_run_state,
+                )
+                    .chain()
+                    .in_set(PlayerStateSystemSet),
             )
-                .chain()
-                .in_set(PlayerStateSystemSet),
-        )
-        .add_systems(
-            Update,
-            (start_attack_chain_timer, handle_attack_chain_timer)
-                .chain()
-                .after(PlayerStateSystemSet),
-        );
+            .add_systems(
+                Update,
+                (start_attack_chain_timer, handle_attack_chain_timer)
+                    .chain()
+                    .after(PlayerStateSystemSet),
+            );
     }
 }
 

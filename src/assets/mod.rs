@@ -11,6 +11,13 @@ pub struct GameAssets {
     #[asset(path = "dummy_background.png")]
     pub dummy_background: Handle<Image>,
 
+    #[asset(path = "arc.png")]
+    pub arc: Handle<Image>,
+    #[asset(texture_atlas_layout(tile_size_x = 64, tile_size_y = 64, columns = 6, rows = 1))]
+    pub arc_layout: Handle<TextureAtlasLayout>,
+    #[asset(path = "arc.trickfilm.ron#main")]
+    pub arc_animation: Handle<AnimationClip2D>,
+
     #[asset(
         paths(
             "dude/dude_idle.png",

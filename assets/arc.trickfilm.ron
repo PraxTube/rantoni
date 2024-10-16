@@ -1,0 +1,6 @@
+{
+	"main": (
+		keyframes: KeyframesRange((start: 0, end: 6)),
+		duration: 0.3,
+	),
+}
