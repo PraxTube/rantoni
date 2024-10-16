@@ -65,7 +65,6 @@ impl From<Vec2> for HitboxDirection {
 pub struct Hitbox {
     pub root_entity: Entity,
     pub hitbox_type: HitboxType,
-    pub hitbox_direction: HitboxDirection,
     pub memberships: Group,
     pub offset: Vec2,
     filters: Group,
@@ -77,17 +76,10 @@ pub struct Hurtbox {
 }
 
 impl Hitbox {
-    pub fn new(
-        root_entity: Entity,
-        hitbox_type: HitboxType,
-        hitbox_direction: HitboxDirection,
-        group: Group,
-        offset: Vec2,
-    ) -> Self {
+    pub fn new(root_entity: Entity, hitbox_type: HitboxType, group: Group, offset: Vec2) -> Self {
         Self {
             root_entity,
             hitbox_type,
-            hitbox_direction,
             memberships: group,
             offset,
             filters: HURTBOX_GROUP,
@@ -109,15 +101,15 @@ pub fn spawn_hitbox_collision(
     let transform = Transform::from_translation(hitbox.offset.extend(0.0));
     commands
         .spawn((
-            hitbox,
+            hitbox.clone(),
             collider,
             Sensor,
             // TODO: Figure out if we need this, it might be that this leads to two events of the
             // exact same info being triggered, so it might be necessary to only have this on the
             // HURTBOX for example and no events on the HITBOX
             ActiveEvents::COLLISION_EVENTS,
-            COLLISION_GROUPS_NONE,
-            COLLIDER_COLOR_BLACK,
+            CollisionGroups::new(hitbox.memberships, hitbox.filters),
+            COLLIDER_COLOR_WHITE,
             TransformBundle::from_transform(transform),
         ))
         .id()

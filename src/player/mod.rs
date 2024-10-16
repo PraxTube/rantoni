@@ -1,12 +1,12 @@
 pub mod input;
 
 mod animation;
-mod collisions;
 mod movement;
 mod spawn;
 mod state;
 
 pub use spawn::PlayerHitboxRoot;
+#[allow(unused)]
 pub use state::PlayerStateSystemSet;
 
 use bevy::prelude::*;
@@ -18,7 +18,6 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
             input::InputPlugin,
-            collisions::PlayerCollisionsPlugin,
             spawn::PlayerSpawnPlugin,
             movement::PlayerMovementPlugin,
             animation::PlayerAnimationPlugin,
