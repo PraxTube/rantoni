@@ -7,6 +7,7 @@ pub struct EnemyStateMachine {
     just_changed: bool,
     state: DudeState,
     previous_state: DudeState,
+    new_state: Option<DudeState>,
     attack: Attack,
 }
 
@@ -37,6 +38,21 @@ Attempted new state: {:?}",
         self.set_just_changed(true);
         self.previous_state = self.state;
         self.state = state;
+    }
+
+    pub fn new_state(&self) -> Option<DudeState> {
+        self.new_state
+    }
+
+    pub fn set_new_state(&mut self, new_state: DudeState) {
+        if self.new_state.is_some() {
+            return;
+        }
+        self.new_state = Some(new_state);
+    }
+
+    pub fn reset_new_state(&mut self) {
+        self.new_state = None;
     }
 
     pub fn attack(&self) -> Attack {

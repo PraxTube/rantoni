@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
-use bevy_trickfilm::prelude::*;
 
 use crate::{
     player::{Player, PlayerHitboxRoot},
@@ -9,14 +8,11 @@ use crate::{
     GameState,
 };
 
-use super::Enemy;
+use super::{state::EnemyStateSystemSet, Enemy};
 
 fn player_hitbox_collisions(
     q_players: Query<&Player>,
-    mut q_enemies: Query<
-        (&mut AnimationPlayer2D, &mut Enemy, &mut Stagger),
-        Without<PlayerHitboxRoot>,
-    >,
+    mut q_enemies: Query<(&mut Enemy, &mut Stagger), Without<PlayerHitboxRoot>>,
     q_hitboxes: Query<&Hitbox>,
     q_hurtboxes: Query<&Hurtbox>,
     mut ev_collision_events: EventReader<CollisionEvent>,
@@ -55,18 +51,12 @@ fn player_hitbox_collisions(
             continue;
         };
 
-        let Ok((mut animator, mut enemy, mut stagger)) =
-            q_enemies.get_mut(enemy_hurtbox.root_entity)
-        else {
+        let Ok((mut enemy, mut stagger)) = q_enemies.get_mut(enemy_hurtbox.root_entity) else {
             continue;
         };
 
         if let HitboxType::Player(attack) = player_hitbox.hitbox_type {
-            if enemy.state_machine.state() == DudeState::Staggering {
-                animator.replay();
-            } else {
-                enemy.state_machine.set_state(DudeState::Staggering);
-            }
+            enemy.state_machine.set_new_state(DudeState::Staggering);
             stagger.update(attack, player.current_direction, 1.0, 1.0);
         }
     }
@@ -78,7 +68,9 @@ impl Plugin for EnemyCollisionsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (player_hitbox_collisions,).run_if(not(in_state(GameState::AssetLoading))),
+            (player_hitbox_collisions,)
+                .before(EnemyStateSystemSet)
+                .run_if(not(in_state(GameState::AssetLoading))),
         );
     }
 }

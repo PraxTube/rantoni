@@ -3,6 +3,7 @@ mod state_machine;
 pub use state_machine::EnemyStateMachine;
 
 use bevy::prelude::*;
+use bevy_trickfilm::prelude::*;
 
 use crate::{
     player::Player,
@@ -19,8 +20,10 @@ impl Plugin for EnemyStatePlugin {
             Update,
             (
                 reset_just_changed,
+                transition_stagger_state,
                 transition_run_state,
                 transition_idle_state,
+                reset_new_state,
             )
                 .chain()
                 .in_set(EnemyStateSystemSet),
@@ -38,6 +41,26 @@ pub struct EnemyStateSystemSet;
 fn reset_just_changed(mut q_enemies: Query<&mut Enemy>) {
     for mut enemy in &mut q_enemies {
         enemy.state_machine.set_just_changed(false);
+    }
+}
+
+fn transition_stagger_state(mut q_enemies: Query<(&mut AnimationPlayer2D, &mut Enemy)>) {
+    for (mut animator, mut enemy) in &mut q_enemies {
+        if enemy.state_machine.just_changed() {
+            continue;
+        }
+        let Some(new_state) = enemy.state_machine.new_state() else {
+            continue;
+        };
+        if new_state != DudeState::Staggering {
+            continue;
+        }
+
+        if enemy.state_machine.state() == DudeState::Staggering {
+            animator.replay();
+        } else {
+            enemy.state_machine.set_state(DudeState::Staggering);
+        }
     }
 }
 
@@ -87,6 +110,12 @@ fn transition_run_state(
                 enemy.state_machine.set_state(DudeState::Running);
             }
         }
+    }
+}
+
+fn reset_new_state(mut q_enemies: Query<&mut Enemy>) {
+    for mut enemy in &mut q_enemies {
+        enemy.state_machine.reset_new_state();
     }
 }
 
