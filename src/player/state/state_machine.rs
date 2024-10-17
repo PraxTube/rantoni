@@ -155,15 +155,20 @@ Attempted new state: {:?}",
         }
     }
 
-    pub fn transition_chain_attack(&mut self) {
+    pub fn transition_chain_attack(&mut self, move_direction: Vec2) {
+        let terminal_state = if move_direction == Vec2::ZERO {
+            DudeState::Recovering
+        } else {
+            DudeState::Running
+        };
         if self.chained_attack() == AttackForm::None {
-            self.set_state(DudeState::Recovering);
+            self.set_state(terminal_state);
             return;
         }
 
         match self.combo_attack(self.chained_attack()) {
             Some(attack) => self.set_attack(attack),
-            None => self.set_state(DudeState::Recovering),
+            None => self.set_state(terminal_state),
         }
         self.set_chained_attack(AttackForm::None);
     }

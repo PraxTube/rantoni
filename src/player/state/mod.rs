@@ -74,7 +74,10 @@ fn transition_run_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut
     };
 }
 
-fn transition_idle_state(mut q_player: Query<(&mut Player, &AnimationPlayer2D)>) {
+fn transition_idle_state(
+    player_input: Res<PlayerInput>,
+    mut q_player: Query<(&mut Player, &AnimationPlayer2D)>,
+) {
     let Ok((mut player, animator)) = q_player.get_single_mut() else {
         return;
     };
@@ -91,7 +94,9 @@ fn transition_idle_state(mut q_player: Query<(&mut Player, &AnimationPlayer2D)>)
             error!("should never happen! The current state's animation should be repeating forever and never finish")
         }
         DudeState::Attacking => {
-            player.state_machine.transition_chain_attack();
+            player
+                .state_machine
+                .transition_chain_attack(player_input.move_direction);
         }
         DudeState::Recovering | DudeState::Staggering => {
             player.state_machine.set_state(DudeState::Idling);
