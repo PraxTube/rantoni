@@ -5,7 +5,6 @@ use bevy::prelude::*;
 use crate::{
     assets::DudeAnimations,
     state::{Attack, AttackForm, DudeState},
-    world::collisions::HitboxDirection,
 };
 
 use super::AttackHandler;
@@ -85,7 +84,7 @@ Attempted new state: {:?}",
         self.attack_handler.set_chainable(true);
     }
 
-    pub fn attack_direction(&self) -> HitboxDirection {
+    pub fn attack_direction(&self) -> Vec2 {
         self.attack_handler.attack_direction()
     }
 

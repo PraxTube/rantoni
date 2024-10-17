@@ -10,9 +10,7 @@ use bevy_trickfilm::prelude::*;
 use crate::{
     player::Player,
     state::{dude_state_hitbox_frames, Attack, AttackForm, DudeState},
-    world::collisions::{
-        spawn_hitbox_collision, Hitbox, HitboxDirection, HitboxType, PLAYER_GROUP,
-    },
+    world::collisions::{spawn_hitbox_collision, Hitbox, HitboxType, PLAYER_GROUP},
     GameAssets, GameState,
 };
 
@@ -20,7 +18,7 @@ const ARC_OFFSET: f32 = 20.0;
 
 pub struct AttackHandler {
     attack: Attack,
-    attack_direction: HitboxDirection,
+    attack_direction: Vec2,
     chained_attack: AttackForm,
     chainable: bool,
     chain_buffer_timer: Timer,
@@ -43,7 +41,7 @@ impl Default for AttackHandler {
     fn default() -> Self {
         Self {
             attack: Attack::default(),
-            attack_direction: HitboxDirection::Top,
+            attack_direction: Vec2::default(),
             chained_attack: AttackForm::default(),
             chainable: false,
             chain_buffer_timer: Timer::from_seconds(0.3, TimerMode::Once),
@@ -60,12 +58,12 @@ impl AttackHandler {
         self.attack = attack;
     }
 
-    pub fn attack_direction(&self) -> HitboxDirection {
+    pub fn attack_direction(&self) -> Vec2 {
         self.attack_direction
     }
 
     pub fn set_attack_direction(&mut self, direction: Vec2) {
-        self.attack_direction = HitboxDirection::from(direction);
+        self.attack_direction = direction;
     }
 
     pub fn chained_attack(&self) -> AttackForm {
@@ -157,7 +155,7 @@ fn spawn_attack_arcs(
                 &mut commands,
                 &assets,
                 player_entity,
-                player.current_direction,
+                player.state_machine.attack_direction(),
             );
         }
 
@@ -177,10 +175,7 @@ fn disable_attack_arc_hitboxes(
         }
 
         for child in children {
-            info!("searching children");
-
             if let Ok((mut collision_groups, mut collider_color)) = q_hitboxes.get_mut(*child) {
-                info!("FOUND");
                 *collision_groups = COLLISION_GROUPS_NONE;
                 *collider_color = COLLIDER_COLOR_BLACK;
             }
