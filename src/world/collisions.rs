@@ -1,5 +1,3 @@
-use std::f32::consts::PI;
-
 use bevy::prelude::*;
 use bevy_rancic::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -43,10 +41,6 @@ impl Hitbox {
             offset,
             filters: HURTBOX_GROUP,
         }
-    }
-
-    pub fn collision_groups(&self) -> CollisionGroups {
-        CollisionGroups::new(self.memberships, self.filters)
     }
 }
 

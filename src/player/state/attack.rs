@@ -114,7 +114,7 @@ fn spawn_attack_arc(
             PLAYER_GROUP,
             Vec2::ZERO,
         ),
-        Collider::cuboid(10.0, 5.0),
+        Collider::cuboid(8.0, 14.0),
     );
 
     let attack_arc = commands
