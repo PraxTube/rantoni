@@ -1,5 +1,5 @@
 use bevy::{color::palettes::css::RED, prelude::*};
-use bevy_rancic::prelude::YSort;
+use bevy_rancic::prelude::{YSort, YSortChild};
 use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
@@ -57,6 +57,17 @@ fn spawn_dummy_enemy(mut commands: Commands, assets: Res<GameAssets>) {
         ))
         .id();
 
+    let shadow = commands
+        .spawn((
+            YSortChild(-100.0),
+            SpriteBundle {
+                texture: assets.dude_shadow.clone(),
+                transform: Transform::from_translation(Vec3::new(0.0, -18.0, 0.0)),
+                ..default()
+            },
+        ))
+        .id();
+
     let mut animator = AnimationPlayer2D::default();
     animator
         .play(assets.dude_animations[DudeAnimations::Idle.index()].clone())
@@ -65,7 +76,7 @@ fn spawn_dummy_enemy(mut commands: Commands, assets: Res<GameAssets>) {
     commands
         .entity(entity)
         .insert(animator)
-        .push_children(&[collider, hurtbox]);
+        .push_children(&[collider, hurtbox, shadow]);
 }
 
 pub struct EnemySpawnPlugin;

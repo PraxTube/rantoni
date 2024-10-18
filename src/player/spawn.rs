@@ -48,7 +48,20 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
         ))
         .id();
 
-    commands.entity(player_entity).push_children(&[collider]);
+    let shadow = commands
+        .spawn((
+            YSortChild(-100.0),
+            SpriteBundle {
+                texture: assets.dude_shadow.clone(),
+                transform: Transform::from_translation(Vec3::new(0.0, -18.0, 0.0)),
+                ..default()
+            },
+        ))
+        .id();
+
+    commands
+        .entity(player_entity)
+        .push_children(&[collider, shadow]);
 }
 
 pub struct PlayerSpawnPlugin;
