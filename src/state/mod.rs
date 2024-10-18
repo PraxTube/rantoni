@@ -184,7 +184,7 @@ pub fn dude_state_hitbox_frames(state: DudeState, attack: Attack) -> (usize, usi
             Attack::Light1 => (3, 9),
             Attack::Light2 => (4, 10),
             Attack::Light3 => (2, 5),
-            Attack::Heavy1 => (1, 2),
+            Attack::Heavy1 => (5, 6),
             Attack::Heavy2 => (1, 2),
             Attack::Heavy3 => (1, 2),
         },
