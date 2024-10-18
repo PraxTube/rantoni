@@ -170,31 +170,32 @@ pub fn dude_state_animation(
     }
 }
 
-pub fn dude_state_hitbox_frames(state: DudeState, attack: Attack) -> (usize, usize) {
+/// Corresponding frame of when to spawn the attack arc of each attack animation.
+pub fn dude_state_hitbox_start_frame(state: DudeState, attack: Attack) -> usize {
     match state {
         DudeState::Idling => {
             error!("should never happen! idle doesn't have any hitbox frames");
-            (0, 0)
+            0
         }
         DudeState::Running => {
             error!("should never happen! run doesn't have any hitbox frames");
-            (0, 0)
+            0
         }
         DudeState::Attacking => match attack {
-            Attack::Light1 => (3, 9),
-            Attack::Light2 => (4, 10),
-            Attack::Light3 => (2, 5),
-            Attack::Heavy1 => (5, 6),
-            Attack::Heavy2 => (1, 2),
-            Attack::Heavy3 => (1, 2),
+            Attack::Light1 => 3,
+            Attack::Light2 => 4,
+            Attack::Light3 => 2,
+            Attack::Heavy1 => 5,
+            Attack::Heavy2 => 1,
+            Attack::Heavy3 => 1,
         },
         DudeState::Recovering => {
             error!("should never happen! recover doesn't have any hitbox frames");
-            (0, 0)
+            0
         }
         DudeState::Staggering => {
             error!("should never happen! staggering doesn't have any hitbox frames");
-            (0, 0)
+            0
         }
     }
 }

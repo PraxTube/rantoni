@@ -9,7 +9,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{
     player::Player,
-    state::{dude_state_hitbox_frames, Attack, AttackForm, DudeState},
+    state::{dude_state_hitbox_start_frame, Attack, AttackForm, DudeState},
     world::collisions::{spawn_hitbox_collision, Hitbox, HitboxType, PLAYER_GROUP},
     GameAssets, GameState,
 };
@@ -146,8 +146,10 @@ fn spawn_attack_arcs(
             continue;
         }
 
-        let (start_frame, _) =
-            dude_state_hitbox_frames(player.state_machine.state(), player.state_machine.attack());
+        let start_frame = dude_state_hitbox_start_frame(
+            player.state_machine.state(),
+            player.state_machine.attack(),
+        );
         // TODO: This might be an issue if start_frame = 0, also I really don't like this in
         // general but it should work for now.
         if animator.frame() == start_frame && animator.frame() != *previous_frame {
