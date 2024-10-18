@@ -186,7 +186,7 @@ pub fn dude_state_hitbox_start_frame(state: DudeState, attack: Attack) -> usize 
             Attack::Light2 => 4,
             Attack::Light3 => 2,
             Attack::Heavy1 => 5,
-            Attack::Heavy2 => 1,
+            Attack::Heavy2 => 11,
             Attack::Heavy3 => 1,
         },
         DudeState::Recovering => {
