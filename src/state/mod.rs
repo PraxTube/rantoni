@@ -187,7 +187,7 @@ pub fn dude_state_hitbox_start_frame(state: DudeState, attack: Attack) -> usize 
             Attack::Light3 => 2,
             Attack::Heavy1 => 5,
             Attack::Heavy2 => 11,
-            Attack::Heavy3 => 1,
+            Attack::Heavy3 => 11,
         },
         DudeState::Recovering => {
             error!("should never happen! recover doesn't have any hitbox frames");
