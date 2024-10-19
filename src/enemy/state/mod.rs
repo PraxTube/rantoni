@@ -59,6 +59,8 @@ fn transition_stagger_state(mut q_enemies: Query<(&mut AnimationPlayer2D, &mut E
             continue;
         }
 
+        enemy.state_machine.reset_attack_timer();
+
         if enemy.state_machine.state() == DudeState::Staggering {
             animator.replay();
         } else {
