@@ -11,14 +11,10 @@ pub const WORLD_GROUP: Group = Group::GROUP_3;
 pub const PLAYER_GROUP: Group = Group::GROUP_4;
 pub const ENEMY_GROUP: Group = Group::GROUP_5;
 
-const ARC_OFFSET: f32 = 20.0;
-
 #[derive(PartialEq, Eq, Clone)]
 pub enum HitboxType {
     Player(Attack),
-    // Enemy(EnemyHitbox),
-    #[allow(dead_code)]
-    Placeholder,
+    Enemy(Attack),
 }
 
 #[derive(Component, Clone)]
@@ -106,26 +102,40 @@ pub fn spawn_hurtbox_collision(
         .id()
 }
 
-pub fn spawn_attack_arc(
+pub fn spawn_attack_effect(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
-    player_entity: Entity,
+    entity: Entity,
     direction: Vec2,
+    hitbox_type: HitboxType,
 ) {
-    let mut animator = AnimationPlayer2D::default();
-    animator.play(assets.arc_animation.clone());
-
-    let pos = direction.normalize_or_zero() * ARC_OFFSET;
+    let group = match hitbox_type {
+        HitboxType::Player(_) => PLAYER_GROUP,
+        HitboxType::Enemy(_) => ENEMY_GROUP,
+    };
+    let (hitbox_offset, collider, pos_offset) = match hitbox_type {
+        HitboxType::Player(attack) => attack.effect_position_data(),
+        HitboxType::Enemy(attack) => attack.effect_position_data(),
+    };
+    let (texture, layout, animation, with_rotation) = match hitbox_type {
+        HitboxType::Player(attack) => attack.effect_animation_data(assets),
+        HitboxType::Enemy(attack) => attack.effect_animation_data(assets),
+    };
     let hitbox = spawn_hitbox_collision(
         commands,
-        Hitbox::new(
-            player_entity,
-            HitboxType::Player(Attack::Light1),
-            PLAYER_GROUP,
-            Vec2::ZERO,
-        ),
-        Collider::cuboid(8.0, 14.0),
+        Hitbox::new(entity, hitbox_type, group, hitbox_offset),
+        collider,
     );
+
+    let mut animator = AnimationPlayer2D::default();
+    animator.play(animation);
+
+    let pos = direction.normalize_or_zero() * pos_offset;
+    let transform = if with_rotation {
+        Transform::from_translation(pos.extend(0.0)).with_rotation(quat_from_vec2(direction))
+    } else {
+        Transform::from_translation(pos.extend(0.0))
+    };
 
     let attack_arc = commands
         .spawn((
@@ -133,16 +143,15 @@ pub fn spawn_attack_arc(
             animator,
             YSortChild(10.0),
             SpriteBundle {
-                texture: assets.arc.clone(),
-                transform: Transform::from_translation(pos.extend(0.0))
-                    .with_rotation(quat_from_vec2(direction)),
+                texture,
+                transform,
                 ..default()
             },
-            TextureAtlas::from(assets.arc_layout.clone()),
+            TextureAtlas::from(layout),
         ))
         .add_child(hitbox)
         .id();
-    commands.entity(player_entity).add_child(attack_arc);
+    commands.entity(entity).add_child(attack_arc);
 }
 
 fn disable_attack_arc_hitboxes(

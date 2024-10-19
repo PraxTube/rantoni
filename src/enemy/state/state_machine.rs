@@ -17,10 +17,6 @@ pub struct EnemyStateMachine {
 }
 
 impl EnemyStateMachine {
-    pub fn previous_state(&self) -> DudeState {
-        self.previous_state
-    }
-
     pub fn state(&self) -> DudeState {
         self.state
     }
@@ -76,6 +72,7 @@ Attempted new state: {:?}",
         self.attack_handler.attack()
     }
 
+    #[allow(dead_code)]
     pub fn attack_eq(&self, attack: Attack) -> bool {
         self.state == DudeState::Attacking && self.attack() == attack
     }

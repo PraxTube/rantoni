@@ -6,7 +6,7 @@ use bevy_trickfilm::prelude::*;
 use crate::{
     dude::{dude_state_hitbox_start_frame, Attack, DudeState, PreviousAttackFrame},
     enemy::Enemy,
-    world::collisions::spawn_attack_arc,
+    world::collisions::{spawn_attack_effect, HitboxType},
     GameAssets, GameState,
 };
 
@@ -69,11 +69,12 @@ fn spawn_attack_arcs(
         );
 
         if animator.frame() == start_frame && animator.frame() != previous_attack_frame.0 {
-            spawn_attack_arc(
+            spawn_attack_effect(
                 &mut commands,
                 &assets,
                 entity,
                 enemy.state_machine.attack_direction(),
+                HitboxType::Enemy(enemy.state_machine.attack()),
             );
         }
         previous_attack_frame.0 = animator.frame();

@@ -7,12 +7,19 @@ pub struct GameAssets {
     #[asset(path = "dummy_background.png")]
     pub dummy_background: Handle<Image>,
 
-    #[asset(path = "arc.png")]
+    #[asset(path = "attack/arc.png")]
     pub arc: Handle<Image>,
     #[asset(texture_atlas_layout(tile_size_x = 64, tile_size_y = 64, columns = 6, rows = 1))]
     pub arc_layout: Handle<TextureAtlasLayout>,
-    #[asset(path = "arc.trickfilm.ron#main")]
+    #[asset(path = "attack/arc.trickfilm.ron#arc")]
     pub arc_animation: Handle<AnimationClip2D>,
+
+    #[asset(path = "attack/vertical_line.png")]
+    pub vertical_line: Handle<Image>,
+    #[asset(texture_atlas_layout(tile_size_x = 64, tile_size_y = 64, columns = 6, rows = 1))]
+    pub vertical_line_layout: Handle<TextureAtlasLayout>,
+    #[asset(path = "attack/arc.trickfilm.ron#vertical_line")]
+    pub vertical_line_animation: Handle<AnimationClip2D>,
 
     #[asset(
         paths(
