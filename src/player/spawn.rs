@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    assets::DudeAnimations,
+    dude::DudeAnimations,
     world::collisions::{PLAYER_GROUP, WORLD_GROUP},
     GameAssets, GameState,
 };

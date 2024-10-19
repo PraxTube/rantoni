@@ -1,7 +1,3 @@
-mod animations;
-
-pub use animations::DudeAnimations;
-
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_trickfilm::prelude::*;

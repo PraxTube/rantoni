@@ -1,15 +1,17 @@
+mod animations;
 mod attack;
 mod stagger;
 
-use std::f32::consts::PI;
-
+pub use animations::DudeAnimations;
 pub use attack::{Attack, AttackForm};
 pub use stagger::{Stagger, StaggerState};
+
+use std::f32::consts::PI;
 
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::{assets::DudeAnimations, GameAssets};
+use crate::GameAssets;
 
 pub struct StatePlugin;
 

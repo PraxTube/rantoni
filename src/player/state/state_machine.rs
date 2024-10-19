@@ -2,10 +2,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::{
-    assets::DudeAnimations,
-    dude::{Attack, AttackForm, DudeState},
-};
+use crate::dude::{Attack, AttackForm, DudeAnimations, DudeState};
 
 use super::AttackHandler;
 
