@@ -36,7 +36,7 @@ impl Attack {
             Attack::Light3 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
             Attack::Heavy1 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
             Attack::Heavy2 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
-            Attack::Heavy3 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
+            Attack::Heavy3 => (Vec2::default(), Collider::cuboid(12.0, 20.0), 20.0),
         }
     }
 
@@ -51,39 +51,39 @@ impl Attack {
     ) {
         match self {
             Attack::Light1 => (
-                assets.arc.clone(),
-                assets.arc_layout.clone(),
-                assets.arc_animation.clone(),
+                assets.attack_arc.clone(),
+                assets.attack_arc_layout.clone(),
+                assets.attack_arc_animation.clone(),
                 true,
             ),
             Attack::Light2 => (
-                assets.arc.clone(),
-                assets.arc_layout.clone(),
-                assets.arc_animation.clone(),
+                assets.attack_arc.clone(),
+                assets.attack_arc_layout.clone(),
+                assets.attack_arc_animation.clone(),
                 true,
             ),
             Attack::Light3 => (
-                assets.arc.clone(),
-                assets.arc_layout.clone(),
-                assets.arc_animation.clone(),
+                assets.attack_arc.clone(),
+                assets.attack_arc_layout.clone(),
+                assets.attack_arc_animation.clone(),
                 true,
             ),
             Attack::Heavy1 => (
-                assets.vertical_line.clone(),
-                assets.vertical_line_layout.clone(),
-                assets.vertical_line_animation.clone(),
+                assets.attack_vertical_line.clone(),
+                assets.attack_vertical_line_layout.clone(),
+                assets.attack_vertical_line_animation.clone(),
                 false,
             ),
             Attack::Heavy2 => (
-                assets.arc.clone(),
-                assets.arc_layout.clone(),
-                assets.arc_animation.clone(),
+                assets.attack_arc.clone(),
+                assets.attack_arc_layout.clone(),
+                assets.attack_arc_animation.clone(),
                 true,
             ),
             Attack::Heavy3 => (
-                assets.arc.clone(),
-                assets.arc_layout.clone(),
-                assets.arc_animation.clone(),
+                assets.attack_half_circle.clone(),
+                assets.attack_half_circle_layout.clone(),
+                assets.attack_half_circle_animation.clone(),
                 true,
             ),
         }

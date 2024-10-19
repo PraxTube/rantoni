@@ -8,18 +8,25 @@ pub struct GameAssets {
     pub dummy_background: Handle<Image>,
 
     #[asset(path = "attack/arc.png")]
-    pub arc: Handle<Image>,
+    pub attack_arc: Handle<Image>,
     #[asset(texture_atlas_layout(tile_size_x = 64, tile_size_y = 64, columns = 6, rows = 1))]
-    pub arc_layout: Handle<TextureAtlasLayout>,
+    pub attack_arc_layout: Handle<TextureAtlasLayout>,
     #[asset(path = "attack/arc.trickfilm.ron#arc")]
-    pub arc_animation: Handle<AnimationClip2D>,
+    pub attack_arc_animation: Handle<AnimationClip2D>,
 
     #[asset(path = "attack/vertical_line.png")]
-    pub vertical_line: Handle<Image>,
+    pub attack_vertical_line: Handle<Image>,
     #[asset(texture_atlas_layout(tile_size_x = 64, tile_size_y = 64, columns = 6, rows = 1))]
-    pub vertical_line_layout: Handle<TextureAtlasLayout>,
+    pub attack_vertical_line_layout: Handle<TextureAtlasLayout>,
     #[asset(path = "attack/arc.trickfilm.ron#vertical_line")]
-    pub vertical_line_animation: Handle<AnimationClip2D>,
+    pub attack_vertical_line_animation: Handle<AnimationClip2D>,
+
+    #[asset(path = "attack/half_circle.png")]
+    pub attack_half_circle: Handle<Image>,
+    #[asset(texture_atlas_layout(tile_size_x = 64, tile_size_y = 64, columns = 6, rows = 1))]
+    pub attack_half_circle_layout: Handle<TextureAtlasLayout>,
+    #[asset(path = "attack/arc.trickfilm.ron#half_circle")]
+    pub attack_half_circle_animation: Handle<AnimationClip2D>,
 
     #[asset(
         paths(
