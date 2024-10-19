@@ -31,10 +31,7 @@ impl Plugin for EnemyStatePlugin {
                     .chain()
                     .in_set(EnemyStateSystemSet),
             )
-            .add_systems(
-                Update,
-                ((reset_enemey_targets,)).before(EnemyStateSystemSet),
-            );
+            .add_systems(Update, (reset_enemey_targets).before(EnemyStateSystemSet));
     }
 }
 

@@ -169,9 +169,9 @@ pub fn dude_state_animation(
                 DudeAnimations::Run,
             )
         }
-        DudeState::Attacking => match_attack_state(&assets, attack, direction),
-        DudeState::Recovering => match_recover_state(&assets, attack, direction),
-        DudeState::Staggering => match_stagger_state(&assets, stagger_state, direction),
+        DudeState::Attacking => match_attack_state(assets, attack, direction),
+        DudeState::Recovering => match_recover_state(assets, attack, direction),
+        DudeState::Staggering => match_stagger_state(assets, stagger_state, direction),
     }
 }
 
