@@ -2,9 +2,9 @@
 
 mod assets;
 mod audio;
+mod dude;
 mod enemy;
 mod player;
-mod state;
 mod ui;
 mod world;
 
@@ -89,7 +89,7 @@ fn main() {
             world::WorldPlugin,
             ui::UiPlugin,
             audio::GameAudioPlugin,
-            state::StatePlugin,
+            dude::StatePlugin,
             player::PlayerPlugin,
             enemy::EnemyPlugin,
         ))

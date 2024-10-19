@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 
 use crate::{
+    dude::{DudeState, Stagger},
     player::{Player, PlayerHitboxRoot},
-    state::{DudeState, Stagger},
     world::collisions::{Hitbox, HitboxType, Hurtbox},
     GameState,
 };

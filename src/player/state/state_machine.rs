@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use crate::{
     assets::DudeAnimations,
-    state::{Attack, AttackForm, DudeState},
+    dude::{Attack, AttackForm, DudeState},
 };
 
 use super::AttackHandler;

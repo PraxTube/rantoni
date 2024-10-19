@@ -7,8 +7,8 @@ pub use state_machine::PlayerStateMachine;
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
+use crate::dude::{AttackForm, DudeState};
 use crate::player::{input::PlayerInput, Player};
-use crate::state::{AttackForm, DudeState};
 
 pub struct PlayerStatePlugin;
 

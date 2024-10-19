@@ -8,8 +8,8 @@ use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
+    dude::{dude_state_hitbox_start_frame, Attack, AttackForm, DudeState},
     player::Player,
-    state::{dude_state_hitbox_start_frame, Attack, AttackForm, DudeState},
     world::collisions::{spawn_hitbox_collision, Hitbox, HitboxType, PLAYER_GROUP},
     GameAssets, GameState,
 };

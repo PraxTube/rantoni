@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::state::{Attack, DudeState};
+use crate::dude::{Attack, DudeState};
 use crate::GameState;
 
 use super::input::PlayerInput;

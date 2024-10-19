@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::state::{DudeState, Stagger};
+use crate::dude::{DudeState, Stagger};
 
 use super::{state::EnemyStateSystemSet, Enemy, MOVE_SPEED};
 

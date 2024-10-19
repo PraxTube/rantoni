@@ -5,7 +5,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{
     assets::DudeAnimations,
-    state::Stagger,
+    dude::Stagger,
     world::collisions::{spawn_hurtbox_collision, ENEMY_GROUP, WORLD_GROUP},
     GameAssets, GameState,
 };

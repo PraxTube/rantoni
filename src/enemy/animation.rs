@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    state::{dude_state_animation, Attack, Stagger},
+    dude::{dude_state_animation, Attack, Stagger},
     GameAssets,
 };
 

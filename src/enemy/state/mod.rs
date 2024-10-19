@@ -6,8 +6,8 @@ use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
+    dude::{DudeState, Stagger},
     player::Player,
-    state::{DudeState, Stagger},
 };
 
 use super::{Enemy, MAX_AGGRO_DISTANCE, MIN_AGGRO_DISTANCE, MIN_TARGET_DISTANCE};

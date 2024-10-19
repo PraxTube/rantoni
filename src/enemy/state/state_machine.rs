@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::state::{Attack, DudeState};
+use crate::dude::{Attack, DudeState};
 
 #[derive(Component, Default)]
 pub struct EnemyStateMachine {
