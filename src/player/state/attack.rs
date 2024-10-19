@@ -94,6 +94,8 @@ fn spawn_attack_arcs(
         );
         // TODO: This might be an issue if start_frame = 0, also I really don't like this in
         // general but it should work for now.
+        // Actually, this will not work for multiple players, so this for loop players is pretty
+        // dumb...
         if animator.frame() == start_frame && animator.frame() != *previous_frame {
             spawn_attack_arc(
                 &mut commands,

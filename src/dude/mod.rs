@@ -31,6 +31,9 @@ pub enum DudeState {
     Staggering,
 }
 
+#[derive(Default, Component)]
+pub struct PreviousAttackFrame(pub usize);
+
 /// Returns the index offset when taking 8-directional animations into account.
 fn direction_index_offset(direction: Vec2) -> usize {
     let angle = direction.angle_between(Vec2::Y);

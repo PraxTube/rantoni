@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::{dude_state_animation, Attack, Stagger},
+    dude::{dude_state_animation, Stagger},
     GameAssets,
 };
 
@@ -10,16 +10,29 @@ use super::{state::EnemyStateSystemSet, Enemy};
 
 fn update_animations(
     assets: Res<GameAssets>,
-    mut q_enemies: Query<(&mut Handle<Image>, &mut AnimationPlayer2D, &Enemy, &Stagger)>,
+    mut q_enemies: Query<(
+        &mut Handle<Image>,
+        &mut AnimationPlayer2D,
+        &mut Enemy,
+        &Stagger,
+    )>,
 ) {
-    for (mut enemy_texture, mut animator, enemy, stagger) in &mut q_enemies {
-        let (texture, animation, repeat, _) = dude_state_animation(
+    for (mut enemy_texture, mut animator, mut enemy, stagger) in &mut q_enemies {
+        let (texture, animation, repeat, animation_state) = dude_state_animation(
             &assets,
             enemy.state_machine.state(),
-            Attack::default(),
+            enemy.state_machine.attack(),
             stagger.state,
             enemy.move_direction,
         );
+
+        if &animation == animator.animation_clip() {
+            return;
+        }
+        if !repeat && animation_state == enemy.state_machine.animation_state() {
+            return;
+        }
+        enemy.state_machine.set_animation_state(animation_state);
 
         if repeat {
             animator.play(animation).repeat();

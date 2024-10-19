@@ -1,3 +1,4 @@
+mod attack;
 mod state_machine;
 
 pub use state_machine::EnemyStateMachine;
@@ -6,7 +7,7 @@ use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::{DudeState, Stagger},
+    dude::{Attack, DudeState, Stagger},
     player::Player,
 };
 
@@ -16,22 +17,24 @@ pub struct EnemyStatePlugin;
 
 impl Plugin for EnemyStatePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (
-                reset_just_changed,
-                transition_stagger_state,
-                transition_run_state,
-                transition_idle_state,
-                reset_new_state,
+        app.add_plugins(attack::EnemyAttackStatePlugin)
+            .add_systems(
+                Update,
+                (
+                    reset_just_changed,
+                    transition_stagger_state,
+                    transition_attack_state,
+                    transition_run_state,
+                    transition_idle_state,
+                    reset_new_state,
+                )
+                    .chain()
+                    .in_set(EnemyStateSystemSet),
             )
-                .chain()
-                .in_set(EnemyStateSystemSet),
-        )
-        .add_systems(
-            Update,
-            ((reset_enemey_targets,)).before(EnemyStateSystemSet),
-        );
+            .add_systems(
+                Update,
+                ((reset_enemey_targets,)).before(EnemyStateSystemSet),
+            );
     }
 }
 
@@ -64,8 +67,26 @@ fn transition_stagger_state(mut q_enemies: Query<(&mut AnimationPlayer2D, &mut E
     }
 }
 
-fn transition_idle_state(mut q_enemies: Query<(&mut Enemy, &Stagger)>) {
-    for (mut enemy, stagger) in &mut q_enemies {
+fn transition_attack_state(mut q_enemies: Query<(&Transform, &mut Enemy)>) {
+    for (transform, mut enemy) in &mut q_enemies {
+        if !enemy.state_machine.can_attack() {
+            continue;
+        }
+        if !enemy.state_machine.attack_timer_finished() {
+            continue;
+        }
+
+        let attack_direction =
+            (enemy.target_pos - transform.translation.truncate()).normalize_or_zero();
+
+        enemy
+            .state_machine
+            .set_attack(Attack::Heavy3, attack_direction);
+    }
+}
+
+fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy, &Stagger)>) {
+    for (animator, mut enemy, stagger) in &mut q_enemies {
         if enemy.state_machine.just_changed() {
             continue;
         }
@@ -77,8 +98,17 @@ fn transition_idle_state(mut q_enemies: Query<(&mut Enemy, &Stagger)>) {
                     enemy.state_machine.set_state(DudeState::Idling);
                 }
             }
-            DudeState::Attacking => todo!(),
-            DudeState::Recovering => todo!(),
+            DudeState::Attacking => {
+                if animator.just_finished() {
+                    enemy.state_machine.set_state(DudeState::Recovering);
+                }
+            }
+            DudeState::Recovering => {
+                if animator.just_finished() {
+                    enemy.state_machine.reset_attack_timer();
+                    enemy.state_machine.set_state(DudeState::Idling);
+                }
+            }
             DudeState::Staggering => {
                 if stagger.just_finished() {
                     enemy.state_machine.set_state(DudeState::Idling);
