@@ -28,6 +28,13 @@ pub struct GameAssets {
     #[asset(path = "attack/arc.trickfilm.ron#half_circle")]
     pub attack_half_circle_animation: Handle<AnimationClip2D>,
 
+    #[asset(path = "attack/flat_line.png")]
+    pub attack_flat_line: Handle<Image>,
+    #[asset(texture_atlas_layout(tile_size_x = 64, tile_size_y = 64, columns = 5, rows = 1))]
+    pub attack_flat_line_layout: Handle<TextureAtlasLayout>,
+    #[asset(path = "attack/arc.trickfilm.ron#flat_line")]
+    pub attack_flat_line_animation: Handle<AnimationClip2D>,
+
     #[asset(
         paths(
             "dude/dude_idle.png",

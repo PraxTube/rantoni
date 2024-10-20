@@ -33,7 +33,7 @@ impl Attack {
         match self {
             Attack::Light1 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
             Attack::Light2 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
-            Attack::Light3 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
+            Attack::Light3 => (Vec2::default(), Collider::cuboid(12.0, 12.0), 30.0),
             Attack::Heavy1 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
             Attack::Heavy2 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
             Attack::Heavy3 => (Vec2::default(), Collider::cuboid(12.0, 20.0), 20.0),
@@ -63,9 +63,9 @@ impl Attack {
                 true,
             ),
             Attack::Light3 => (
-                assets.attack_arc.clone(),
-                assets.attack_arc_layout.clone(),
-                assets.attack_arc_animation.clone(),
+                assets.attack_flat_line.clone(),
+                assets.attack_flat_line_layout.clone(),
+                assets.attack_flat_line_animation.clone(),
                 true,
             ),
             Attack::Heavy1 => (

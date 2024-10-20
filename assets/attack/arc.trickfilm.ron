@@ -11,4 +11,8 @@
 		keyframes: KeyframesRange((start: 0, end: 6)),
 		duration: 0.3,
 	),
+	"flat_line": (
+		keyframes: KeyframesRange((start: 0, end: 5)),
+		duration: 0.2,
+	),
 }
