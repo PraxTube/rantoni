@@ -63,6 +63,9 @@ fn transition_stagger_state(mut q_players: Query<(&mut AnimationPlayer2D, &mut P
 
 fn transition_parry_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
     for mut player in &mut q_players {
+        if player.state_machine.just_changed() {
+            continue;
+        }
         if !player_input.parry {
             continue;
         }

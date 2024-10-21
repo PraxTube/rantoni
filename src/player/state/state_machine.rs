@@ -80,7 +80,7 @@ Attempted new state: {:?}",
 
     pub fn set_parry_state(&mut self, parry_state: ParryState) {
         if self.just_changed {
-            error!("Trying to set state even though it was already changed this frame. Should never happen, you probably forgot a flag check");
+            error!("Trying to set parry state even though state was already changed this frame. Should never happen, you probably forgot a flag check");
             return;
         }
         self.set_state(DudeState::Parrying);
@@ -106,7 +106,7 @@ Attempted new state: {:?}",
     /// Set the attack and also the state to attacking.
     pub fn set_attack(&mut self, attack: Attack) {
         if self.just_changed {
-            error!("Trying to set state even though it was already changed this frame. Should never happen, you probably forgot a flag check");
+            error!("Trying to set attack state even though state was already changed this frame. Should never happen, you probably forgot a flag check");
             return;
         }
         self.set_state(DudeState::Attacking);
