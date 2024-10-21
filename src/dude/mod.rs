@@ -27,7 +27,7 @@ pub enum DudeState {
     Parrying,
 }
 
-#[derive(Default, Clone, Copy, PartialEq, Component)]
+#[derive(Default, Clone, Copy, PartialEq)]
 pub enum ParryState {
     #[default]
     Start,

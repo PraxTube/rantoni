@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::dude::{Attack, AttackForm, DudeAnimations, DudeState};
+use crate::dude::{Attack, AttackForm, DudeAnimations, DudeState, ParryState};
 
 use super::AttackHandler;
 
@@ -11,6 +11,7 @@ pub struct PlayerStateMachine {
     just_changed: bool,
     state: DudeState,
     previous_state: DudeState,
+    parry_state: ParryState,
     new_state: Option<DudeState>,
     attack_handler: AttackHandler,
     animation_state: DudeAnimations,
@@ -21,9 +22,12 @@ impl PlayerStateMachine {
         self.state == DudeState::Idling
             || self.state == DudeState::Running
             || self.state == DudeState::Recovering
+            || (self.state == DudeState::Parrying
+                && (self.parry_state == ParryState::Success
+                    || self.parry_state == ParryState::Recover))
     }
 
-    pub fn can_punch(&self) -> bool {
+    fn can_attack(&self) -> bool {
         self.can_run() || self.state == DudeState::Attacking
     }
 
@@ -68,6 +72,19 @@ Attempted new state: {:?}",
 
     pub fn reset_new_state(&mut self) {
         self.new_state = None;
+    }
+
+    pub fn parry_state(&self) -> ParryState {
+        self.parry_state
+    }
+
+    pub fn set_parry_state(&mut self, parry_state: ParryState) {
+        if self.just_changed {
+            error!("Trying to set state even though it was already changed this frame. Should never happen, you probably forgot a flag check");
+            return;
+        }
+        self.set_state(DudeState::Parrying);
+        self.parry_state = parry_state;
     }
 
     pub fn animation_state(&self) -> DudeAnimations {
@@ -190,7 +207,7 @@ Attempted new state: {:?}",
         if self.just_changed() {
             return;
         }
-        if !self.can_punch() {
+        if !self.can_attack() {
             return;
         }
 

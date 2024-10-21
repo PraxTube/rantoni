@@ -84,6 +84,10 @@ impl Stagger {
         }
     }
 
+    pub fn set_stance_break(&mut self) {
+        self.new_state(StaggerState::StanceBreak, Vec2::ZERO, 0.3, 0.0);
+    }
+
     /// The player should always get the exact same amount of knockback regardless of the actual
     /// attack. So always use this for player stagger.
     pub fn set_player_stagger(&mut self, direction: Vec2) {

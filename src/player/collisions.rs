@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 
 use crate::{
-    dude::{DudeState, Stagger},
+    dude::{DudeState, ParryState, Stagger},
     enemy::Enemy,
     world::collisions::{Hitbox, HitboxType, Hurtbox},
     GameState,
@@ -12,7 +12,7 @@ use super::{Player, PlayerStateSystemSet};
 
 fn enemy_hitbox_collisions(
     mut q_players: Query<(&mut Player, &mut Stagger)>,
-    q_enemies: Query<&Enemy>,
+    mut q_enemies: Query<(&mut Enemy, &mut Stagger), Without<Player>>,
     q_hitboxes: Query<&Hitbox>,
     q_hurtboxes: Query<&Hurtbox>,
     mut ev_collision_events: EventReader<CollisionEvent>,
@@ -47,18 +47,30 @@ fn enemy_hitbox_collisions(
             continue;
         };
 
-        let Ok((mut player, mut stagger)) = q_players.get_mut(player_hurtbox.root_entity) else {
+        let Ok((mut player, mut player_stagger)) = q_players.get_mut(player_hurtbox.root_entity)
+        else {
             continue;
         };
 
-        let Ok(enemy) = q_enemies.get(enemy_hitbox.root_entity) else {
+        let Ok((mut enemy, mut enemy_stagger)) = q_enemies.get_mut(enemy_hitbox.root_entity) else {
             continue;
         };
 
-        if let HitboxType::Enemy(_attack) = enemy_hitbox.hitbox_type {
-            player.state_machine.set_new_state(DudeState::Staggering);
-            stagger.set_player_stagger(enemy.state_machine.attack_direction());
+        let HitboxType::Enemy(_attack) = enemy_hitbox.hitbox_type else {
+            continue;
+        };
+
+        if player.state_machine.state() == DudeState::Parrying
+            && player.state_machine.parry_state() == ParryState::Start
+        {
+            player.state_machine.set_parry_state(ParryState::Success);
+            enemy.state_machine.set_new_state(DudeState::Staggering);
+            enemy_stagger.set_stance_break();
+            continue;
         }
+
+        player.state_machine.set_new_state(DudeState::Staggering);
+        player_stagger.set_player_stagger(enemy.state_machine.attack_direction());
     }
 }
 

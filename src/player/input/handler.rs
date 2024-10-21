@@ -117,6 +117,8 @@ fn handle_gamepad_inputs(
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::South));
     input.heavy_attack =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::West));
+    input.parry =
+        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::LeftTrigger));
     input.toggle_fullscreen =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::DPadDown));
     input.toggle_debug =

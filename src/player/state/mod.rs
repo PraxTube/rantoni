@@ -61,11 +61,8 @@ fn transition_stagger_state(mut q_players: Query<(&mut AnimationPlayer2D, &mut P
     }
 }
 
-fn transition_parry_state(
-    player_input: Res<PlayerInput>,
-    mut q_players: Query<(&mut Player, &mut ParryState)>,
-) {
-    for (mut player, mut parry_state) in &mut q_players {
+fn transition_parry_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
+    for mut player in &mut q_players {
         if !player_input.parry {
             continue;
         }
@@ -73,8 +70,7 @@ fn transition_parry_state(
             continue;
         }
 
-        player.state_machine.set_state(DudeState::Parrying);
-        *parry_state = ParryState::Start;
+        player.state_machine.set_parry_state(ParryState::Start);
     }
 }
 
@@ -116,9 +112,9 @@ fn transition_run_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut
 
 fn transition_idle_state(
     player_input: Res<PlayerInput>,
-    mut q_player: Query<(&mut Player, &AnimationPlayer2D, &Stagger, &mut ParryState)>,
+    mut q_player: Query<(&mut Player, &AnimationPlayer2D, &Stagger)>,
 ) {
-    let Ok((mut player, animator, stagger, mut parry_state)) = q_player.get_single_mut() else {
+    let Ok((mut player, animator, stagger)) = q_player.get_single_mut() else {
         return;
     };
     if player.state_machine.just_changed() {
@@ -146,9 +142,11 @@ fn transition_idle_state(
         }
         DudeState::Parrying => {
             if animator.just_finished() {
-                match *parry_state {
-                    ParryState::Start => *parry_state = ParryState::Fail,
-                    ParryState::Success => *parry_state = ParryState::Recover,
+                match player.state_machine.parry_state() {
+                    ParryState::Start => player.state_machine.set_parry_state(ParryState::Fail),
+                    ParryState::Success => {
+                        player.state_machine.set_parry_state(ParryState::Recover)
+                    }
                     ParryState::Recover | ParryState::Fail => {
                         player.state_machine.set_state(DudeState::Idling)
                     }
