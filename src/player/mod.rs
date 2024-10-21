@@ -5,7 +5,6 @@ mod movement;
 mod spawn;
 mod state;
 
-pub use spawn::PlayerHitboxRoot;
 #[allow(unused)]
 pub use state::PlayerStateSystemSet;
 

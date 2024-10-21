@@ -11,9 +11,6 @@ use crate::{
 
 use super::Player;
 
-#[derive(Component)]
-pub struct PlayerHitboxRoot;
-
 fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
     let mut animator = AnimationPlayer2D::default();
     animator

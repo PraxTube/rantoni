@@ -3,7 +3,7 @@ use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 
 use crate::{
     dude::{DudeState, Stagger},
-    player::{Player, PlayerHitboxRoot},
+    player::Player,
     world::collisions::{Hitbox, HitboxType, Hurtbox},
     GameState,
 };
@@ -12,7 +12,7 @@ use super::{state::EnemyStateSystemSet, Enemy};
 
 fn player_hitbox_collisions(
     q_players: Query<&Player>,
-    mut q_enemies: Query<(&mut Enemy, &mut Stagger), Without<PlayerHitboxRoot>>,
+    mut q_enemies: Query<(&mut Enemy, &mut Stagger)>,
     q_hitboxes: Query<&Hitbox>,
     q_hurtboxes: Query<&Hurtbox>,
     mut ev_collision_events: EventReader<CollisionEvent>,
