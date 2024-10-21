@@ -1,6 +1,7 @@
 pub mod input;
 
 mod animation;
+mod collisions;
 mod movement;
 mod spawn;
 mod state;
@@ -21,6 +22,7 @@ impl Plugin for PlayerPlugin {
             movement::PlayerMovementPlugin,
             animation::PlayerAnimationPlugin,
             state::PlayerStatePlugin,
+            collisions::PlayerCollisionsPlugin,
         ));
     }
 }

@@ -31,5 +31,5 @@ pub struct Enemy {
     move_direction: Vec2,
     target_pos: Vec2,
     target: Option<Entity>,
-    state_machine: EnemyStateMachine,
+    pub state_machine: EnemyStateMachine,
 }

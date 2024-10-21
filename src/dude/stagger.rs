@@ -17,7 +17,7 @@ pub struct Stagger {
 }
 
 impl Stagger {
-    fn reset_state(&mut self, state: StaggerState, direction: Vec2, duration: f32, intensity: f32) {
+    fn new_state(&mut self, state: StaggerState, direction: Vec2, duration: f32, intensity: f32) {
         self.state = state;
         self.direction = direction;
         self.timer = Timer::from_seconds(duration, TimerMode::Once);
@@ -33,7 +33,7 @@ impl Stagger {
     ) {
         match attack {
             Attack::Light1 => {
-                self.reset_state(
+                self.new_state(
                     StaggerState::Normal,
                     direction,
                     0.3 * duration_multiplier,
@@ -41,7 +41,7 @@ impl Stagger {
                 );
             }
             Attack::Light2 => {
-                self.reset_state(
+                self.new_state(
                     StaggerState::Normal,
                     direction,
                     0.3 * duration_multiplier,
@@ -49,7 +49,7 @@ impl Stagger {
                 );
             }
             Attack::Light3 => {
-                self.reset_state(
+                self.new_state(
                     StaggerState::Normal,
                     direction,
                     0.2 * duration_multiplier,
@@ -57,7 +57,7 @@ impl Stagger {
                 );
             }
             Attack::Heavy1 => {
-                self.reset_state(
+                self.new_state(
                     StaggerState::Normal,
                     direction,
                     0.3 * duration_multiplier,
@@ -65,7 +65,7 @@ impl Stagger {
                 );
             }
             Attack::Heavy2 => {
-                self.reset_state(
+                self.new_state(
                     StaggerState::Normal,
                     direction,
                     0.35 * duration_multiplier,
@@ -73,7 +73,7 @@ impl Stagger {
                 );
             }
             Attack::Heavy3 => {
-                self.reset_state(
+                self.new_state(
                     StaggerState::Normal,
                     direction,
                     0.25 * duration_multiplier,
@@ -81,6 +81,12 @@ impl Stagger {
                 );
             }
         }
+    }
+
+    /// The player should always get the exact same amount of knockback regardless of the actual
+    /// attack. So always use this for player stagger.
+    pub fn set_player_stagger(&mut self, direction: Vec2) {
+        self.new_state(StaggerState::Normal, direction, 0.3, 150.0);
     }
 
     pub fn just_finished(&self) -> bool {

@@ -7,7 +7,7 @@ pub use state_machine::PlayerStateMachine;
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::dude::{AttackForm, DudeState};
+use crate::dude::{AttackForm, DudeState, Stagger};
 use crate::player::{input::PlayerInput, Player};
 
 pub struct PlayerStatePlugin;
@@ -19,9 +19,11 @@ impl Plugin for PlayerStatePlugin {
                 Update,
                 (
                     reset_just_changed,
+                    transition_stagger_state,
                     transition_attacking_state,
                     transition_idle_state,
                     transition_run_state,
+                    reset_new_state,
                 )
                     .chain()
                     .in_set(PlayerStateSystemSet),
@@ -37,6 +39,26 @@ impl Plugin for PlayerStatePlugin {
 
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct PlayerStateSystemSet;
+
+fn transition_stagger_state(mut q_players: Query<(&mut AnimationPlayer2D, &mut Player)>) {
+    for (mut animator, mut player) in &mut q_players {
+        if player.state_machine.just_changed() {
+            continue;
+        }
+        let Some(new_state) = player.state_machine.new_state() else {
+            continue;
+        };
+        if new_state != DudeState::Staggering {
+            continue;
+        }
+
+        if player.state_machine.state() == DudeState::Staggering {
+            animator.replay();
+        } else {
+            player.state_machine.set_state(DudeState::Staggering);
+        }
+    }
+}
 
 fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
     for mut player in &mut q_players {
@@ -76,30 +98,33 @@ fn transition_run_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut
 
 fn transition_idle_state(
     player_input: Res<PlayerInput>,
-    mut q_player: Query<(&mut Player, &AnimationPlayer2D)>,
+    mut q_player: Query<(&mut Player, &AnimationPlayer2D, &Stagger)>,
 ) {
-    let Ok((mut player, animator)) = q_player.get_single_mut() else {
+    let Ok((mut player, animator, stagger)) = q_player.get_single_mut() else {
         return;
     };
     if player.state_machine.just_changed() {
         return;
     }
 
-    if !animator.just_finished() {
-        return;
-    }
-
     match player.state_machine.state() {
-        DudeState::Idling | DudeState::Running => {
-            error!("should never happen! The current state's animation should be repeating forever and never finish")
-        }
+        DudeState::Idling | DudeState::Running => {}
         DudeState::Attacking => {
-            player
-                .state_machine
-                .transition_chain_attack(player_input.move_direction);
+            if animator.just_finished() {
+                player
+                    .state_machine
+                    .transition_chain_attack(player_input.move_direction);
+            }
         }
-        DudeState::Recovering | DudeState::Staggering => {
-            player.state_machine.set_state(DudeState::Idling);
+        DudeState::Recovering => {
+            if animator.just_finished() {
+                player.state_machine.set_state(DudeState::Idling);
+            }
+        }
+        DudeState::Staggering => {
+            if stagger.just_finished() {
+                player.state_machine.set_state(DudeState::Idling);
+            }
         }
     };
 }
@@ -110,6 +135,12 @@ fn reset_just_changed(mut q_player: Query<&mut Player>) {
     };
 
     player.state_machine.set_just_changed(false);
+}
+
+fn reset_new_state(mut q_players: Query<&mut Player>) {
+    for mut player in &mut q_players {
+        player.state_machine.reset_new_state();
+    }
 }
 
 fn start_attack_chain_timer(mut q_players: Query<&mut Player>) {

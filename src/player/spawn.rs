@@ -4,8 +4,8 @@ use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::DudeAnimations,
-    world::collisions::{PLAYER_GROUP, WORLD_GROUP},
+    dude::{DudeAnimations, Stagger},
+    world::collisions::{spawn_hurtbox_collision, PLAYER_GROUP, WORLD_GROUP},
     GameAssets, GameState,
 };
 
@@ -17,9 +17,10 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
         .play(assets.dude_animations[DudeAnimations::Idle.index()].clone())
         .repeat();
 
-    let player_entity = commands
+    let entity = commands
         .spawn((
             Player::default(),
+            Stagger::default(),
             RigidBody::Dynamic,
             LockedAxes::ROTATION_LOCKED,
             Velocity::zero(),
@@ -45,6 +46,14 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
         ))
         .id();
 
+    let hurtbox = spawn_hurtbox_collision(
+        &mut commands,
+        entity,
+        Vec2::new(0.0, 0.0),
+        Collider::cuboid(8.0, 24.0),
+        PLAYER_GROUP,
+    );
+
     let shadow = commands
         .spawn((
             YSortChild(-100.0),
@@ -57,8 +66,8 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
         .id();
 
     commands
-        .entity(player_entity)
-        .push_children(&[collider, shadow]);
+        .entity(entity)
+        .push_children(&[collider, hurtbox, shadow]);
 }
 
 pub struct PlayerSpawnPlugin;

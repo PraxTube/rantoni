@@ -69,10 +69,6 @@ pub fn spawn_hitbox_collision(
             hitbox.clone(),
             collider,
             Sensor,
-            // TODO: Figure out if we need this, it might be that this leads to two events of the
-            // exact same info being triggered, so it might be necessary to only have this on the
-            // HURTBOX for example and no events on the HITBOX
-            ActiveEvents::COLLISION_EVENTS,
             CollisionGroups::new(hitbox.memberships, hitbox.filters),
             COLLIDER_COLOR_WHITE,
             TransformBundle::from_transform(transform),
@@ -92,9 +88,6 @@ pub fn spawn_hurtbox_collision(
             Hurtbox { root_entity },
             collider,
             Sensor,
-            // TODO: Figure out if we need this, it might be that this leads to two events of the
-            // exact same info being triggered, so it might be necessary to only have this on the
-            // HURTBOX for example and no events on the HITBOX
             ActiveEvents::COLLISION_EVENTS,
             CollisionGroups::new(HURTBOX_GROUP | group, HITBOX_GROUP),
             TransformBundle::from_transform(Transform::from_translation(offset.extend(0.0))),

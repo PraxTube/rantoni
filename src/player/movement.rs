@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::dude::{Attack, DudeState};
+use crate::dude::{Attack, DudeState, Stagger};
 use crate::GameState;
 
 use super::input::PlayerInput;
@@ -21,11 +21,8 @@ fn move_player(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &mu
     };
 
     let speed = match player.state_machine.state() {
-        DudeState::Idling => 0.0,
         DudeState::Running => 250.0,
-        DudeState::Attacking => 0.0,
-        DudeState::Recovering => 0.0,
-        DudeState::Staggering => 0.0,
+        _ => 0.0,
     };
 
     let direction = player_input.move_direction;
@@ -44,13 +41,23 @@ fn move_player_punching(mut q_player: Query<(&Player, &mut Velocity)>) {
     }
 }
 
+fn move_player_staggering(mut q_players: Query<(&mut Velocity, &Player, &Stagger)>) {
+    for (mut velocity, player, stagger) in &mut q_players {
+        if player.state_machine.state() != DudeState::Staggering {
+            continue;
+        }
+
+        velocity.linvel = stagger.direction * stagger.intensity;
+    }
+}
+
 pub struct PlayerMovementPlugin;
 
 impl Plugin for PlayerMovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(PreUpdate, reset_velocity).add_systems(
             Update,
-            (move_player, move_player_punching)
+            (move_player, move_player_punching, move_player_staggering)
                 .chain()
                 .run_if(in_state(GameState::Gaming)),
         );
