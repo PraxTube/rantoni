@@ -7,7 +7,7 @@ pub use state_machine::PlayerStateMachine;
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::dude::{AttackForm, DudeState, Stagger};
+use crate::dude::{AttackForm, DudeState, ParryState, Stagger};
 use crate::player::{input::PlayerInput, Player};
 
 pub struct PlayerStatePlugin;
@@ -20,6 +20,7 @@ impl Plugin for PlayerStatePlugin {
                 (
                     reset_just_changed,
                     transition_stagger_state,
+                    transition_parry_state,
                     transition_attacking_state,
                     transition_idle_state,
                     transition_run_state,
@@ -57,6 +58,23 @@ fn transition_stagger_state(mut q_players: Query<(&mut AnimationPlayer2D, &mut P
         } else {
             player.state_machine.set_state(DudeState::Staggering);
         }
+    }
+}
+
+fn transition_parry_state(
+    player_input: Res<PlayerInput>,
+    mut q_players: Query<(&mut Player, &mut ParryState)>,
+) {
+    for (mut player, mut parry_state) in &mut q_players {
+        if !player_input.parry {
+            continue;
+        }
+        if !player.state_machine.can_run() {
+            continue;
+        }
+
+        player.state_machine.set_state(DudeState::Parrying);
+        *parry_state = ParryState::Start;
     }
 }
 
@@ -98,9 +116,9 @@ fn transition_run_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut
 
 fn transition_idle_state(
     player_input: Res<PlayerInput>,
-    mut q_player: Query<(&mut Player, &AnimationPlayer2D, &Stagger)>,
+    mut q_player: Query<(&mut Player, &AnimationPlayer2D, &Stagger, &mut ParryState)>,
 ) {
-    let Ok((mut player, animator, stagger)) = q_player.get_single_mut() else {
+    let Ok((mut player, animator, stagger, mut parry_state)) = q_player.get_single_mut() else {
         return;
     };
     if player.state_machine.just_changed() {
@@ -124,6 +142,17 @@ fn transition_idle_state(
         DudeState::Staggering => {
             if stagger.just_finished() {
                 player.state_machine.set_state(DudeState::Idling);
+            }
+        }
+        DudeState::Parrying => {
+            if animator.just_finished() {
+                match *parry_state {
+                    ParryState::Start => *parry_state = ParryState::Fail,
+                    ParryState::Success => *parry_state = ParryState::Recover,
+                    ParryState::Recover | ParryState::Fail => {
+                        player.state_machine.set_state(DudeState::Idling)
+                    }
+                }
             }
         }
     };

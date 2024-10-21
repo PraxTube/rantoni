@@ -40,6 +40,7 @@ pub struct PlayerInput {
     pub move_direction: Vec2,
     pub light_attack: bool,
     pub heavy_attack: bool,
+    pub parry: bool,
 
     pub mouse_world_coords: Vec2,
 
@@ -52,12 +53,6 @@ impl BitOrAssign for PlayerInput {
         if self.move_direction == Vec2::ZERO {
             self.move_direction = rhs.move_direction;
         }
-        if !self.light_attack {
-            self.light_attack = rhs.light_attack;
-        }
-        if !self.heavy_attack {
-            self.heavy_attack = rhs.heavy_attack;
-        }
         if self.mouse_world_coords == Vec2::ZERO {
             self.mouse_world_coords = rhs.mouse_world_coords;
         }
@@ -65,6 +60,9 @@ impl BitOrAssign for PlayerInput {
             self.scroll = rhs.scroll;
         }
 
+        self.light_attack |= rhs.light_attack;
+        self.heavy_attack |= rhs.heavy_attack;
+        self.parry |= rhs.parry;
         self.escape |= rhs.escape;
         self.toggle_debug |= rhs.toggle_debug;
         self.toggle_fullscreen |= rhs.toggle_fullscreen;

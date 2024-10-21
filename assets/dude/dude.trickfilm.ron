@@ -63,6 +63,38 @@
 		keyframes: KeyframesRange((start: 210, end: 218)),
 		duration: 0.26666668,
 	),
+	"empty-o0": (
+		keyframes: KeyframesRange((start: 0, end: 2)),
+		duration: 0.06666667,
+	),
+	"empty-o1": (
+		keyframes: KeyframesRange((start: 30, end: 32)),
+		duration: 0.06666667,
+	),
+	"empty-o2": (
+		keyframes: KeyframesRange((start: 60, end: 62)),
+		duration: 0.06666667,
+	),
+	"empty-o3": (
+		keyframes: KeyframesRange((start: 90, end: 92)),
+		duration: 0.06666667,
+	),
+	"empty-o4": (
+		keyframes: KeyframesRange((start: 120, end: 122)),
+		duration: 0.06666667,
+	),
+	"empty-o5": (
+		keyframes: KeyframesRange((start: 150, end: 152)),
+		duration: 0.06666667,
+	),
+	"empty-o6": (
+		keyframes: KeyframesRange((start: 180, end: 182)),
+		duration: 0.06666667,
+	),
+	"empty-o7": (
+		keyframes: KeyframesRange((start: 210, end: 212)),
+		duration: 0.06666667,
+	),
 	"front_kick-o0": (
 		keyframes: KeyframesRange((start: 0, end: 7)),
 		duration: 0.23333333,
@@ -222,6 +254,134 @@
 	"jab_recover-o7": (
 		keyframes: KeyframesRange((start: 210, end: 218)),
 		duration: 0.26666668,
+	),
+	"parry-o0": (
+		keyframes: KeyframesRange((start: 0, end: 10)),
+		duration: 0.33333334,
+	),
+	"parry-o1": (
+		keyframes: KeyframesRange((start: 30, end: 40)),
+		duration: 0.33333334,
+	),
+	"parry-o2": (
+		keyframes: KeyframesRange((start: 60, end: 70)),
+		duration: 0.33333334,
+	),
+	"parry-o3": (
+		keyframes: KeyframesRange((start: 90, end: 100)),
+		duration: 0.33333334,
+	),
+	"parry-o4": (
+		keyframes: KeyframesRange((start: 120, end: 130)),
+		duration: 0.33333334,
+	),
+	"parry-o5": (
+		keyframes: KeyframesRange((start: 150, end: 160)),
+		duration: 0.33333334,
+	),
+	"parry-o6": (
+		keyframes: KeyframesRange((start: 180, end: 190)),
+		duration: 0.33333334,
+	),
+	"parry-o7": (
+		keyframes: KeyframesRange((start: 210, end: 220)),
+		duration: 0.33333334,
+	),
+	"parry_fail-o0": (
+		keyframes: KeyframesRange((start: 0, end: 12)),
+		duration: 0.4,
+	),
+	"parry_fail-o1": (
+		keyframes: KeyframesRange((start: 30, end: 42)),
+		duration: 0.4,
+	),
+	"parry_fail-o2": (
+		keyframes: KeyframesRange((start: 60, end: 72)),
+		duration: 0.4,
+	),
+	"parry_fail-o3": (
+		keyframes: KeyframesRange((start: 90, end: 102)),
+		duration: 0.4,
+	),
+	"parry_fail-o4": (
+		keyframes: KeyframesRange((start: 120, end: 132)),
+		duration: 0.4,
+	),
+	"parry_fail-o5": (
+		keyframes: KeyframesRange((start: 150, end: 162)),
+		duration: 0.4,
+	),
+	"parry_fail-o6": (
+		keyframes: KeyframesRange((start: 180, end: 192)),
+		duration: 0.4,
+	),
+	"parry_fail-o7": (
+		keyframes: KeyframesRange((start: 210, end: 222)),
+		duration: 0.4,
+	),
+	"parry_success-o0": (
+		keyframes: KeyframesRange((start: 0, end: 5)),
+		duration: 0.16666667,
+	),
+	"parry_success-o1": (
+		keyframes: KeyframesRange((start: 30, end: 35)),
+		duration: 0.16666667,
+	),
+	"parry_success-o2": (
+		keyframes: KeyframesRange((start: 60, end: 65)),
+		duration: 0.16666667,
+	),
+	"parry_success-o3": (
+		keyframes: KeyframesRange((start: 90, end: 95)),
+		duration: 0.16666667,
+	),
+	"parry_success-o4": (
+		keyframes: KeyframesRange((start: 120, end: 125)),
+		duration: 0.16666667,
+	),
+	"parry_success-o5": (
+		keyframes: KeyframesRange((start: 150, end: 155)),
+		duration: 0.16666667,
+	),
+	"parry_success-o6": (
+		keyframes: KeyframesRange((start: 180, end: 185)),
+		duration: 0.16666667,
+	),
+	"parry_success-o7": (
+		keyframes: KeyframesRange((start: 210, end: 215)),
+		duration: 0.16666667,
+	),
+	"parry_success_recover-o0": (
+		keyframes: KeyframesRange((start: 0, end: 10)),
+		duration: 0.33333334,
+	),
+	"parry_success_recover-o1": (
+		keyframes: KeyframesRange((start: 30, end: 40)),
+		duration: 0.33333334,
+	),
+	"parry_success_recover-o2": (
+		keyframes: KeyframesRange((start: 60, end: 70)),
+		duration: 0.33333334,
+	),
+	"parry_success_recover-o3": (
+		keyframes: KeyframesRange((start: 90, end: 100)),
+		duration: 0.33333334,
+	),
+	"parry_success_recover-o4": (
+		keyframes: KeyframesRange((start: 120, end: 130)),
+		duration: 0.33333334,
+	),
+	"parry_success_recover-o5": (
+		keyframes: KeyframesRange((start: 150, end: 160)),
+		duration: 0.33333334,
+	),
+	"parry_success_recover-o6": (
+		keyframes: KeyframesRange((start: 180, end: 190)),
+		duration: 0.33333334,
+	),
+	"parry_success_recover-o7": (
+		keyframes: KeyframesRange((start: 210, end: 220)),
+		duration: 0.33333334,
 	),
 	"punch-o0": (
 		keyframes: KeyframesRange((start: 0, end: 9)),
@@ -510,5 +670,37 @@
 	"stagger-o7": (
 		keyframes: KeyframesRange((start: 210, end: 215)),
 		duration: 0.16666667,
+	),
+	"stance_broken-o0": (
+		keyframes: KeyframesRange((start: 0, end: 20)),
+		duration: 0.6666667,
+	),
+	"stance_broken-o1": (
+		keyframes: KeyframesRange((start: 30, end: 50)),
+		duration: 0.6666667,
+	),
+	"stance_broken-o2": (
+		keyframes: KeyframesRange((start: 60, end: 80)),
+		duration: 0.6666667,
+	),
+	"stance_broken-o3": (
+		keyframes: KeyframesRange((start: 90, end: 110)),
+		duration: 0.6666667,
+	),
+	"stance_broken-o4": (
+		keyframes: KeyframesRange((start: 120, end: 140)),
+		duration: 0.6666667,
+	),
+	"stance_broken-o5": (
+		keyframes: KeyframesRange((start: 150, end: 170)),
+		duration: 0.6666667,
+	),
+	"stance_broken-o6": (
+		keyframes: KeyframesRange((start: 180, end: 200)),
+		duration: 0.6666667,
+	),
+	"stance_broken-o7": (
+		keyframes: KeyframesRange((start: 210, end: 230)),
+		duration: 0.6666667,
 	),
 }

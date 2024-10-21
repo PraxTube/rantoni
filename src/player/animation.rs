@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::{dude_state_animation, StaggerState},
+    dude::{dude_state_animation, ParryState, StaggerState},
     GameAssets,
 };
 
@@ -22,9 +22,15 @@ fn update_current_direction(player_input: Res<PlayerInput>, mut q_player: Query<
 
 fn update_player_animation(
     assets: Res<GameAssets>,
-    mut q_player: Query<(&mut Player, &mut Handle<Image>, &mut AnimationPlayer2D)>,
+    mut q_player: Query<(
+        &mut Player,
+        &mut Handle<Image>,
+        &mut AnimationPlayer2D,
+        &ParryState,
+    )>,
 ) {
-    let Ok((mut player, mut player_texture, mut animator)) = q_player.get_single_mut() else {
+    let Ok((mut player, mut player_texture, mut animator, parry_state)) = q_player.get_single_mut()
+    else {
         return;
     };
 
@@ -33,6 +39,7 @@ fn update_player_animation(
         player.state_machine.state(),
         player.state_machine.attack(),
         StaggerState::default(),
+        *parry_state,
         player.current_direction,
     );
 

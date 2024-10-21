@@ -50,6 +50,7 @@ fn handle_keyboard_inputs(
         keys.just_pressed(KeyCode::KeyL) || mouse_buttons.just_pressed(MouseButton::Left);
     input.heavy_attack =
         keys.just_pressed(KeyCode::KeyN) || mouse_buttons.just_pressed(MouseButton::Right);
+    input.parry = keys.just_pressed(KeyCode::KeyP);
 
     let mut move_direction = Vec2::ZERO;
     if keys.pressed(KeyCode::KeyJ) || keys.pressed(KeyCode::KeyS) {

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::{dude_state_animation, Stagger},
+    dude::{dude_state_animation, ParryState, Stagger},
     GameAssets,
 };
 
@@ -23,6 +23,7 @@ fn update_animations(
             enemy.state_machine.state(),
             enemy.state_machine.attack(),
             stagger.state,
+            ParryState::default(),
             enemy.move_direction,
         );
 
