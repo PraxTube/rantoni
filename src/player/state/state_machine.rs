@@ -27,7 +27,7 @@ impl PlayerStateMachine {
                     || self.parry_state == ParryState::Recover))
     }
 
-    fn can_attack(&self) -> bool {
+    pub fn can_attack(&self) -> bool {
         self.can_run() || self.state == DudeState::Attacking
     }
 

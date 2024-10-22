@@ -21,6 +21,7 @@ impl Plugin for PlayerStatePlugin {
                 (
                     transition_stagger_state,
                     transition_parry_state,
+                    transition_slide_state,
                     transition_attacking_state,
                     transition_idle_state,
                     transition_run_state,
@@ -74,6 +75,22 @@ fn transition_parry_state(player_input: Res<PlayerInput>, mut q_players: Query<&
         }
 
         player.state_machine.set_parry_state(ParryState::Start);
+    }
+}
+
+fn transition_slide_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
+    for mut player in &mut q_players {
+        if player.state_machine.just_changed() {
+            continue;
+        }
+        if !player_input.slide {
+            continue;
+        }
+        if !player.state_machine.can_attack() {
+            continue;
+        }
+
+        player.state_machine.set_state(DudeState::Sliding);
     }
 }
 

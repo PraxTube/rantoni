@@ -57,6 +57,7 @@ pub struct GameAssets {
             "dude/dude_parry_fail.png",
             "dude/dude_parry_success.png",
             "dude/dude_parry_success_recover.png",
+            "dude/dude_slide.png",
         ),
         collection(typed)
     )]

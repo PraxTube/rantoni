@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use bevy_trickfilm::prelude::*;
 
 use crate::dude::{Attack, DudeState, Stagger};
 use crate::GameState;
@@ -29,8 +30,11 @@ fn move_player(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &mu
     velocity.linvel = direction * speed;
 }
 
-fn move_player_punching(mut q_player: Query<(&Player, &mut Velocity)>) {
-    let Ok((player, mut velocity)) = q_player.get_single_mut() else {
+fn move_player_attacking(
+    animation_clips: Res<Assets<AnimationClip2D>>,
+    mut q_player: Query<(&AnimationPlayer2D, &mut Velocity, &Player)>,
+) {
+    let Ok((animator, mut velocity, player)) = q_player.get_single_mut() else {
         return;
     };
 
@@ -38,6 +42,12 @@ fn move_player_punching(mut q_player: Query<(&Player, &mut Velocity)>) {
         velocity.linvel = player.current_direction * 50.0;
     } else if player.state_machine.attack_eq(Attack::Light2) {
         velocity.linvel = player.current_direction * 250.0;
+    } else if player.state_machine.state() == DudeState::Sliding {
+        if let Some(clip) = animation_clips.get(animator.animation_clip()) {
+            let x = animator.elapsed() / clip.duration() + 0.1;
+            let multiplier = (1.0 - x.powi(2)).max(0.0);
+            velocity.linvel = player.state_machine.attack_direction() * 400.0 * multiplier;
+        }
     }
 }
 
@@ -57,7 +67,7 @@ impl Plugin for PlayerMovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(PreUpdate, reset_velocity).add_systems(
             Update,
-            (move_player, move_player_punching, move_player_staggering)
+            (move_player, move_player_attacking, move_player_staggering)
                 .chain()
                 .run_if(in_state(GameState::Gaming)),
         );

@@ -51,6 +51,7 @@ fn handle_keyboard_inputs(
     input.heavy_attack =
         keys.just_pressed(KeyCode::KeyN) || mouse_buttons.just_pressed(MouseButton::Right);
     input.parry = keys.just_pressed(KeyCode::KeyP);
+    input.slide = keys.just_pressed(KeyCode::ShiftLeft) || keys.just_pressed(KeyCode::KeyZ);
 
     let mut move_direction = Vec2::ZERO;
     if keys.pressed(KeyCode::KeyJ) || keys.pressed(KeyCode::KeyS) {
@@ -119,6 +120,8 @@ fn handle_gamepad_inputs(
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::West));
     input.parry =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::LeftTrigger));
+    input.slide =
+        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::LeftTrigger2));
     input.toggle_fullscreen =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::DPadDown));
     input.toggle_debug =

@@ -41,6 +41,7 @@ pub struct PlayerInput {
     pub light_attack: bool,
     pub heavy_attack: bool,
     pub parry: bool,
+    pub slide: bool,
 
     pub mouse_world_coords: Vec2,
 
@@ -63,6 +64,7 @@ impl BitOrAssign for PlayerInput {
         self.light_attack |= rhs.light_attack;
         self.heavy_attack |= rhs.heavy_attack;
         self.parry |= rhs.parry;
+        self.slide |= rhs.slide;
         self.escape |= rhs.escape;
         self.toggle_debug |= rhs.toggle_debug;
         self.toggle_fullscreen |= rhs.toggle_fullscreen;
