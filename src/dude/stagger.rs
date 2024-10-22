@@ -15,14 +15,22 @@ pub struct Stagger {
     pub direction: Vec2,
     pub intensity: f32,
     timer: Timer,
+    use_animation_end: bool,
 }
 
 impl Stagger {
     fn new_state(&mut self, state: StaggerState, direction: Vec2, duration: f32, intensity: f32) {
         self.state = state;
         self.direction = direction;
-        self.timer = Timer::from_seconds(duration, TimerMode::Once);
         self.intensity = intensity;
+
+        if duration != 0.0 {
+            self.timer = Timer::from_seconds(duration, TimerMode::Once);
+            self.use_animation_end = false;
+        } else {
+            self.timer.reset();
+            self.use_animation_end = true;
+        }
     }
 
     pub fn update(
@@ -85,7 +93,7 @@ impl Stagger {
     }
 
     pub fn set_stance_break(&mut self) {
-        self.new_state(StaggerState::StanceBreak, Vec2::ZERO, 0.3, 0.0);
+        self.new_state(StaggerState::StanceBreak, Vec2::ZERO, 0.0, 0.0);
     }
 
     /// The player should always get the exact same amount of knockback regardless of the actual
@@ -97,10 +105,17 @@ impl Stagger {
     pub fn just_finished(&self) -> bool {
         self.timer.just_finished()
     }
+
+    pub fn use_animation_end(&self) -> bool {
+        self.use_animation_end
+    }
 }
 
 fn tick_stagger_timers(time: Res<Time>, mut q_staggers: Query<&mut Stagger>) {
     for mut stagger in &mut q_staggers {
+        if stagger.use_animation_end {
+            continue;
+        }
         stagger.timer.tick(time.delta());
     }
 }

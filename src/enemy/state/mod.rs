@@ -109,7 +109,9 @@ fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy, &
                 }
             }
             DudeState::Staggering => {
-                if stagger.just_finished() {
+                if (stagger.use_animation_end() && animator.just_finished())
+                    || stagger.just_finished()
+                {
                     enemy.state_machine.set_state(DudeState::Idling);
                 }
             }
