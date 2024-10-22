@@ -3,7 +3,7 @@ use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 
 use crate::{
     dude::{DudeState, ParryState, Stagger},
-    enemy::Enemy,
+    enemy::{Enemy, EnemyCollisionSystemSet},
     world::collisions::{Hitbox, HitboxType, Hurtbox},
     GameState,
 };
@@ -12,7 +12,7 @@ use super::{Player, PlayerStateSystemSet};
 
 fn enemy_hitbox_collisions(
     mut q_players: Query<(&mut Player, &mut Stagger)>,
-    mut q_enemies: Query<(&mut Enemy, &mut Stagger), Without<Player>>,
+    q_enemies: Query<&Enemy>,
     q_hitboxes: Query<&Hitbox>,
     q_hurtboxes: Query<&Hurtbox>,
     mut ev_collision_events: EventReader<CollisionEvent>,
@@ -28,9 +28,6 @@ fn enemy_hitbox_collisions(
             continue;
         }
 
-        // TODO: Optimize by storing a reference of `collider_entity` in the `Player` struct if you
-        // experience bad performance due to collisions. Check out Magus Parvus implementation of
-        // collisions. Although then it might be harder to implement multiple players.
         let player_hurtbox = if let Ok(r) = q_hurtboxes.get(*source) {
             r
         } else if let Ok(r) = q_hurtboxes.get(*target) {
@@ -52,7 +49,7 @@ fn enemy_hitbox_collisions(
             continue;
         };
 
-        let Ok((mut enemy, mut enemy_stagger)) = q_enemies.get_mut(enemy_hitbox.root_entity) else {
+        let Ok(enemy) = q_enemies.get(enemy_hitbox.root_entity) else {
             continue;
         };
 
@@ -64,8 +61,6 @@ fn enemy_hitbox_collisions(
             && player.state_machine.parry_state() == ParryState::Start
         {
             player.state_machine.set_parry_state(ParryState::Success);
-            enemy.state_machine.set_new_state(DudeState::Staggering);
-            enemy_stagger.set_stance_break();
             continue;
         }
 
@@ -82,6 +77,7 @@ impl Plugin for PlayerCollisionsPlugin {
             Update,
             (enemy_hitbox_collisions,)
                 .before(PlayerStateSystemSet)
+                .before(EnemyCollisionSystemSet)
                 .run_if(not(in_state(GameState::AssetLoading))),
         );
     }

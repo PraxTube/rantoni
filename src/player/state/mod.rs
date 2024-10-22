@@ -15,10 +15,10 @@ pub struct PlayerStatePlugin;
 impl Plugin for PlayerStatePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((attack::PlayerAttackStatePlugin,))
+            .add_systems(PreUpdate, reset_just_changed)
             .add_systems(
                 Update,
                 (
-                    reset_just_changed,
                     transition_stagger_state,
                     transition_parry_state,
                     transition_attacking_state,

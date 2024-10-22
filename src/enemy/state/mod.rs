@@ -18,10 +18,10 @@ pub struct EnemyStatePlugin;
 impl Plugin for EnemyStatePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(attack::EnemyAttackStatePlugin)
+            .add_systems(PreUpdate, reset_just_changed)
             .add_systems(
                 Update,
                 (
-                    reset_just_changed,
                     transition_stagger_state,
                     transition_attack_state,
                     transition_run_state,

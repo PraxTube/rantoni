@@ -12,6 +12,8 @@ const MIN_AGGRO_DISTANCE: f32 = 100.0;
 const MIN_TARGET_DISTANCE: f32 = 50.0;
 const MOVE_SPEED: f32 = 150.0;
 
+pub use collisions::EnemyCollisionSystemSet;
+
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
