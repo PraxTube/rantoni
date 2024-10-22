@@ -156,6 +156,11 @@ fn transition_idle_state(
                 }
             }
         }
+        DudeState::Sliding => {
+            if animator.just_finished() {
+                player.state_machine.set_state(DudeState::Idling);
+            }
+        }
     };
 }
 

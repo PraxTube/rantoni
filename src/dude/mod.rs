@@ -25,6 +25,7 @@ pub enum DudeState {
     Recovering,
     Staggering,
     Parrying,
+    Sliding,
 }
 
 #[derive(Default, Clone, Copy, PartialEq, Debug)]

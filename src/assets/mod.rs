@@ -228,6 +228,14 @@ pub struct GameAssets {
             "dude/dude.trickfilm.ron#parry_success_recover-o5",
             "dude/dude.trickfilm.ron#parry_success_recover-o6",
             "dude/dude.trickfilm.ron#parry_success_recover-o7",
+            "dude/dude.trickfilm.ron#slide-o0",
+            "dude/dude.trickfilm.ron#slide-o1",
+            "dude/dude.trickfilm.ron#slide-o2",
+            "dude/dude.trickfilm.ron#slide-o3",
+            "dude/dude.trickfilm.ron#slide-o4",
+            "dude/dude.trickfilm.ron#slide-o5",
+            "dude/dude.trickfilm.ron#slide-o6",
+            "dude/dude.trickfilm.ron#slide-o7",
         ),
         collection(typed)
     )]

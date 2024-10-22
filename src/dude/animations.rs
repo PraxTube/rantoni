@@ -30,6 +30,7 @@ pub enum DudeAnimations {
     ParryFail,
     ParrySuccess,
     ParrySuccessRecover,
+    Slide,
 }
 
 impl DudeAnimations {
@@ -78,93 +79,20 @@ fn direction_index_offset(direction: Vec2) -> usize {
     }
 }
 
-fn match_attack_state(
+fn get_animation_data(
     assets: &Res<GameAssets>,
-    attack: Attack,
+    dude_animation: DudeAnimations,
     direction: Vec2,
+    repeat: bool,
 ) -> (Handle<Image>, Handle<AnimationClip2D>, bool, DudeAnimations) {
-    let animation_state = match attack {
-        Attack::Light1 => DudeAnimations::Light1,
-        Attack::Light2 => DudeAnimations::Light2,
-        Attack::Light3 => DudeAnimations::Light3,
-        Attack::Heavy1 => DudeAnimations::Heavy1,
-        Attack::Heavy2 => DudeAnimations::Heavy2,
-        Attack::Heavy3 => DudeAnimations::Heavy3,
-    };
-    let index = animation_state.index();
+    let index = dude_animation.index();
     let animation_index = index * 8 + direction_index_offset(direction);
 
     (
         assets.dude_textures[index].clone(),
         assets.dude_animations[animation_index].clone(),
-        false,
-        animation_state,
-    )
-}
-
-fn match_recover_state(
-    assets: &Res<GameAssets>,
-    attack: Attack,
-    direction: Vec2,
-) -> (Handle<Image>, Handle<AnimationClip2D>, bool, DudeAnimations) {
-    let animation_state = match attack {
-        Attack::Light1 => DudeAnimations::Light1Recover,
-        Attack::Light2 => DudeAnimations::Light2Recover,
-        Attack::Light3 => DudeAnimations::Light3Recover,
-        Attack::Heavy1 => DudeAnimations::Heavy1Recover,
-        Attack::Heavy2 => DudeAnimations::Heavy2Recover,
-        Attack::Heavy3 => DudeAnimations::Heavy3Recover,
-    };
-    let index = animation_state.index();
-    let animation_index = index * 8 + direction_index_offset(direction);
-
-    (
-        assets.dude_textures[index].clone(),
-        assets.dude_animations[animation_index].clone(),
-        false,
-        animation_state,
-    )
-}
-
-fn match_stagger_state(
-    assets: &Res<GameAssets>,
-    stagger_state: StaggerState,
-    direction: Vec2,
-) -> (Handle<Image>, Handle<AnimationClip2D>, bool, DudeAnimations) {
-    let animation_state = match stagger_state {
-        StaggerState::Normal => DudeAnimations::StaggerNormal,
-        StaggerState::StanceBreak => DudeAnimations::StanceBreak,
-    };
-    let index = animation_state.index();
-    let animation_index = index * 8 + direction_index_offset(direction);
-
-    (
-        assets.dude_textures[index].clone(),
-        assets.dude_animations[animation_index].clone(),
-        false,
-        animation_state,
-    )
-}
-
-fn match_parry_state(
-    assets: &Res<GameAssets>,
-    parry_state: ParryState,
-    direction: Vec2,
-) -> (Handle<Image>, Handle<AnimationClip2D>, bool, DudeAnimations) {
-    let animation_state = match parry_state {
-        ParryState::Start => DudeAnimations::Parry,
-        ParryState::Fail => DudeAnimations::ParryFail,
-        ParryState::Success => DudeAnimations::ParrySuccess,
-        ParryState::Recover => DudeAnimations::ParrySuccessRecover,
-    };
-    let index = animation_state.index();
-    let animation_index = index * 8 + direction_index_offset(direction);
-
-    (
-        assets.dude_textures[index].clone(),
-        assets.dude_animations[animation_index].clone(),
-        false,
-        animation_state,
+        repeat,
+        dude_animation,
     )
 }
 
@@ -177,30 +105,47 @@ pub fn dude_state_animation(
     direction: Vec2,
 ) -> (Handle<Image>, Handle<AnimationClip2D>, bool, DudeAnimations) {
     match state {
-        DudeState::Idling => {
-            let index = DudeAnimations::Idle.index();
-            let animation_index = index * 8 + direction_index_offset(direction);
-            (
-                assets.dude_textures[index].clone(),
-                assets.dude_animations[animation_index].clone(),
-                true,
-                DudeAnimations::Idle,
-            )
+        DudeState::Idling => get_animation_data(assets, DudeAnimations::Idle, direction, true),
+        DudeState::Running => get_animation_data(assets, DudeAnimations::Run, direction, true),
+        DudeState::Attacking => {
+            let dude_animation = match attack {
+                Attack::Light1 => DudeAnimations::Light1,
+                Attack::Light2 => DudeAnimations::Light2,
+                Attack::Light3 => DudeAnimations::Light3,
+                Attack::Heavy1 => DudeAnimations::Heavy1,
+                Attack::Heavy2 => DudeAnimations::Heavy2,
+                Attack::Heavy3 => DudeAnimations::Heavy3,
+            };
+            get_animation_data(assets, dude_animation, direction, false)
         }
-        DudeState::Running => {
-            let index = DudeAnimations::Run.index();
-            let animation_index = index * 8 + direction_index_offset(direction);
-            (
-                assets.dude_textures[index].clone(),
-                assets.dude_animations[animation_index].clone(),
-                true,
-                DudeAnimations::Run,
-            )
+        DudeState::Recovering => {
+            let dude_animation = match attack {
+                Attack::Light1 => DudeAnimations::Light1Recover,
+                Attack::Light2 => DudeAnimations::Light2Recover,
+                Attack::Light3 => DudeAnimations::Light3Recover,
+                Attack::Heavy1 => DudeAnimations::Heavy1Recover,
+                Attack::Heavy2 => DudeAnimations::Heavy2Recover,
+                Attack::Heavy3 => DudeAnimations::Heavy3Recover,
+            };
+            get_animation_data(assets, dude_animation, direction, false)
         }
-        DudeState::Attacking => match_attack_state(assets, attack, direction),
-        DudeState::Recovering => match_recover_state(assets, attack, direction),
-        DudeState::Staggering => match_stagger_state(assets, stagger_state, direction),
-        DudeState::Parrying => match_parry_state(assets, parry_state, direction),
+        DudeState::Staggering => {
+            let dude_animation = match stagger_state {
+                StaggerState::Normal => DudeAnimations::StaggerNormal,
+                StaggerState::StanceBreak => DudeAnimations::StanceBreak,
+            };
+            get_animation_data(assets, dude_animation, direction, false)
+        }
+        DudeState::Parrying => {
+            let dude_animation = match parry_state {
+                ParryState::Start => DudeAnimations::Parry,
+                ParryState::Fail => DudeAnimations::ParryFail,
+                ParryState::Success => DudeAnimations::ParrySuccess,
+                ParryState::Recover => DudeAnimations::ParrySuccessRecover,
+            };
+            get_animation_data(assets, dude_animation, direction, false)
+        }
+        DudeState::Sliding => get_animation_data(assets, DudeAnimations::Slide, direction, false),
     }
 }
 
