@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::dude::{Attack, DudeState, Stagger};
+use crate::dude::{Attack, DudeState, JumpingState, Stagger};
 use crate::GameState;
 
 use super::input::PlayerInput;
@@ -30,20 +30,41 @@ fn move_player(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &mu
     velocity.linvel = direction * speed;
 }
 
-fn move_player_attacking(mut q_player: Query<(&AnimationPlayer2D, &mut Velocity, &Player)>) {
-    let Ok((animator, mut velocity, player)) = q_player.get_single_mut() else {
-        return;
-    };
+fn move_player_attacking(
+    player_input: Res<PlayerInput>,
+    mut q_players: Query<(&AnimationPlayer2D, &mut Velocity, &Player)>,
+) {
+    for (animator, mut velocity, player) in &mut q_players {
+        if player.state_machine.attack_eq(Attack::Light1) {
+            velocity.linvel = player.current_direction * 50.0;
+        } else if player.state_machine.attack_eq(Attack::Light2) {
+            velocity.linvel = player.current_direction * 250.0;
+        } else if player.state_machine.state() == DudeState::Sliding {
+            let Some(duration) = animator.duration() else {
+                continue;
+            };
 
-    if player.state_machine.attack_eq(Attack::Light1) {
-        velocity.linvel = player.current_direction * 50.0;
-    } else if player.state_machine.attack_eq(Attack::Light2) {
-        velocity.linvel = player.current_direction * 250.0;
-    } else if player.state_machine.state() == DudeState::Sliding {
-        if let Some(duration) = animator.duration() {
             let x = animator.elapsed() / duration + 0.1;
             let multiplier = (1.0 - x.powi(2)).max(0.0);
             velocity.linvel = player.state_machine.attack_direction() * 400.0 * multiplier;
+        } else if let DudeState::Jumping(jumping_state) = player.state_machine.state() {
+            let Some(duration) = animator.duration() else {
+                continue;
+            };
+
+            let x = animator.elapsed() / duration;
+            let (speed, direction) = match jumping_state {
+                JumpingState::Start => (
+                    (1.0 - x.powi(2)).max(0.7) * 350.0,
+                    player.state_machine.attack_direction(),
+                ),
+                JumpingState::RecoverIdle => (0.0, player_input.move_direction),
+                JumpingState::RecoverMoving => (
+                    (0.7 + x.powi(2)).min(1.0) * 250.0,
+                    player_input.move_direction,
+                ),
+            };
+            velocity.linvel = speed * direction;
         }
     }
 }

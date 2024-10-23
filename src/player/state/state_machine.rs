@@ -40,6 +40,13 @@ impl PlayerStateMachine {
     }
 
     pub fn set_state(&mut self, state: DudeState) {
+        // TODO: Figure this out, is it necessary?
+        // if state == self.state {
+        //     warn!(
+        //         "Setting new state to old state (already target state), state: {:?}",
+        //         state
+        //     );
+        // }
         if self.just_changed {
             let msg = format!(
                 "

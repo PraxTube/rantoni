@@ -1,12 +1,16 @@
-use bevy::prelude::*;
+use std::f32::consts::PI;
+
+use bevy::{prelude::*, sprite::Anchor};
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::{dude_state_animation, DudeState, StaggerState},
+    dude::{dude_state_animation, DudeState, JumpingState, StaggerState},
     GameAssets,
 };
 
 use super::{input::PlayerInput, state::PlayerStateSystemSet, Player};
+
+const JUMP_HEIGHT: f32 = 30.0 / 100.0;
 
 fn update_current_direction(player_input: Res<PlayerInput>, mut q_player: Query<&mut Player>) {
     let Ok(mut player) = q_player.get_single_mut() else {
@@ -57,10 +61,17 @@ fn update_player_animation(
     *player_texture = texture;
 }
 
-fn animate_sprite_jumping(mut q_players: Query<(&mut Sprite, &Player)>) {
-    for (mut sprite, player) in &mut q_players {
-        if let DudeState::Jumping(_) = player.state_machine.state() {
-            // TODO
+fn animate_sprite_jumping(mut q_players: Query<(&mut Sprite, &AnimationPlayer2D, &Player)>) {
+    for (mut sprite, animator, player) in &mut q_players {
+        if player.state_machine.state() != DudeState::Jumping(JumpingState::Start) {
+            sprite.anchor = Anchor::Center;
+            continue;
+        }
+
+        if let Some(duration) = animator.duration() {
+            let x = animator.elapsed() / duration * PI;
+            let offset = JUMP_HEIGHT * x.sin();
+            sprite.anchor = Anchor::Custom(Vec2::new(0.0, -offset));
         }
     }
 }
@@ -71,7 +82,11 @@ impl Plugin for PlayerAnimationPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_current_direction, update_player_animation)
+            (
+                update_current_direction,
+                update_player_animation,
+                animate_sprite_jumping,
+            )
                 .chain()
                 .after(PlayerStateSystemSet)
                 .run_if(resource_exists::<GameAssets>),

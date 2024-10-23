@@ -10,6 +10,9 @@ use bevy_trickfilm::prelude::*;
 use crate::dude::{AttackForm, DudeState, JumpingState, ParryState, Stagger};
 use crate::player::{input::PlayerInput, Player};
 
+const SLIDING_TO_JUMP_TRANSITION_MAX_TIME_PERCENTAGE: f32 = 0.7;
+const JUMP_TO_SLIDING_TRANSITION_MIN_TIME_PERCENTAGE: f32 = 0.6;
+
 pub struct PlayerStatePlugin;
 
 impl Plugin for PlayerStatePlugin {
@@ -79,15 +82,22 @@ fn transition_parry_state(player_input: Res<PlayerInput>, mut q_players: Query<&
     }
 }
 
-fn transition_slide_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
-    for mut player in &mut q_players {
+fn transition_slide_state(
+    player_input: Res<PlayerInput>,
+    mut q_players: Query<(&AnimationPlayer2D, &mut Player)>,
+) {
+    for (animator, mut player) in &mut q_players {
         if player.state_machine.just_changed() {
             continue;
         }
         if !player_input.slide {
             continue;
         }
-        if !player.state_machine.can_attack() {
+        let x = animator.elapsed() / animator.duration().unwrap_or(1000.0);
+        if !(player.state_machine.can_attack()
+            || (player.state_machine.state() == DudeState::Jumping(JumpingState::Start)
+                && x >= JUMP_TO_SLIDING_TRANSITION_MIN_TIME_PERCENTAGE))
+        {
             continue;
         }
 
@@ -95,15 +105,22 @@ fn transition_slide_state(player_input: Res<PlayerInput>, mut q_players: Query<&
     }
 }
 
-fn transition_jump_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
-    for mut player in &mut q_players {
+fn transition_jump_state(
+    player_input: Res<PlayerInput>,
+    mut q_players: Query<(&AnimationPlayer2D, &mut Player)>,
+) {
+    for (animator, mut player) in &mut q_players {
         if player.state_machine.just_changed() {
             continue;
         }
         if !player_input.jump {
             continue;
         }
-        if !player.state_machine.can_run() {
+        let x = animator.elapsed() / animator.duration().unwrap_or(1000.0);
+        if !(player.state_machine.can_run()
+            || (player.state_machine.state() == DudeState::Sliding
+                && x <= SLIDING_TO_JUMP_TRANSITION_MAX_TIME_PERCENTAGE))
+        {
             continue;
         }
         if let DudeState::Jumping(_) = player.state_machine.state() {
