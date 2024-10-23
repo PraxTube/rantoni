@@ -30,10 +30,7 @@ fn move_player(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &mu
     velocity.linvel = direction * speed;
 }
 
-fn move_player_attacking(
-    animation_clips: Res<Assets<AnimationClip2D>>,
-    mut q_player: Query<(&AnimationPlayer2D, &mut Velocity, &Player)>,
-) {
+fn move_player_attacking(mut q_player: Query<(&AnimationPlayer2D, &mut Velocity, &Player)>) {
     let Ok((animator, mut velocity, player)) = q_player.get_single_mut() else {
         return;
     };
@@ -43,9 +40,8 @@ fn move_player_attacking(
     } else if player.state_machine.attack_eq(Attack::Light2) {
         velocity.linvel = player.current_direction * 250.0;
     } else if player.state_machine.state() == DudeState::Sliding {
-        // TODO: Use trickfilm built in duration support
-        if let Some(clip) = animation_clips.get(animator.animation_clip()) {
-            let x = animator.elapsed() / clip.duration() + 0.1;
+        if let Some(duration) = animator.duration() {
+            let x = animator.elapsed() / duration + 0.1;
             let multiplier = (1.0 - x.powi(2)).max(0.0);
             velocity.linvel = player.state_machine.attack_direction() * 400.0 * multiplier;
         }

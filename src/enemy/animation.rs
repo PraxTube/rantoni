@@ -53,7 +53,6 @@ impl Plugin for EnemyAnimationPlugin {
             Update,
             (update_animations,)
                 .after(EnemyStateSystemSet)
-                .before(AnimationPlayer2DSystemSet)
                 .run_if(resource_exists::<GameAssets>),
         );
     }

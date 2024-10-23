@@ -74,7 +74,6 @@ impl Plugin for PlayerAnimationPlugin {
             (update_current_direction, update_player_animation)
                 .chain()
                 .after(PlayerStateSystemSet)
-                .before(AnimationPlayer2DSystemSet)
                 .run_if(resource_exists::<GameAssets>),
         );
     }
