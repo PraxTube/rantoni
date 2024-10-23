@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::{dude_state_animation, StaggerState},
+    dude::{dude_state_animation, DudeState, StaggerState},
     GameAssets,
 };
 
@@ -55,6 +55,14 @@ fn update_player_animation(
     }
 
     *player_texture = texture;
+}
+
+fn animate_sprite_jumping(mut q_players: Query<(&mut Sprite, &Player)>) {
+    for (mut sprite, player) in &mut q_players {
+        if let DudeState::Jumping(_) = player.state_machine.state() {
+            // TODO
+        }
+    }
 }
 
 pub struct PlayerAnimationPlugin;

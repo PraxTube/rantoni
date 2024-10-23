@@ -7,7 +7,7 @@ pub use state_machine::PlayerStateMachine;
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::dude::{AttackForm, DudeState, ParryState, Stagger};
+use crate::dude::{AttackForm, DudeState, JumpingState, ParryState, Stagger};
 use crate::player::{input::PlayerInput, Player};
 
 pub struct PlayerStatePlugin;
@@ -22,6 +22,7 @@ impl Plugin for PlayerStatePlugin {
                     transition_stagger_state,
                     transition_parry_state,
                     transition_slide_state,
+                    transition_jump_state,
                     transition_attacking_state,
                     transition_idle_state,
                     transition_run_state,
@@ -94,6 +95,27 @@ fn transition_slide_state(player_input: Res<PlayerInput>, mut q_players: Query<&
     }
 }
 
+fn transition_jump_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
+    for mut player in &mut q_players {
+        if player.state_machine.just_changed() {
+            continue;
+        }
+        if !player_input.jump {
+            continue;
+        }
+        if !player.state_machine.can_run() {
+            continue;
+        }
+        if let DudeState::Jumping(_) = player.state_machine.state() {
+            continue;
+        }
+
+        player
+            .state_machine
+            .set_state(DudeState::Jumping(JumpingState::Start));
+    }
+}
+
 fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
     for mut player in &mut q_players {
         // You would have to actually figure out which controls belong to which player in local
@@ -132,36 +154,37 @@ fn transition_run_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut
 
 fn transition_idle_state(
     player_input: Res<PlayerInput>,
-    mut q_player: Query<(&mut Player, &AnimationPlayer2D, &Stagger)>,
+    mut q_players: Query<(&AnimationPlayer2D, &mut Player, &Stagger)>,
 ) {
-    let Ok((mut player, animator, stagger)) = q_player.get_single_mut() else {
-        return;
-    };
-    if player.state_machine.just_changed() {
-        return;
-    }
+    for (animator, mut player, stagger) in &mut q_players {
+        if player.state_machine.just_changed() {
+            continue;
+        }
 
-    match player.state_machine.state() {
-        DudeState::Idling | DudeState::Running => {}
-        DudeState::Attacking => {
-            if animator.just_finished() {
+        match player.state_machine.state() {
+            DudeState::Idling | DudeState::Running => {}
+            DudeState::Attacking => {
+                if !animator.just_finished() {
+                    continue;
+                }
                 player
                     .state_machine
                     .transition_chain_attack(player_input.move_direction);
             }
-        }
-        DudeState::Recovering => {
-            if animator.just_finished() {
-                player.state_machine.set_state(DudeState::Idling);
+            DudeState::Recovering => {
+                if animator.just_finished() {
+                    player.state_machine.set_state(DudeState::Idling);
+                }
             }
-        }
-        DudeState::Staggering => {
-            if stagger.just_finished() {
-                player.state_machine.set_state(DudeState::Idling);
+            DudeState::Staggering => {
+                if stagger.just_finished() {
+                    player.state_machine.set_state(DudeState::Idling);
+                }
             }
-        }
-        DudeState::Parrying => {
-            if animator.just_finished() {
+            DudeState::Parrying => {
+                if !animator.just_finished() {
+                    continue;
+                }
                 match player.state_machine.parry_state() {
                     ParryState::Start => player.state_machine.set_parry_state(ParryState::Fail),
                     ParryState::Success => {
@@ -172,13 +195,30 @@ fn transition_idle_state(
                     }
                 }
             }
-        }
-        DudeState::Sliding => {
-            if animator.just_finished() {
-                player.state_machine.set_state(DudeState::Idling);
+            DudeState::Sliding => {
+                if animator.just_finished() {
+                    player.state_machine.set_state(DudeState::Idling);
+                }
             }
-        }
-    };
+            DudeState::Jumping(jumping_state) => {
+                if !animator.just_finished() {
+                    continue;
+                }
+                let new_state = match jumping_state {
+                    JumpingState::Start => {
+                        if player_input.move_direction == Vec2::ZERO {
+                            DudeState::Jumping(JumpingState::RecoverIdle)
+                        } else {
+                            DudeState::Jumping(JumpingState::RecoverMoving)
+                        }
+                    }
+                    JumpingState::RecoverIdle => DudeState::Idling,
+                    JumpingState::RecoverMoving => DudeState::Running,
+                };
+                player.state_machine.set_state(new_state);
+            }
+        };
+    }
 }
 
 fn reset_just_changed(mut q_player: Query<&mut Player>) {

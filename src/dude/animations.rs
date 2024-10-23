@@ -5,7 +5,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::GameAssets;
 
-use super::{Attack, DudeState, ParryState, StaggerState};
+use super::{Attack, DudeState, JumpingState, ParryState, StaggerState};
 
 #[derive(Default, Clone, Copy, PartialEq)]
 pub enum DudeAnimations {
@@ -31,6 +31,9 @@ pub enum DudeAnimations {
     ParrySuccess,
     ParrySuccessRecover,
     Slide,
+    Jumping,
+    JumpingRecoverIdle,
+    JumpingRecoverMoving,
 }
 
 impl DudeAnimations {
@@ -146,6 +149,20 @@ pub fn dude_state_animation(
             get_animation_data(assets, dude_animation, direction, false)
         }
         DudeState::Sliding => get_animation_data(assets, DudeAnimations::Slide, direction, false),
+        DudeState::Jumping(jumping_state) => match jumping_state {
+            JumpingState::Start => {
+                get_animation_data(assets, DudeAnimations::Jumping, direction, false)
+            }
+            JumpingState::RecoverIdle => {
+                get_animation_data(assets, DudeAnimations::JumpingRecoverIdle, direction, false)
+            }
+            JumpingState::RecoverMoving => get_animation_data(
+                assets,
+                DudeAnimations::JumpingRecoverMoving,
+                direction,
+                false,
+            ),
+        },
     }
 }
 
