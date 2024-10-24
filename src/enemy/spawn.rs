@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::{DudeAnimations, PreviousAttackFrame, Stagger},
+    dude::{DudeAnimations, Stagger},
     world::collisions::{spawn_hurtbox_collision, ENEMY_GROUP, WORLD_GROUP},
     GameAssets, GameState,
 };
@@ -15,7 +15,6 @@ fn spawn_dummy_enemy(mut commands: Commands, assets: Res<GameAssets>) {
     let entity = commands
         .spawn((
             Enemy::default(),
-            PreviousAttackFrame::default(),
             Stagger::default(),
             RigidBody::Dynamic,
             LockedAxes::ROTATION_LOCKED,

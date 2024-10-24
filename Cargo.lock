@@ -1118,12 +1118,35 @@ dependencies = [
 [[package]]
 name = "bevy_trickfilm"
 version = "0.9.0-dev"
-source = "git+https://github.com/PraxTube/bevy_trickfilm?branch=main#0797345672c3479f82006fa4a101857f6885f46e"
+source = "git+https://github.com/PraxTube/bevy_trickfilm?branch=testy#824149c28bd4ba463fcc1a0f0f8a3b956ec97f61"
 dependencies = [
  "bevy",
+ "bevy_trickfilm_derive 0.9.0-dev (git+https://github.com/PraxTube/bevy_trickfilm?branch=testy)",
  "ron",
  "serde",
  "thiserror",
+]
+
+[[package]]
+name = "bevy_trickfilm_derive"
+version = "0.9.0-dev"
+source = "git+https://github.com/KirmesBude/bevy_trickfilm?branch=feature/issue-27-animation-event#e57f5d4bb2eb05e28f12f21367d893831aae883c"
+dependencies = [
+ "bevy_macro_utils",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.74",
+]
+
+[[package]]
+name = "bevy_trickfilm_derive"
+version = "0.9.0-dev"
+source = "git+https://github.com/PraxTube/bevy_trickfilm?branch=testy#824149c28bd4ba463fcc1a0f0f8a3b956ec97f61"
+dependencies = [
+ "bevy_macro_utils",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.74",
 ]
 
 [[package]]
@@ -3444,6 +3467,7 @@ dependencies = [
  "bevy_rancic",
  "bevy_rapier2d",
  "bevy_trickfilm",
+ "bevy_trickfilm_derive 0.9.0-dev (git+https://github.com/KirmesBude/bevy_trickfilm?branch=feature/issue-27-animation-event)",
  "bevy_tweening",
  "chrono",
  "noisy_bevy",

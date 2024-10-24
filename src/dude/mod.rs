@@ -2,7 +2,7 @@ mod animations;
 mod attack;
 mod stagger;
 
-pub use animations::{dude_state_animation, dude_state_hitbox_start_frame, DudeAnimations};
+pub use animations::{dude_state_animation, DudeAnimations};
 pub use attack::{Attack, AttackForm};
 pub use stagger::{Stagger, StaggerState};
 
@@ -45,6 +45,3 @@ pub enum JumpingState {
     RecoverIdle,
     RecoverMoving,
 }
-
-#[derive(Default, Component)]
-pub struct PreviousAttackFrame(pub usize);
