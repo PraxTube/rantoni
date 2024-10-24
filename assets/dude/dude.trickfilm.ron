@@ -800,36 +800,124 @@
 		duration: 0.5,
 	),
 	"slide-o0": (
-		keyframes: KeyframesRange((start: 0, end: 19)),
-		duration: 0.6333333,
+		keyframes: KeyframesRange((start: 0, end: 12)),
+		duration: 0.4,
+		events: {
+			1: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "slide-o0",
+				)
+			},
+		},
 	),
 	"slide-o1": (
-		keyframes: KeyframesRange((start: 20, end: 39)),
-		duration: 0.6333333,
+		keyframes: KeyframesRange((start: 20, end: 32)),
+		duration: 0.4,
+		events: {
+			1: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "slide-o1",
+				)
+			},
+		},
 	),
 	"slide-o2": (
-		keyframes: KeyframesRange((start: 40, end: 59)),
-		duration: 0.6333333,
+		keyframes: KeyframesRange((start: 40, end: 52)),
+		duration: 0.4,
+		events: {
+			1: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "slide-o2",
+				)
+			},
+		},
 	),
 	"slide-o3": (
-		keyframes: KeyframesRange((start: 60, end: 79)),
-		duration: 0.6333333,
+		keyframes: KeyframesRange((start: 60, end: 72)),
+		duration: 0.4,
+		events: {
+			1: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "slide-o3",
+				)
+			},
+		},
 	),
 	"slide-o4": (
-		keyframes: KeyframesRange((start: 80, end: 99)),
-		duration: 0.6333333,
+		keyframes: KeyframesRange((start: 80, end: 92)),
+		duration: 0.4,
+		events: {
+			1: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "slide-o4",
+				)
+			},
+		},
 	),
 	"slide-o5": (
-		keyframes: KeyframesRange((start: 100, end: 119)),
-		duration: 0.6333333,
+		keyframes: KeyframesRange((start: 100, end: 112)),
+		duration: 0.4,
+		events: {
+			1: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "slide-o5",
+				)
+			},
+		},
 	),
 	"slide-o6": (
-		keyframes: KeyframesRange((start: 120, end: 139)),
-		duration: 0.6333333,
+		keyframes: KeyframesRange((start: 120, end: 132)),
+		duration: 0.4,
+		events: {
+			1: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "slide-o6",
+				)
+			},
+		},
 	),
 	"slide-o7": (
-		keyframes: KeyframesRange((start: 140, end: 159)),
-		duration: 0.6333333,
+		keyframes: KeyframesRange((start: 140, end: 152)),
+		duration: 0.4,
+		events: {
+			1: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "slide-o7",
+				)
+			},
+		},
+	),
+	"slide_recover-o0": (
+		keyframes: KeyframesRange((start: 0, end: 8)),
+		duration: 0.26666668,
+	),
+	"slide_recover-o1": (
+		keyframes: KeyframesRange((start: 20, end: 28)),
+		duration: 0.26666668,
+	),
+	"slide_recover-o2": (
+		keyframes: KeyframesRange((start: 40, end: 48)),
+		duration: 0.26666668,
+	),
+	"slide_recover-o3": (
+		keyframes: KeyframesRange((start: 60, end: 68)),
+		duration: 0.26666668,
+	),
+	"slide_recover-o4": (
+		keyframes: KeyframesRange((start: 80, end: 88)),
+		duration: 0.26666668,
+	),
+	"slide_recover-o5": (
+		keyframes: KeyframesRange((start: 100, end: 108)),
+		duration: 0.26666668,
+	),
+	"slide_recover-o6": (
+		keyframes: KeyframesRange((start: 120, end: 128)),
+		duration: 0.26666668,
+	),
+	"slide_recover-o7": (
+		keyframes: KeyframesRange((start: 140, end: 148)),
+		duration: 0.26666668,
 	),
 	"spinning_back_kick-o0": (
 		keyframes: KeyframesRange((start: 0, end: 12)),

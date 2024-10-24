@@ -39,7 +39,7 @@ fn move_player_attacking(
             velocity.linvel = player.current_direction * 50.0;
         } else if player.state_machine.attack_eq(Attack::Light2) {
             velocity.linvel = player.current_direction * 250.0;
-        } else if player.state_machine.state() == DudeState::Sliding {
+        } else if player.state_machine.attack_eq(Attack::Slide) {
             let Some(duration) = animator.duration() else {
                 continue;
             };

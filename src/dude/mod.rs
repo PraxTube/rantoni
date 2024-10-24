@@ -25,7 +25,6 @@ pub enum DudeState {
     Recovering,
     Staggering,
     Parrying,
-    Sliding,
     Jumping(JumpingState),
 }
 

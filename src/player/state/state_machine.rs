@@ -121,6 +121,17 @@ Attempted new state: {:?}",
         self.attack_handler.set_chainable(true);
     }
 
+    pub fn set_sliding_attack(&mut self) {
+        if self.just_changed {
+            error!("Trying to set sliding state even though state was already changed this frame. Should never happen, you probably forgot a flag check");
+            return;
+        }
+        self.set_state(DudeState::Attacking);
+        self.attack_handler.set_attack(Attack::Slide);
+        self.attack_handler.set_chainable(false);
+        self.attack_handler.set_chained_attack(AttackForm::None);
+    }
+
     pub fn attack_direction(&self) -> Vec2 {
         self.attack_handler.attack_direction()
     }
@@ -189,6 +200,7 @@ Attempted new state: {:?}",
                 AttackForm::Heavy => Some(Attack::Heavy3),
             },
             Attack::Heavy3 => None,
+            Attack::Slide => None,
         }
     }
 

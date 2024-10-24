@@ -31,6 +31,7 @@ pub enum DudeAnimations {
     ParrySuccess,
     ParrySuccessRecover,
     Slide,
+    SlideRecover,
     Jumping,
     JumpingRecoverIdle,
     JumpingRecoverMoving,
@@ -118,6 +119,7 @@ pub fn dude_state_animation(
                 Attack::Heavy1 => DudeAnimations::Heavy1,
                 Attack::Heavy2 => DudeAnimations::Heavy2,
                 Attack::Heavy3 => DudeAnimations::Heavy3,
+                Attack::Slide => DudeAnimations::Slide,
             };
             get_animation_data(assets, dude_animation, direction, false)
         }
@@ -129,6 +131,7 @@ pub fn dude_state_animation(
                 Attack::Heavy1 => DudeAnimations::Heavy1Recover,
                 Attack::Heavy2 => DudeAnimations::Heavy2Recover,
                 Attack::Heavy3 => DudeAnimations::Heavy3Recover,
+                Attack::Slide => DudeAnimations::SlideRecover,
             };
             get_animation_data(assets, dude_animation, direction, false)
         }
@@ -148,7 +151,6 @@ pub fn dude_state_animation(
             };
             get_animation_data(assets, dude_animation, direction, false)
         }
-        DudeState::Sliding => get_animation_data(assets, DudeAnimations::Slide, direction, false),
         DudeState::Jumping(jumping_state) => match jumping_state {
             JumpingState::Start => {
                 get_animation_data(assets, DudeAnimations::Jumping, direction, false)

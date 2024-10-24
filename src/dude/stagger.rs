@@ -89,6 +89,10 @@ impl Stagger {
                     700.0 * intensity_multiplier,
                 );
             }
+            // TODO: Implement StaggerState with something like fallen
+            Attack::Slide => {
+                self.new_state(StaggerState::Normal, direction, 0.5, 0.0);
+            }
         }
     }
 

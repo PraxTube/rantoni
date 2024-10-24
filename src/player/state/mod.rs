@@ -7,7 +7,7 @@ pub use state_machine::PlayerStateMachine;
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::dude::{AttackForm, DudeState, JumpingState, ParryState, Stagger};
+use crate::dude::{Attack, AttackForm, DudeState, JumpingState, ParryState, Stagger};
 use crate::player::{input::PlayerInput, Player};
 
 const SLIDING_TO_JUMP_TRANSITION_MAX_TIME_PERCENTAGE: f32 = 0.7;
@@ -93,6 +93,9 @@ fn transition_slide_state(
         if !player_input.slide {
             continue;
         }
+        if player.state_machine.attack_eq(Attack::Slide) {
+            continue;
+        }
         let x = animator.elapsed() / animator.duration().unwrap_or(1000.0);
         if !(player.state_machine.can_attack()
             || (player.state_machine.state() == DudeState::Jumping(JumpingState::Start)
@@ -101,7 +104,7 @@ fn transition_slide_state(
             continue;
         }
 
-        player.state_machine.set_state(DudeState::Sliding);
+        player.state_machine.set_sliding_attack();
     }
 }
 
@@ -118,7 +121,7 @@ fn transition_jump_state(
         }
         let x = animator.elapsed() / animator.duration().unwrap_or(1000.0);
         if !(player.state_machine.can_run()
-            || (player.state_machine.state() == DudeState::Sliding
+            || (player.state_machine.attack_eq(Attack::Slide)
                 && x <= SLIDING_TO_JUMP_TRANSITION_MAX_TIME_PERCENTAGE))
         {
             continue;
@@ -210,11 +213,6 @@ fn transition_idle_state(
                     ParryState::Recover | ParryState::Fail => {
                         player.state_machine.set_state(DudeState::Idling)
                     }
-                }
-            }
-            DudeState::Sliding => {
-                if animator.just_finished() {
-                    player.state_machine.set_state(DudeState::Idling);
                 }
             }
             DudeState::Jumping(jumping_state) => {

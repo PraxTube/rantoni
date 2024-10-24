@@ -13,6 +13,7 @@ pub enum Attack {
     Heavy1,
     Heavy2,
     Heavy3,
+    Slide,
 }
 
 #[derive(Debug, Default, PartialEq, Clone, Copy)]
@@ -37,9 +38,12 @@ impl Attack {
             Attack::Heavy1 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
             Attack::Heavy2 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
             Attack::Heavy3 => (Vec2::default(), Collider::cuboid(12.0, 20.0), 20.0),
+            Attack::Slide => (Vec2::default(), Collider::cuboid(15.0, 8.0), 20.0),
         }
     }
 
+    /// The bool flag is whether or not to rotate the arc attack effect locally, meaning on its z
+    /// axis. It will always be rotated around the player regarding the orientation of the player.
     pub fn effect_animation_data(
         &self,
         assets: &Res<GameAssets>,
@@ -84,6 +88,13 @@ impl Attack {
                 assets.attack_half_circle.clone(),
                 assets.attack_half_circle_layout.clone(),
                 assets.attack_half_circle_animation.clone(),
+                true,
+            ),
+            // TODO: Slide effect animations
+            Attack::Slide => (
+                assets.attack_arc.clone(),
+                assets.attack_arc_layout.clone(),
+                assets.attack_arc_animation.clone(),
                 true,
             ),
         }
