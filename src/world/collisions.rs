@@ -106,7 +106,7 @@ pub fn spawn_attack_effect(
         HitboxType::Player(_) => PLAYER_GROUP,
         HitboxType::Enemy(_) => ENEMY_GROUP,
     };
-    let (hitbox_offset, collider, pos_offset) = match hitbox_type {
+    let (hitbox_offset, collider, direction_magnitude, pos_offset) = match hitbox_type {
         HitboxType::Player(attack) => attack.effect_position_data(),
         HitboxType::Enemy(attack) => attack.effect_position_data(),
     };
@@ -123,7 +123,7 @@ pub fn spawn_attack_effect(
     let mut animator = AnimationPlayer2D::default();
     animator.play(animation);
 
-    let pos = direction.normalize_or_zero() * pos_offset;
+    let pos = pos_offset + direction.normalize_or_zero() * direction_magnitude;
     let transform = if with_rotation {
         Transform::from_translation(pos.extend(0.0)).with_rotation(quat_from_vec2(direction))
     } else {

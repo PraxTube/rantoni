@@ -30,15 +30,50 @@ impl Attack {
     ///     - Collider of hitbox
     ///     - Magnitude of the offset to the parent entity
     /// of the current attack.
-    pub fn effect_position_data(&self) -> (Vec2, Collider, f32) {
+    pub fn effect_position_data(&self) -> (Vec2, Collider, f32, Vec2) {
         match self {
-            Attack::Light1 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
-            Attack::Light2 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
-            Attack::Light3 => (Vec2::default(), Collider::cuboid(12.0, 12.0), 30.0),
-            Attack::Heavy1 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
-            Attack::Heavy2 => (Vec2::default(), Collider::cuboid(8.0, 14.0), 20.0),
-            Attack::Heavy3 => (Vec2::default(), Collider::cuboid(12.0, 20.0), 20.0),
-            Attack::Slide => (Vec2::default(), Collider::cuboid(15.0, 8.0), 20.0),
+            Attack::Light1 => (
+                Vec2::default(),
+                Collider::cuboid(8.0, 14.0),
+                20.0,
+                Vec2::ZERO,
+            ),
+            Attack::Light2 => (
+                Vec2::default(),
+                Collider::cuboid(8.0, 14.0),
+                20.0,
+                Vec2::ZERO,
+            ),
+            Attack::Light3 => (
+                Vec2::default(),
+                Collider::cuboid(12.0, 12.0),
+                30.0,
+                Vec2::ZERO,
+            ),
+            Attack::Heavy1 => (
+                Vec2::default(),
+                Collider::cuboid(8.0, 14.0),
+                20.0,
+                Vec2::ZERO,
+            ),
+            Attack::Heavy2 => (
+                Vec2::default(),
+                Collider::cuboid(8.0, 14.0),
+                20.0,
+                Vec2::ZERO,
+            ),
+            Attack::Heavy3 => (
+                Vec2::default(),
+                Collider::cuboid(12.0, 20.0),
+                20.0,
+                Vec2::ZERO,
+            ),
+            Attack::Slide => (
+                Vec2::default(),
+                Collider::cuboid(15.0, 8.0),
+                20.0,
+                Vec2::new(0.0, -16.0),
+            ),
         }
     }
 
