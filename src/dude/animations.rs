@@ -165,24 +165,3 @@ pub fn dude_state_animation(
         },
     }
 }
-
-/// Corresponding frame of when to spawn the attack arc of each attack animation.
-pub fn dude_state_hitbox_start_frame(state: DudeState, attack: Attack) -> usize {
-    match state {
-        DudeState::Attacking => match attack {
-            Attack::Light1 => 3,
-            Attack::Light2 => 4,
-            Attack::Light3 => 2,
-            Attack::Heavy1 => 5,
-            Attack::Heavy2 => 11,
-            Attack::Heavy3 => 11,
-        },
-        _ => {
-            error!(
-                "should never happen, called hitbox start frame in state '{:?}'",
-                state
-            );
-            0
-        }
-    }
-}

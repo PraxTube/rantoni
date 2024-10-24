@@ -54,6 +54,7 @@ fn main() {
                     }),
                     ..default()
                 })
+                // TODO: Bro why is this still here? Remove it
                 .set(RenderPlugin {
                     render_creation: bevy::render::settings::RenderCreation::Automatic(
                         WgpuSettings {
@@ -92,6 +93,7 @@ fn main() {
             dude::StatePlugin,
             player::PlayerPlugin,
             enemy::EnemyPlugin,
+            assets::AssetPlugin,
         ))
         .run();
 }

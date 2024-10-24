@@ -1,10 +1,10 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::{dude_state_hitbox_start_frame, Attack, DudeState, PreviousAttackFrame},
+    assets::events::SpawnHitboxEvent,
+    dude::{Attack, DudeState},
     enemy::Enemy,
     world::collisions::{spawn_attack_effect, HitboxType},
     GameAssets, GameState,
@@ -56,28 +56,24 @@ impl AttackHandler {
 fn spawn_attack_arcs(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    mut q_enemies: Query<(Entity, &AnimationPlayer2D, &Enemy, &mut PreviousAttackFrame)>,
+    q_enemies: Query<(Entity, &Enemy)>,
+    mut ev_spawn_hitbox: EventReader<SpawnHitboxEvent>,
 ) {
-    for (entity, animator, enemy, mut previous_attack_frame) in &mut q_enemies {
+    for ev in ev_spawn_hitbox.read() {
+        let Ok((entity, enemy)) = q_enemies.get(*ev.target) else {
+            continue;
+        };
         if enemy.state_machine.state() != DudeState::Attacking {
             continue;
         }
 
-        let start_frame = dude_state_hitbox_start_frame(
-            enemy.state_machine.state(),
-            enemy.state_machine.attack(),
+        spawn_attack_effect(
+            &mut commands,
+            &assets,
+            entity,
+            enemy.state_machine.attack_direction(),
+            HitboxType::Enemy(enemy.state_machine.attack()),
         );
-
-        if animator.frame() == start_frame && animator.frame() != previous_attack_frame.0 {
-            spawn_attack_effect(
-                &mut commands,
-                &assets,
-                entity,
-                enemy.state_machine.attack_direction(),
-                HitboxType::Enemy(enemy.state_machine.attack()),
-            );
-        }
-        previous_attack_frame.0 = animator.frame();
     }
 }
 

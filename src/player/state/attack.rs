@@ -1,10 +1,10 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::{dude_state_hitbox_start_frame, Attack, AttackForm, DudeState},
+    assets::events::SpawnHitboxEvent,
+    dude::{Attack, AttackForm, DudeState},
     player::Player,
     world::collisions::{spawn_attack_effect, HitboxType},
     GameAssets, GameState,
@@ -80,33 +80,24 @@ impl AttackHandler {
 fn spawn_attack_arcs(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    q_players: Query<(Entity, &AnimationPlayer2D, &Player)>,
-    mut previous_frame: Local<usize>,
+    q_players: Query<(Entity, &Player)>,
+    mut ev_spawn_hitbox: EventReader<SpawnHitboxEvent>,
 ) {
-    for (player_entity, animator, player) in &q_players {
+    for ev in ev_spawn_hitbox.read() {
+        let Ok((entity, player)) = q_players.get(*ev.target) else {
+            continue;
+        };
         if player.state_machine.state() != DudeState::Attacking {
             continue;
         }
 
-        let start_frame = dude_state_hitbox_start_frame(
-            player.state_machine.state(),
-            player.state_machine.attack(),
+        spawn_attack_effect(
+            &mut commands,
+            &assets,
+            entity,
+            player.state_machine.attack_direction(),
+            HitboxType::Player(player.state_machine.attack()),
         );
-        // TODO: This might be an issue if start_frame = 0, also I really don't like this in
-        // general but it should work for now.
-        // Actually, this will not work for multiple players, so this for loop players is pretty
-        // dumb...
-        if animator.frame() == start_frame && animator.frame() != *previous_frame {
-            spawn_attack_effect(
-                &mut commands,
-                &assets,
-                player_entity,
-                player.state_machine.attack_direction(),
-                HitboxType::Player(player.state_machine.attack()),
-            );
-        }
-
-        *previous_frame = animator.frame();
     }
 }
 
