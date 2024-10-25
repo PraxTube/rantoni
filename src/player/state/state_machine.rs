@@ -2,7 +2,9 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::dude::{Attack, AttackForm, DudeAnimations, DudeState, ParryState};
+use crate::dude::{
+    Attack, AttackForm, DudeAnimations, DudeState, ParryState, Stagger, StaggerState,
+};
 
 use super::AttackHandler;
 
@@ -12,6 +14,7 @@ pub struct PlayerStateMachine {
     state: DudeState,
     previous_state: DudeState,
     parry_state: ParryState,
+    stagger: Stagger,
     new_state: Option<DudeState>,
     attack_handler: AttackHandler,
     animation_state: DudeAnimations,
@@ -25,6 +28,7 @@ impl PlayerStateMachine {
             || (self.state == DudeState::Parrying
                 && (self.parry_state == ParryState::Success
                     || self.parry_state == ParryState::Recover))
+            || self.state == DudeState::Staggering && self.stagger.state().is_recovering()
     }
 
     pub fn can_attack(&self) -> bool {
@@ -71,6 +75,8 @@ Attempted new state: {:?}",
     }
 
     pub fn set_new_state(&mut self, new_state: DudeState) {
+        // TODO: Should I handle this? Should this never happen? asserts, or just warning? Same
+        // with enemy statemachine.
         if self.new_state.is_some() {
             return;
         }
@@ -241,5 +247,31 @@ Attempted new state: {:?}",
         } else {
             self.default_attack(attack_form);
         }
+    }
+
+    pub fn tick_stagger_timer(&mut self, delta: Duration) {
+        self.stagger.tick_timer(delta);
+    }
+
+    pub fn stagger_just_finished(&self) -> bool {
+        self.stagger.just_finished()
+    }
+
+    pub fn stagger_linvel(&self) -> Vec2 {
+        self.stagger.linvel()
+    }
+
+    pub fn stagger_state(&self) -> StaggerState {
+        self.stagger.state()
+    }
+
+    pub fn set_stagger_state(&mut self, direction: Vec2) {
+        self.set_new_state(DudeState::Staggering);
+        self.stagger
+            .new_state(StaggerState::Normal, direction, 0.3, 150.0);
+    }
+
+    pub fn set_stagger_state_recover(&mut self) {
+        self.stagger.set_recover_state();
     }
 }

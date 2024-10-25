@@ -1,18 +1,20 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::dude::{DudeState, Stagger};
+use crate::dude::DudeState;
 
 use super::{state::EnemyStateSystemSet, Enemy, MOVE_SPEED};
 
-fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy, &Stagger)>) {
-    for (mut velocity, enemy, stagger) in &mut q_enemies {
+fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
+    for (mut velocity, enemy) in &mut q_enemies {
         match enemy.state_machine.state() {
             DudeState::Running => {
                 velocity.linvel = enemy.move_direction * MOVE_SPEED;
             }
             DudeState::Staggering => {
-                velocity.linvel = stagger.direction * stagger.intensity;
+                if !enemy.state_machine.stagger_state().is_recovering() {
+                    velocity.linvel = enemy.state_machine.stagger_linvel();
+                }
             }
             _ => {}
         }

@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::dude::{Attack, DudeAnimations, DudeState};
+use crate::dude::{Attack, DudeAnimations, DudeState, Stagger, StaggerState};
 
 use super::attack::AttackHandler;
 
@@ -11,6 +11,7 @@ pub struct EnemyStateMachine {
     just_changed: bool,
     state: DudeState,
     previous_state: DudeState,
+    stagger: Stagger,
     new_state: Option<DudeState>,
     animation_state: DudeAnimations,
     attack_handler: AttackHandler,
@@ -109,5 +110,47 @@ Attempted new state: {:?}",
 
     pub fn set_just_changed(&mut self, just_changed: bool) {
         self.just_changed = just_changed;
+    }
+
+    pub fn tick_stagger_timer(&mut self, delta: Duration) {
+        self.stagger.tick_timer(delta);
+    }
+
+    pub fn stagger_finished(&self) -> bool {
+        self.stagger.just_finished()
+    }
+
+    pub fn stagger_linvel(&self) -> Vec2 {
+        self.stagger.linvel()
+    }
+
+    pub fn set_stagger_state(
+        &mut self,
+        attack: Attack,
+        direction: Vec2,
+        duration_multiplier: f32,
+        intensity_multiplier: f32,
+    ) {
+        self.set_new_state(DudeState::Staggering);
+        self.stagger.stagger_from_attack(
+            attack,
+            direction,
+            duration_multiplier,
+            intensity_multiplier,
+        );
+    }
+
+    pub fn set_stagger_stance_break_state(&mut self) {
+        self.set_new_state(DudeState::Staggering);
+        self.stagger
+            .new_state(StaggerState::StanceBreak, Vec2::ZERO, 0.5, 0.0);
+    }
+
+    pub fn stagger_state(&self) -> StaggerState {
+        self.stagger.state()
+    }
+
+    pub fn set_stagger_state_recover(&mut self) {
+        self.stagger.set_recover_state();
     }
 }

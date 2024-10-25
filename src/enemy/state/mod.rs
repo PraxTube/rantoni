@@ -7,7 +7,7 @@ use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::{Attack, DudeState, Stagger},
+    dude::{Attack, DudeState},
     player::Player,
 };
 
@@ -84,8 +84,8 @@ fn transition_attack_state(mut q_enemies: Query<(&Transform, &mut Enemy)>) {
     }
 }
 
-fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy, &Stagger)>) {
-    for (animator, mut enemy, stagger) in &mut q_enemies {
+fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy)>) {
+    for (animator, mut enemy) in &mut q_enemies {
         if enemy.state_machine.just_changed() {
             continue;
         }
@@ -109,10 +109,12 @@ fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy, &
                 }
             }
             DudeState::Staggering => {
-                if (stagger.use_animation_end() && animator.just_finished())
-                    || stagger.just_finished()
-                {
-                    enemy.state_machine.set_state(DudeState::Idling);
+                if enemy.state_machine.stagger_state().is_recovering() {
+                    if animator.just_finished() {
+                        enemy.state_machine.set_state(DudeState::Idling);
+                    }
+                } else if enemy.state_machine.stagger_finished() {
+                    enemy.state_machine.set_stagger_state_recover();
                 }
             }
         }

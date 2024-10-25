@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 
 use crate::{
-    dude::{DudeState, ParryState, Stagger},
+    dude::{DudeState, ParryState},
     enemy::{Enemy, EnemyCollisionSystemSet},
     world::collisions::{Hitbox, HitboxType, Hurtbox},
     GameState,
@@ -11,7 +11,7 @@ use crate::{
 use super::{Player, PlayerStateSystemSet};
 
 fn enemy_hitbox_collisions(
-    mut q_players: Query<(&mut Player, &mut Stagger)>,
+    mut q_players: Query<&mut Player>,
     q_enemies: Query<&Enemy>,
     q_hitboxes: Query<&Hitbox>,
     q_hurtboxes: Query<&Hurtbox>,
@@ -44,8 +44,7 @@ fn enemy_hitbox_collisions(
             continue;
         };
 
-        let Ok((mut player, mut player_stagger)) = q_players.get_mut(player_hurtbox.root_entity)
-        else {
+        let Ok(mut player) = q_players.get_mut(player_hurtbox.root_entity) else {
             continue;
         };
 
@@ -64,8 +63,9 @@ fn enemy_hitbox_collisions(
             continue;
         }
 
-        player.state_machine.set_new_state(DudeState::Staggering);
-        player_stagger.set_player_stagger(enemy.state_machine.attack_direction());
+        player
+            .state_machine
+            .set_stagger_state(enemy.state_machine.attack_direction());
     }
 }
 

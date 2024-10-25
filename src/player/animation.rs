@@ -4,7 +4,7 @@ use bevy::{prelude::*, sprite::Anchor};
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::{dude_state_animation, DudeState, JumpingState, StaggerState},
+    dude::{dude_state_animation, DudeState, JumpingState},
     GameAssets,
 };
 
@@ -36,7 +36,7 @@ fn update_player_animation(
         &assets,
         player.state_machine.state(),
         player.state_machine.attack(),
-        StaggerState::default(),
+        player.state_machine.stagger_state(),
         player.state_machine.parry_state(),
         player.current_direction,
     );

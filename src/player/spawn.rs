@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::{DudeAnimations, Stagger},
+    dude::DudeAnimations,
     world::collisions::{spawn_hurtbox_collision, PLAYER_GROUP, WORLD_GROUP},
     GameAssets, GameState,
 };
@@ -20,7 +20,6 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
     let entity = commands
         .spawn((
             Player::default(),
-            Stagger::default(),
             RigidBody::Dynamic,
             LockedAxes::ROTATION_LOCKED,
             Velocity::zero(),

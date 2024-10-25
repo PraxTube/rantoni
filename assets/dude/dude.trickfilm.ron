@@ -151,6 +151,38 @@
 		keyframes: KeyframesRange((start: 140, end: 143)),
 		duration: 0.1,
 	),
+	"fall_recover-o0": (
+		keyframes: KeyframesRange((start: 0, end: 17)),
+		duration: 0.56666666,
+	),
+	"fall_recover-o1": (
+		keyframes: KeyframesRange((start: 20, end: 37)),
+		duration: 0.56666666,
+	),
+	"fall_recover-o2": (
+		keyframes: KeyframesRange((start: 40, end: 57)),
+		duration: 0.56666666,
+	),
+	"fall_recover-o3": (
+		keyframes: KeyframesRange((start: 60, end: 77)),
+		duration: 0.56666666,
+	),
+	"fall_recover-o4": (
+		keyframes: KeyframesRange((start: 80, end: 97)),
+		duration: 0.56666666,
+	),
+	"fall_recover-o5": (
+		keyframes: KeyframesRange((start: 100, end: 117)),
+		duration: 0.56666666,
+	),
+	"fall_recover-o6": (
+		keyframes: KeyframesRange((start: 120, end: 137)),
+		duration: 0.56666666,
+	),
+	"fall_recover-o7": (
+		keyframes: KeyframesRange((start: 140, end: 157)),
+		duration: 0.56666666,
+	),
 	"front_kick-o0": (
 		keyframes: KeyframesRange((start: 0, end: 7)),
 		duration: 0.23333333,
@@ -1191,36 +1223,100 @@
 		keyframes: KeyframesRange((start: 140, end: 145)),
 		duration: 0.16666667,
 	),
+	"stagger_recover-o0": (
+		keyframes: KeyframesRange((start: 0, end: 11)),
+		duration: 0.36666667,
+	),
+	"stagger_recover-o1": (
+		keyframes: KeyframesRange((start: 20, end: 31)),
+		duration: 0.36666667,
+	),
+	"stagger_recover-o2": (
+		keyframes: KeyframesRange((start: 40, end: 51)),
+		duration: 0.36666667,
+	),
+	"stagger_recover-o3": (
+		keyframes: KeyframesRange((start: 60, end: 71)),
+		duration: 0.36666667,
+	),
+	"stagger_recover-o4": (
+		keyframes: KeyframesRange((start: 80, end: 91)),
+		duration: 0.36666667,
+	),
+	"stagger_recover-o5": (
+		keyframes: KeyframesRange((start: 100, end: 111)),
+		duration: 0.36666667,
+	),
+	"stagger_recover-o6": (
+		keyframes: KeyframesRange((start: 120, end: 131)),
+		duration: 0.36666667,
+	),
+	"stagger_recover-o7": (
+		keyframes: KeyframesRange((start: 140, end: 151)),
+		duration: 0.36666667,
+	),
 	"stance_broken-o0": (
-		keyframes: KeyframesRange((start: 0, end: 20)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 0, end: 2)),
+		duration: 0.06666667,
 	),
 	"stance_broken-o1": (
-		keyframes: KeyframesRange((start: 20, end: 40)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 20, end: 22)),
+		duration: 0.06666667,
 	),
 	"stance_broken-o2": (
-		keyframes: KeyframesRange((start: 40, end: 60)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 40, end: 42)),
+		duration: 0.06666667,
 	),
 	"stance_broken-o3": (
-		keyframes: KeyframesRange((start: 60, end: 80)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 60, end: 62)),
+		duration: 0.06666667,
 	),
 	"stance_broken-o4": (
-		keyframes: KeyframesRange((start: 80, end: 100)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 80, end: 82)),
+		duration: 0.06666667,
 	),
 	"stance_broken-o5": (
-		keyframes: KeyframesRange((start: 100, end: 120)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 100, end: 102)),
+		duration: 0.06666667,
 	),
 	"stance_broken-o6": (
-		keyframes: KeyframesRange((start: 120, end: 140)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 120, end: 122)),
+		duration: 0.06666667,
 	),
 	"stance_broken-o7": (
-		keyframes: KeyframesRange((start: 140, end: 160)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 140, end: 142)),
+		duration: 0.06666667,
+	),
+	"stance_broken_recover-o0": (
+		keyframes: KeyframesRange((start: 0, end: 7)),
+		duration: 0.23333333,
+	),
+	"stance_broken_recover-o1": (
+		keyframes: KeyframesRange((start: 20, end: 27)),
+		duration: 0.23333333,
+	),
+	"stance_broken_recover-o2": (
+		keyframes: KeyframesRange((start: 40, end: 47)),
+		duration: 0.23333333,
+	),
+	"stance_broken_recover-o3": (
+		keyframes: KeyframesRange((start: 60, end: 67)),
+		duration: 0.23333333,
+	),
+	"stance_broken_recover-o4": (
+		keyframes: KeyframesRange((start: 80, end: 87)),
+		duration: 0.23333333,
+	),
+	"stance_broken_recover-o5": (
+		keyframes: KeyframesRange((start: 100, end: 107)),
+		duration: 0.23333333,
+	),
+	"stance_broken_recover-o6": (
+		keyframes: KeyframesRange((start: 120, end: 127)),
+		duration: 0.23333333,
+	),
+	"stance_broken_recover-o7": (
+		keyframes: KeyframesRange((start: 140, end: 147)),
+		duration: 0.23333333,
 	),
 }

@@ -1,4 +1,8 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
+
+use crate::{enemy::Enemy, player::Player};
 
 use super::Attack;
 
@@ -7,33 +11,49 @@ pub enum StaggerState {
     #[default]
     Normal,
     StanceBreak,
+    Fall,
+    NormalRecover,
+    StanceBreakRecover,
+    FallRecover,
 }
 
-#[derive(Component, Default)]
+#[derive(Default)]
 pub struct Stagger {
-    pub state: StaggerState,
-    pub direction: Vec2,
-    pub intensity: f32,
+    state: StaggerState,
+    direction: Vec2,
+    intensity: f32,
     timer: Timer,
-    use_animation_end: bool,
+}
+
+impl StaggerState {
+    pub fn is_recovering(&self) -> bool {
+        match self {
+            StaggerState::Normal => false,
+            StaggerState::StanceBreak => false,
+            StaggerState::Fall => false,
+            StaggerState::NormalRecover => true,
+            StaggerState::StanceBreakRecover => true,
+            StaggerState::FallRecover => true,
+        }
+    }
 }
 
 impl Stagger {
-    fn new_state(&mut self, state: StaggerState, direction: Vec2, duration: f32, intensity: f32) {
+    pub fn new_state(
+        &mut self,
+        state: StaggerState,
+        direction: Vec2,
+        duration: f32,
+        intensity: f32,
+    ) {
+        assert!(duration != 0.0);
         self.state = state;
         self.direction = direction;
         self.intensity = intensity;
-
-        if duration != 0.0 {
-            self.timer = Timer::from_seconds(duration, TimerMode::Once);
-            self.use_animation_end = false;
-        } else {
-            self.timer.reset();
-            self.use_animation_end = true;
-        }
+        self.timer = Timer::from_seconds(duration, TimerMode::Once);
     }
 
-    pub fn update(
+    pub fn stagger_from_attack(
         &mut self,
         attack: Attack,
         direction: Vec2,
@@ -89,38 +109,51 @@ impl Stagger {
                     700.0 * intensity_multiplier,
                 );
             }
-            // TODO: Implement StaggerState with something like fallen
             Attack::Slide => {
-                self.new_state(StaggerState::Normal, direction, 0.5, 0.0);
+                self.new_state(StaggerState::Fall, direction, 0.5, 0.0);
             }
         }
     }
 
-    pub fn set_stance_break(&mut self) {
-        self.new_state(StaggerState::StanceBreak, Vec2::ZERO, 0.0, 0.0);
-    }
-
-    /// The player should always get the exact same amount of knockback regardless of the actual
-    /// attack. So always use this for player stagger.
-    pub fn set_player_stagger(&mut self, direction: Vec2) {
-        self.new_state(StaggerState::Normal, direction, 0.3, 150.0);
+    pub fn tick_timer(&mut self, delta: Duration) {
+        self.timer.tick(delta);
     }
 
     pub fn just_finished(&self) -> bool {
         self.timer.just_finished()
     }
 
-    pub fn use_animation_end(&self) -> bool {
-        self.use_animation_end
+    pub fn linvel(&self) -> Vec2 {
+        self.direction * self.intensity
+    }
+
+    pub fn state(&self) -> StaggerState {
+        self.state
+    }
+
+    pub fn set_recover_state(&mut self) {
+        let next_state = match self.state {
+            StaggerState::Normal => StaggerState::NormalRecover,
+            StaggerState::StanceBreak => StaggerState::StanceBreakRecover,
+            StaggerState::Fall => StaggerState::FallRecover,
+            _ => {
+                error!("should never happen, trying to set recover state but state is already recover state");
+                StaggerState::NormalRecover
+            }
+        };
+        self.state = next_state;
     }
 }
 
-fn tick_stagger_timers(time: Res<Time>, mut q_staggers: Query<&mut Stagger>) {
-    for mut stagger in &mut q_staggers {
-        if stagger.use_animation_end {
-            continue;
-        }
-        stagger.timer.tick(time.delta());
+fn tick_player_stagger_timers(time: Res<Time>, mut q_players: Query<&mut Player>) {
+    for mut player in &mut q_players {
+        player.state_machine.tick_stagger_timer(time.delta());
+    }
+}
+
+fn tick_enemy_stagger_timers(time: Res<Time>, mut q_enemies: Query<&mut Enemy>) {
+    for mut enemy in &mut q_enemies {
+        enemy.state_machine.tick_stagger_timer(time.delta());
     }
 }
 
@@ -128,6 +161,9 @@ pub struct StaggerPlugin;
 
 impl Plugin for StaggerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(PreUpdate, (tick_stagger_timers,));
+        app.add_systems(
+            PreUpdate,
+            (tick_player_stagger_timers, tick_enemy_stagger_timers),
+        );
     }
 }

@@ -19,6 +19,7 @@ pub enum DudeAnimations {
     Light3,
     Light3Recover,
     StaggerNormal,
+    StaggerNormalRecover,
     Heavy1,
     Heavy1Recover,
     Heavy2,
@@ -26,6 +27,7 @@ pub enum DudeAnimations {
     Heavy3,
     Heavy3Recover,
     StanceBreak,
+    StanceBreakRecover,
     Parry,
     ParryFail,
     ParrySuccess,
@@ -35,6 +37,8 @@ pub enum DudeAnimations {
     Jumping,
     JumpingRecoverIdle,
     JumpingRecoverMoving,
+    Fall,
+    FallRecover,
 }
 
 impl DudeAnimations {
@@ -139,7 +143,23 @@ pub fn dude_state_animation(
             let dude_animation = match stagger_state {
                 StaggerState::Normal => DudeAnimations::StaggerNormal,
                 StaggerState::StanceBreak => DudeAnimations::StanceBreak,
+                StaggerState::Fall => DudeAnimations::Fall,
+                StaggerState::NormalRecover => DudeAnimations::StaggerNormalRecover,
+                StaggerState::StanceBreakRecover => DudeAnimations::StanceBreakRecover,
+                StaggerState::FallRecover => DudeAnimations::FallRecover,
             };
+
+            let direction = if dude_animation == DudeAnimations::Fall
+                || dude_animation == DudeAnimations::FallRecover
+            {
+                // We only care about one of the 8 directions, but because of how the whole pipeline is
+                // set up we just keep the other 7 useless animations, it's a minor issue but
+                // absolutely not worth the optimization.
+                Vec2::NEG_Y
+            } else {
+                direction
+            };
+
             get_animation_data(assets, dude_animation, direction, false)
         }
         DudeState::Parrying => {

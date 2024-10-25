@@ -7,7 +7,7 @@ pub use state_machine::PlayerStateMachine;
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::dude::{Attack, AttackForm, DudeState, JumpingState, ParryState, Stagger};
+use crate::dude::{Attack, AttackForm, DudeState, JumpingState, ParryState};
 use crate::player::{input::PlayerInput, Player};
 
 const SLIDING_TO_JUMP_TRANSITION_MAX_TIME_PERCENTAGE: f32 = 0.7;
@@ -174,9 +174,9 @@ fn transition_run_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut
 
 fn transition_idle_state(
     player_input: Res<PlayerInput>,
-    mut q_players: Query<(&AnimationPlayer2D, &mut Player, &Stagger)>,
+    mut q_players: Query<(&AnimationPlayer2D, &mut Player)>,
 ) {
-    for (animator, mut player, stagger) in &mut q_players {
+    for (animator, mut player) in &mut q_players {
         if player.state_machine.just_changed() {
             continue;
         }
@@ -197,8 +197,12 @@ fn transition_idle_state(
                 }
             }
             DudeState::Staggering => {
-                if stagger.just_finished() {
-                    player.state_machine.set_state(DudeState::Idling);
+                if player.state_machine.stagger_state().is_recovering() {
+                    if animator.just_finished() {
+                        player.state_machine.set_state(DudeState::Idling);
+                    }
+                } else if player.state_machine.stagger_just_finished() {
+                    player.state_machine.set_stagger_state_recover();
                 }
             }
             DudeState::Parrying => {

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::dude::{Attack, DudeState, JumpingState, Stagger};
+use crate::dude::{Attack, DudeState, JumpingState};
 use crate::GameState;
 
 use super::input::PlayerInput;
@@ -69,13 +69,16 @@ fn move_player_attacking(
     }
 }
 
-fn move_player_staggering(mut q_players: Query<(&mut Velocity, &Player, &Stagger)>) {
-    for (mut velocity, player, stagger) in &mut q_players {
+fn move_player_staggering(mut q_players: Query<(&mut Velocity, &Player)>) {
+    for (mut velocity, player) in &mut q_players {
         if player.state_machine.state() != DudeState::Staggering {
             continue;
         }
+        if player.state_machine.stagger_state().is_recovering() {
+            continue;
+        }
 
-        velocity.linvel = stagger.direction * stagger.intensity;
+        velocity.linvel = player.state_machine.stagger_linvel();
     }
 }
 

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 
 use crate::{
-    dude::{DudeState, ParryState, Stagger},
+    dude::{DudeState, ParryState},
     player::Player,
     world::collisions::{Hitbox, HitboxType, Hurtbox},
     GameState,
@@ -15,7 +15,7 @@ pub struct EnemyCollisionSystemSet;
 
 fn player_hitbox_collisions(
     q_players: Query<&Player>,
-    mut q_enemies: Query<(&mut Enemy, &mut Stagger)>,
+    mut q_enemies: Query<&mut Enemy>,
     q_hitboxes: Query<&Hitbox>,
     q_hurtboxes: Query<&Hurtbox>,
     mut ev_collision_events: EventReader<CollisionEvent>,
@@ -51,20 +51,21 @@ fn player_hitbox_collisions(
             continue;
         };
 
-        let Ok((mut enemy, mut stagger)) = q_enemies.get_mut(enemy_hurtbox.root_entity) else {
+        let Ok(mut enemy) = q_enemies.get_mut(enemy_hurtbox.root_entity) else {
             continue;
         };
 
         if let HitboxType::Player(attack) = player_hitbox.hitbox_type {
-            enemy.state_machine.set_new_state(DudeState::Staggering);
-            stagger.update(attack, player.current_direction, 1.0, 1.0);
+            enemy
+                .state_machine
+                .set_stagger_state(attack, player.current_direction, 1.0, 1.0);
         }
     }
 }
 
 fn enemy_parry_collisions(
     q_players: Query<&Player>,
-    mut q_enemies: Query<(&mut Enemy, &mut Stagger)>,
+    mut q_enemies: Query<&mut Enemy>,
     q_hitboxes: Query<&Hitbox>,
     q_hurtboxes: Query<&Hurtbox>,
     mut ev_collision_events: EventReader<CollisionEvent>,
@@ -100,7 +101,7 @@ fn enemy_parry_collisions(
             continue;
         };
 
-        let Ok((mut enemy, mut enemy_stagger)) = q_enemies.get_mut(enemy_hitbox.root_entity) else {
+        let Ok(mut enemy) = q_enemies.get_mut(enemy_hitbox.root_entity) else {
             continue;
         };
 
@@ -111,8 +112,7 @@ fn enemy_parry_collisions(
         if player.state_machine.state() == DudeState::Parrying
             && player.state_machine.parry_state() == ParryState::Success
         {
-            enemy.state_machine.set_new_state(DudeState::Staggering);
-            enemy_stagger.set_stance_break();
+            enemy.state_machine.set_stagger_stance_break_state();
         }
     }
 }
