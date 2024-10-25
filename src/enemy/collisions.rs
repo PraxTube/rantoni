@@ -109,9 +109,7 @@ fn enemy_parry_collisions(
             continue;
         };
 
-        if player.state_machine.state() == DudeState::Parrying
-            && player.state_machine.parry_state() == ParryState::Success
-        {
+        if player.state_machine.state() == DudeState::Parrying(ParryState::Success) {
             enemy.state_machine.set_stagger_stance_break_state();
         }
     }

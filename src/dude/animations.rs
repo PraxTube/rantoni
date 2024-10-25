@@ -111,7 +111,6 @@ pub fn dude_state_animation(
     state: DudeState,
     attack: Attack,
     stagger_state: StaggerState,
-    parry_state: ParryState,
     direction: Vec2,
 ) -> (Handle<Image>, Handle<AnimationClip2D>, bool, DudeAnimations) {
     match state {
@@ -166,7 +165,7 @@ pub fn dude_state_animation(
 
             get_animation_data(assets, dude_animation, direction, false)
         }
-        DudeState::Parrying => {
+        DudeState::Parrying(parry_state) => {
             let dude_animation = match parry_state {
                 ParryState::Start => DudeAnimations::Parry,
                 ParryState::Fail => DudeAnimations::ParryFail,

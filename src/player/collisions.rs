@@ -56,10 +56,10 @@ fn enemy_hitbox_collisions(
             continue;
         };
 
-        if player.state_machine.state() == DudeState::Parrying
-            && player.state_machine.parry_state() == ParryState::Start
-        {
-            player.state_machine.set_parry_state(ParryState::Success);
+        if player.state_machine.state() == DudeState::Parrying(ParryState::Start) {
+            player
+                .state_machine
+                .set_state(DudeState::Parrying(ParryState::Success));
             continue;
         }
 

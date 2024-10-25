@@ -1,10 +1,7 @@
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::{
-    dude::{dude_state_animation, ParryState},
-    GameAssets,
-};
+use crate::{dude::dude_state_animation, GameAssets};
 
 use super::{state::EnemyStateSystemSet, Enemy};
 
@@ -18,7 +15,6 @@ fn update_animations(
             enemy.state_machine.state(),
             enemy.state_machine.attack(),
             enemy.state_machine.stagger_state(),
-            ParryState::default(),
             enemy.move_direction,
         );
 

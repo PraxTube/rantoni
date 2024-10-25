@@ -82,7 +82,9 @@ fn transition_parry_state(player_input: Res<PlayerInput>, mut q_players: Query<&
             continue;
         }
 
-        player.state_machine.set_parry_state(ParryState::Start);
+        player
+            .state_machine
+            .set_state(DudeState::Parrying(ParryState::Start));
     }
 }
 
@@ -215,15 +217,17 @@ fn transition_idle_state(
                     player.state_machine.set_stagger_state_recover();
                 }
             }
-            DudeState::Parrying => {
+            DudeState::Parrying(parry_state) => {
                 if !animator.just_finished() {
                     continue;
                 }
-                match player.state_machine.parry_state() {
-                    ParryState::Start => player.state_machine.set_parry_state(ParryState::Fail),
-                    ParryState::Success => {
-                        player.state_machine.set_parry_state(ParryState::Recover)
-                    }
+                match parry_state {
+                    ParryState::Start => player
+                        .state_machine
+                        .set_state(DudeState::Parrying(ParryState::Fail)),
+                    ParryState::Success => player
+                        .state_machine
+                        .set_state(DudeState::Parrying(ParryState::Recover)),
                     ParryState::Recover | ParryState::Fail => {
                         player.state_machine.set_state(DudeState::Idling)
                     }

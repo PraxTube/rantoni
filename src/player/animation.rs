@@ -33,7 +33,6 @@ fn update_player_animation(
         player.state_machine.state(),
         player.state_machine.attack(),
         player.state_machine.stagger_state(),
-        player.state_machine.parry_state(),
         player.current_direction,
     );
 

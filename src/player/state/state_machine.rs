@@ -13,7 +13,6 @@ pub struct PlayerStateMachine {
     just_changed: bool,
     state: DudeState,
     previous_state: DudeState,
-    parry_state: ParryState,
     stagger: Stagger,
     jumping: Jumping,
     new_state: Option<DudeState>,
@@ -26,9 +25,8 @@ impl PlayerStateMachine {
         self.state == DudeState::Idling
             || self.state == DudeState::Running
             || (self.state == DudeState::Recovering && self.attack() != Attack::Dropkick)
-            || (self.state == DudeState::Parrying
-                && (self.parry_state == ParryState::Success
-                    || self.parry_state == ParryState::Recover))
+            || self.state == DudeState::Parrying(ParryState::Success)
+            || self.state == DudeState::Parrying(ParryState::Recover)
             || self.state == DudeState::Staggering && self.stagger.state().is_recovering()
     }
 
@@ -89,19 +87,6 @@ Attempted new state: {:?}",
 
     pub fn reset_new_state(&mut self) {
         self.new_state = None;
-    }
-
-    pub fn parry_state(&self) -> ParryState {
-        self.parry_state
-    }
-
-    pub fn set_parry_state(&mut self, parry_state: ParryState) {
-        if self.just_changed {
-            error!("Trying to set parry state even though state was already changed this frame. Should never happen, you probably forgot a flag check, current: {:?}, new: {:?}", self.state, parry_state);
-            return;
-        }
-        self.set_state(DudeState::Parrying);
-        self.parry_state = parry_state;
     }
 
     pub fn animation_state(&self) -> DudeAnimations {
