@@ -14,6 +14,7 @@ pub enum Attack {
     Heavy2,
     Heavy3,
     Slide,
+    Dropkick,
 }
 
 #[derive(Debug, Default, PartialEq, Clone, Copy)]
@@ -29,6 +30,7 @@ impl Attack {
     ///     - Hitbox offset
     ///     - Collider of hitbox
     ///     - Magnitude of the offset to the parent entity
+    ///     - Position offset relative to the parent entity
     /// of the current attack.
     pub fn effect_position_data(&self) -> (Vec2, Collider, f32, Vec2) {
         match self {
@@ -74,6 +76,7 @@ impl Attack {
                 20.0,
                 Vec2::new(0.0, -16.0),
             ),
+            Attack::Dropkick => todo!(),
         }
     }
 
@@ -127,6 +130,13 @@ impl Attack {
             ),
             // TODO: Slide effect animations
             Attack::Slide => (
+                assets.attack_arc.clone(),
+                assets.attack_arc_layout.clone(),
+                assets.attack_arc_animation.clone(),
+                true,
+            ),
+            // TODO: Dropkick effect animations
+            Attack::Dropkick => (
                 assets.attack_arc.clone(),
                 assets.attack_arc_layout.clone(),
                 assets.attack_arc_animation.clone(),

@@ -3,10 +3,10 @@ use std::time::Duration;
 use bevy::prelude::*;
 
 use crate::dude::{
-    Attack, AttackForm, DudeAnimations, DudeState, ParryState, Stagger, StaggerState,
+    Attack, AttackForm, DudeAnimations, DudeState, JumpingState, ParryState, Stagger, StaggerState,
 };
 
-use super::AttackHandler;
+use super::{jumping::Jumping, AttackHandler};
 
 #[derive(Component, Default)]
 pub struct PlayerStateMachine {
@@ -15,6 +15,7 @@ pub struct PlayerStateMachine {
     previous_state: DudeState,
     parry_state: ParryState,
     stagger: Stagger,
+    jumping: Jumping,
     new_state: Option<DudeState>,
     attack_handler: AttackHandler,
     animation_state: DudeAnimations,
@@ -24,7 +25,7 @@ impl PlayerStateMachine {
     pub fn can_run(&self) -> bool {
         self.state == DudeState::Idling
             || self.state == DudeState::Running
-            || self.state == DudeState::Recovering
+            || (self.state == DudeState::Recovering && self.attack() != Attack::Dropkick)
             || (self.state == DudeState::Parrying
                 && (self.parry_state == ParryState::Success
                     || self.parry_state == ParryState::Recover))
@@ -32,7 +33,10 @@ impl PlayerStateMachine {
     }
 
     pub fn can_attack(&self) -> bool {
-        self.can_run() || self.state == DudeState::Attacking
+        self.can_run()
+            || (self.state == DudeState::Attacking
+                && self.attack() != Attack::Slide
+                && self.attack() != Attack::Dropkick)
     }
 
     pub fn previous_state(&self) -> DudeState {
@@ -170,7 +174,7 @@ Attempted new state: {:?}",
         self.attack_handler.handle_attack_chain_timer(delta);
     }
 
-    pub fn default_attack(&mut self, attack_form: AttackForm) {
+    pub fn set_default_attack(&mut self, attack_form: AttackForm) {
         match attack_form {
             AttackForm::None => {}
             AttackForm::Light => self.set_attack(Attack::Light1),
@@ -207,11 +211,12 @@ Attempted new state: {:?}",
             },
             Attack::Heavy3 => None,
             Attack::Slide => None,
+            Attack::Dropkick => None,
         }
     }
 
     pub fn transition_chain_attack(&mut self, move_direction: Vec2) {
-        let terminal_state = if move_direction == Vec2::ZERO {
+        let terminal_state = if move_direction == Vec2::ZERO || self.attack() == Attack::Dropkick {
             DudeState::Recovering
         } else {
             DudeState::Running
@@ -242,10 +247,10 @@ Attempted new state: {:?}",
         } else if self.attack_handler.chainable() {
             match self.combo_attack(attack_form) {
                 Some(attack) => self.set_attack(attack),
-                None => self.default_attack(attack_form),
+                None => self.set_default_attack(attack_form),
             }
         } else {
-            self.default_attack(attack_form);
+            self.set_default_attack(attack_form);
         }
     }
 
@@ -273,5 +278,36 @@ Attempted new state: {:?}",
 
     pub fn set_stagger_state_recover(&mut self) {
         self.stagger.set_recover_state();
+    }
+
+    pub fn sprite_y_offset(&self) -> f32 {
+        self.jumping.sprite_y_offset()
+    }
+
+    pub fn tick_jumping_timer(&mut self, delta: Duration) {
+        self.jumping.tick_timer(delta);
+    }
+
+    pub fn jumping_duration(&self) -> f32 {
+        self.jumping.duration()
+    }
+
+    pub fn set_jumping_duration(&mut self, duration: f32) {
+        self.jumping.set_duration(duration);
+    }
+
+    pub fn reset_jumping_timer(&mut self) {
+        self.jumping.reset_timer();
+    }
+
+    pub fn jumping_linvel(&self, direction: Vec2) -> Vec2 {
+        match self.state {
+            DudeState::Jumping(jumping_state) => self.jumping.linvel(jumping_state, direction),
+            DudeState::Attacking => self.jumping.linvel(JumpingState::Start, direction),
+            _ => {
+                error!("should never happen");
+                Vec2::ZERO
+            }
+        }
     }
 }

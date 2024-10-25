@@ -119,6 +119,70 @@
 		keyframes: KeyframesRange((start: 140, end: 148)),
 		duration: 0.26666668,
 	),
+	"dropkick-o0": (
+		keyframes: KeyframesRange((start: 0, end: 12)),
+		duration: 0.4,
+	),
+	"dropkick-o1": (
+		keyframes: KeyframesRange((start: 20, end: 32)),
+		duration: 0.4,
+	),
+	"dropkick-o2": (
+		keyframes: KeyframesRange((start: 40, end: 52)),
+		duration: 0.4,
+	),
+	"dropkick-o3": (
+		keyframes: KeyframesRange((start: 60, end: 72)),
+		duration: 0.4,
+	),
+	"dropkick-o4": (
+		keyframes: KeyframesRange((start: 80, end: 92)),
+		duration: 0.4,
+	),
+	"dropkick-o5": (
+		keyframes: KeyframesRange((start: 100, end: 112)),
+		duration: 0.4,
+	),
+	"dropkick-o6": (
+		keyframes: KeyframesRange((start: 120, end: 132)),
+		duration: 0.4,
+	),
+	"dropkick-o7": (
+		keyframes: KeyframesRange((start: 140, end: 152)),
+		duration: 0.4,
+	),
+	"dropkick_recover-o0": (
+		keyframes: KeyframesRange((start: 0, end: 12)),
+		duration: 0.4,
+	),
+	"dropkick_recover-o1": (
+		keyframes: KeyframesRange((start: 20, end: 32)),
+		duration: 0.4,
+	),
+	"dropkick_recover-o2": (
+		keyframes: KeyframesRange((start: 40, end: 52)),
+		duration: 0.4,
+	),
+	"dropkick_recover-o3": (
+		keyframes: KeyframesRange((start: 60, end: 72)),
+		duration: 0.4,
+	),
+	"dropkick_recover-o4": (
+		keyframes: KeyframesRange((start: 80, end: 92)),
+		duration: 0.4,
+	),
+	"dropkick_recover-o5": (
+		keyframes: KeyframesRange((start: 100, end: 112)),
+		duration: 0.4,
+	),
+	"dropkick_recover-o6": (
+		keyframes: KeyframesRange((start: 120, end: 132)),
+		duration: 0.4,
+	),
+	"dropkick_recover-o7": (
+		keyframes: KeyframesRange((start: 140, end: 152)),
+		duration: 0.4,
+	),
 	"fall-o0": (
 		keyframes: KeyframesRange((start: 0, end: 3)),
 		duration: 0.1,

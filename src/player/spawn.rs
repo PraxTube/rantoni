@@ -38,6 +38,9 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
         .spawn((
             Collider::ball(10.0),
             ActiveEvents::COLLISION_EVENTS,
+            // TODO: Disable player - enemy collision when the player is sliding
+            // Though only start doing this once you have some world collisions (like walls) in the
+            // game, otherwise you can't really properly test this.
             CollisionGroups::new(WORLD_GROUP | PLAYER_GROUP, WORLD_GROUP),
             TransformBundle::from_transform(Transform::from_translation(Vec3::new(
                 0.0, -10.0, 0.0,

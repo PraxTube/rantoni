@@ -1,4 +1,5 @@
 mod attack;
+mod jumping;
 mod state_machine;
 
 pub use attack::AttackHandler;
@@ -17,29 +18,32 @@ pub struct PlayerStatePlugin;
 
 impl Plugin for PlayerStatePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((attack::PlayerAttackStatePlugin,))
-            .add_systems(PreUpdate, reset_just_changed)
-            .add_systems(
-                Update,
-                (
-                    transition_stagger_state,
-                    transition_parry_state,
-                    transition_slide_state,
-                    transition_jump_state,
-                    transition_attacking_state,
-                    transition_idle_state,
-                    transition_run_state,
-                    reset_new_state,
-                )
-                    .chain()
-                    .in_set(PlayerStateSystemSet),
+        app.add_plugins((
+            attack::PlayerAttackStatePlugin,
+            jumping::PlayerJumpingStatePlugin,
+        ))
+        .add_systems(PreUpdate, reset_just_changed)
+        .add_systems(
+            Update,
+            (
+                transition_stagger_state,
+                transition_parry_state,
+                transition_slide_state,
+                transition_jump_state,
+                transition_attacking_state,
+                transition_idle_state,
+                transition_run_state,
+                reset_new_state,
             )
-            .add_systems(
-                Update,
-                (start_attack_chain_timer, handle_attack_chain_timer)
-                    .chain()
-                    .after(PlayerStateSystemSet),
-            );
+                .chain()
+                .in_set(PlayerStateSystemSet),
+        )
+        .add_systems(
+            Update,
+            (start_attack_chain_timer, handle_attack_chain_timer)
+                .chain()
+                .after(PlayerStateSystemSet),
+        );
     }
 }
 
@@ -93,9 +97,6 @@ fn transition_slide_state(
         if !player_input.slide {
             continue;
         }
-        if player.state_machine.attack_eq(Attack::Slide) {
-            continue;
-        }
         let x = animator.elapsed() / animator.duration().unwrap_or(1000.0);
         if !(player.state_machine.can_attack()
             || (player.state_machine.state() == DudeState::Jumping(JumpingState::Start)
@@ -138,7 +139,7 @@ fn transition_jump_state(
 
 fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
     for mut player in &mut q_players {
-        // You would have to actually figure out which controls belong to which player in local
+        // TODO: You would have to actually figure out which controls belong to which player in local
         // multiplayer
         let attack_form = if player_input.light_attack {
             AttackForm::Light
@@ -147,7 +148,16 @@ fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Que
         } else {
             continue;
         };
-        player.state_machine.transition_attack(attack_form);
+
+        if player.state_machine.state() == DudeState::Jumping(JumpingState::Start) {
+            match attack_form {
+                AttackForm::None => {}
+                AttackForm::Light => todo!(),
+                AttackForm::Heavy => player.state_machine.set_attack(Attack::Dropkick),
+            };
+        } else {
+            player.state_machine.transition_attack(attack_form);
+        }
     }
 }
 

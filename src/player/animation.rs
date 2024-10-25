@@ -1,16 +1,12 @@
-use std::f32::consts::PI;
-
 use bevy::{prelude::*, sprite::Anchor};
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::{dude_state_animation, DudeState, JumpingState},
+    dude::{dude_state_animation, Attack, DudeState, JumpingState},
     GameAssets,
 };
 
 use super::{input::PlayerInput, state::PlayerStateSystemSet, Player};
-
-const JUMP_HEIGHT: f32 = 30.0 / 100.0;
 
 fn update_current_direction(player_input: Res<PlayerInput>, mut q_player: Query<&mut Player>) {
     let Ok(mut player) = q_player.get_single_mut() else {
@@ -61,17 +57,15 @@ fn update_player_animation(
     *player_texture = texture;
 }
 
-fn animate_sprite_jumping(mut q_players: Query<(&mut Sprite, &AnimationPlayer2D, &Player)>) {
-    for (mut sprite, animator, player) in &mut q_players {
-        if player.state_machine.state() != DudeState::Jumping(JumpingState::Start) {
-            sprite.anchor = Anchor::Center;
-            continue;
-        }
-
-        if let Some(duration) = animator.duration() {
-            let x = animator.elapsed() / duration * PI;
-            let offset = JUMP_HEIGHT * x.sin();
+fn animate_sprite_jumping(mut q_players: Query<(&mut Sprite, &Player)>) {
+    for (mut sprite, player) in &mut q_players {
+        if player.state_machine.state() == DudeState::Jumping(JumpingState::Start)
+            || player.state_machine.attack_eq(Attack::Dropkick)
+        {
+            let offset = player.state_machine.sprite_y_offset();
             sprite.anchor = Anchor::Custom(Vec2::new(0.0, -offset));
+        } else {
+            sprite.anchor = Anchor::Center;
         }
     }
 }

@@ -30,10 +30,7 @@ fn move_player(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &mu
     velocity.linvel = direction * speed;
 }
 
-fn move_player_attacking(
-    player_input: Res<PlayerInput>,
-    mut q_players: Query<(&AnimationPlayer2D, &mut Velocity, &Player)>,
-) {
+fn move_player_attacking(mut q_players: Query<(&AnimationPlayer2D, &mut Velocity, &Player)>) {
     for (animator, mut velocity, player) in &mut q_players {
         if player.state_machine.attack_eq(Attack::Light1) {
             velocity.linvel = player.current_direction * 50.0;
@@ -47,24 +44,26 @@ fn move_player_attacking(
             let x = animator.elapsed() / duration + 0.1;
             let multiplier = (1.0 - x.powi(2)).max(0.0);
             velocity.linvel = player.state_machine.attack_direction() * 400.0 * multiplier;
-        } else if let DudeState::Jumping(jumping_state) = player.state_machine.state() {
-            let Some(duration) = animator.duration() else {
-                continue;
-            };
+        } else if player.state_machine.attack_eq(Attack::Dropkick) {
+            velocity.linvel = player
+                .state_machine
+                .jumping_linvel(player.state_machine.attack_direction());
+        }
+    }
+}
 
-            let x = animator.elapsed() / duration;
-            let (speed, direction) = match jumping_state {
-                JumpingState::Start => (
-                    (1.0 - x.powi(2)).max(0.7) * 350.0,
-                    player.state_machine.attack_direction(),
-                ),
-                JumpingState::RecoverIdle => (0.0, player_input.move_direction),
-                JumpingState::RecoverMoving => (
-                    (0.7 + x.powi(2)).min(1.0) * 250.0,
-                    player_input.move_direction,
-                ),
+fn move_player_jumping(
+    player_input: Res<PlayerInput>,
+    mut q_players: Query<(&mut Velocity, &Player)>,
+) {
+    for (mut velocity, player) in &mut q_players {
+        if let DudeState::Jumping(jumping_state) = player.state_machine.state() {
+            let direction = match jumping_state {
+                JumpingState::Start => player.state_machine.attack_direction(),
+                JumpingState::RecoverIdle => Vec2::ZERO,
+                JumpingState::RecoverMoving => player_input.move_direction,
             };
-            velocity.linvel = speed * direction;
+            velocity.linvel = player.state_machine.jumping_linvel(direction);
         }
     }
 }
@@ -88,7 +87,12 @@ impl Plugin for PlayerMovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(PreUpdate, reset_velocity).add_systems(
             Update,
-            (move_player, move_player_attacking, move_player_staggering)
+            (
+                move_player,
+                move_player_attacking,
+                move_player_jumping,
+                move_player_staggering,
+            )
                 .chain()
                 .run_if(in_state(GameState::Gaming)),
         );

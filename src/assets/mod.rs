@@ -76,6 +76,8 @@ pub struct GameAssets {
             "dude/dude_jump_recover_moving.png",
             "dude/dude_fall.png",
             "dude/dude_fall_recover.png",
+            "dude/dude_dropkick.png",
+            "dude/dude_dropkick_recover.png",
         ),
         collection(typed)
     )]
@@ -319,6 +321,22 @@ pub struct GameAssets {
             "dude/dude.trickfilm.ron#fall_recover-o5",
             "dude/dude.trickfilm.ron#fall_recover-o6",
             "dude/dude.trickfilm.ron#fall_recover-o7",
+            "dude/dude.trickfilm.ron#dropkick-o0",
+            "dude/dude.trickfilm.ron#dropkick-o1",
+            "dude/dude.trickfilm.ron#dropkick-o2",
+            "dude/dude.trickfilm.ron#dropkick-o3",
+            "dude/dude.trickfilm.ron#dropkick-o4",
+            "dude/dude.trickfilm.ron#dropkick-o5",
+            "dude/dude.trickfilm.ron#dropkick-o6",
+            "dude/dude.trickfilm.ron#dropkick-o7",
+            "dude/dude.trickfilm.ron#dropkick_recover-o0",
+            "dude/dude.trickfilm.ron#dropkick_recover-o1",
+            "dude/dude.trickfilm.ron#dropkick_recover-o2",
+            "dude/dude.trickfilm.ron#dropkick_recover-o3",
+            "dude/dude.trickfilm.ron#dropkick_recover-o4",
+            "dude/dude.trickfilm.ron#dropkick_recover-o5",
+            "dude/dude.trickfilm.ron#dropkick_recover-o6",
+            "dude/dude.trickfilm.ron#dropkick_recover-o7",
         ),
         collection(typed)
     )]
