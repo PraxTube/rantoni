@@ -58,12 +58,20 @@ impl Jumping {
     pub fn reset_timer(&mut self) {
         self.elapsed = 0.0;
     }
+
+    pub fn finished(&self) -> bool {
+        if self.duration == 0.0 {
+            return false;
+        }
+        self.elapsed >= self.duration
+    }
 }
 
 fn tick_timers(time: Res<Time>, mut q_players: Query<&mut Player>) {
     for mut player in &mut q_players {
         if player.state_machine.state() == DudeState::Jumping(JumpingState::Start)
             || player.state_machine.attack_eq(Attack::Dropkick)
+            || player.state_machine.attack_eq(Attack::Kneekick)
         {
             player.state_machine.tick_jumping_timer(time.delta());
         } else {

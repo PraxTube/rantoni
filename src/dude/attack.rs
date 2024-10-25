@@ -15,6 +15,7 @@ pub enum Attack {
     Heavy3,
     Slide,
     Dropkick,
+    Kneekick,
 }
 
 #[derive(Debug, Default, PartialEq, Clone, Copy)]
@@ -77,6 +78,7 @@ impl Attack {
                 Vec2::new(0.0, -16.0),
             ),
             Attack::Dropkick => todo!(),
+            Attack::Kneekick => todo!(),
         }
     }
 
@@ -137,6 +139,13 @@ impl Attack {
             ),
             // TODO: Dropkick effect animations
             Attack::Dropkick => (
+                assets.attack_arc.clone(),
+                assets.attack_arc_layout.clone(),
+                assets.attack_arc_animation.clone(),
+                true,
+            ),
+            // TODO: kneekick effect animations
+            Attack::Kneekick => (
                 assets.attack_arc.clone(),
                 assets.attack_arc_layout.clone(),
                 assets.attack_arc_animation.clone(),

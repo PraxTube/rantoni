@@ -125,6 +125,14 @@ impl Stagger {
                     1000.0 * intensity_multiplier,
                 );
             }
+            Attack::Kneekick => {
+                self.new_state(
+                    StaggerState::Fall,
+                    direction,
+                    0.3 * duration_multiplier,
+                    0.0 * intensity_multiplier,
+                );
+            }
         }
     }
 

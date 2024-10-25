@@ -154,7 +154,7 @@ fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Que
         if player.state_machine.state() == DudeState::Jumping(JumpingState::Start) {
             match attack_form {
                 AttackForm::None => {}
-                AttackForm::Light => todo!(),
+                AttackForm::Light => player.state_machine.set_attack(Attack::Kneekick),
                 AttackForm::Heavy => player.state_machine.set_attack(Attack::Dropkick),
             };
         } else {
@@ -195,14 +195,23 @@ fn transition_idle_state(
 
         match player.state_machine.state() {
             DudeState::Idling | DudeState::Running => {}
-            DudeState::Attacking => {
-                if !animator.just_finished() {
-                    continue;
+            DudeState::Attacking => match player.state_machine.attack() {
+                Attack::Kneekick | Attack::Dropkick => {
+                    if player.state_machine.jumping_timer_finished() {
+                        player
+                            .state_machine
+                            .transition_chain_attack(player_input.move_direction);
+                    }
                 }
-                player
-                    .state_machine
-                    .transition_chain_attack(player_input.move_direction);
-            }
+                _ => {
+                    if !animator.just_finished() {
+                        continue;
+                    }
+                    player
+                        .state_machine
+                        .transition_chain_attack(player_input.move_direction);
+                }
+            },
             DudeState::Recovering => {
                 if animator.just_finished() {
                     player.state_machine.set_state(DudeState::Idling);

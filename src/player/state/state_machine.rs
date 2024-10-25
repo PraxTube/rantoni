@@ -24,7 +24,8 @@ impl PlayerStateMachine {
     pub fn can_run(&self) -> bool {
         self.state == DudeState::Idling
             || self.state == DudeState::Running
-            || (self.state == DudeState::Recovering && self.attack() != Attack::Dropkick)
+            || (self.state == DudeState::Recovering
+                && (self.attack() != Attack::Dropkick && self.attack() != Attack::Kneekick))
             || self.state == DudeState::Parrying(ParryState::Success)
             || self.state == DudeState::Parrying(ParryState::Recover)
             || self.state == DudeState::Staggering && self.stagger.state().is_recovering()
@@ -34,7 +35,8 @@ impl PlayerStateMachine {
         self.can_run()
             || (self.state == DudeState::Attacking
                 && self.attack() != Attack::Slide
-                && self.attack() != Attack::Dropkick)
+                && self.attack() != Attack::Dropkick
+                && self.attack() != Attack::Kneekick)
     }
 
     pub fn previous_state(&self) -> DudeState {
@@ -197,11 +199,15 @@ Attempted new state: {:?}",
             Attack::Heavy3 => None,
             Attack::Slide => None,
             Attack::Dropkick => None,
+            Attack::Kneekick => None,
         }
     }
 
     pub fn transition_chain_attack(&mut self, move_direction: Vec2) {
-        let terminal_state = if move_direction == Vec2::ZERO || self.attack() == Attack::Dropkick {
+        let terminal_state = if move_direction == Vec2::ZERO
+            || self.attack() == Attack::Dropkick
+            || self.attack() == Attack::Kneekick
+        {
             DudeState::Recovering
         } else {
             DudeState::Running
@@ -271,6 +277,10 @@ Attempted new state: {:?}",
 
     pub fn tick_jumping_timer(&mut self, delta: Duration) {
         self.jumping.tick_timer(delta);
+    }
+
+    pub fn jumping_timer_finished(&self) -> bool {
+        self.jumping.finished()
     }
 
     pub fn jumping_duration(&self) -> f32 {
