@@ -26,9 +26,18 @@ pub struct Hitbox {
     filters: Group,
 }
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct Hurtbox {
     pub root_entity: Entity,
+    pub hurtbox_type: HurtboxType,
+    pub collision_groups: CollisionGroups,
+}
+
+#[derive(Clone, Copy, PartialEq)]
+pub enum HurtboxType {
+    Normal,
+    Jumping,
+    Fallen,
 }
 
 #[derive(Component)]
@@ -48,6 +57,16 @@ impl Hitbox {
             memberships: group,
             offset,
             filters: HURTBOX_GROUP,
+        }
+    }
+}
+
+impl Hurtbox {
+    pub fn new(root_entity: Entity, hurtbox_type: HurtboxType, memberships: Group) -> Self {
+        Self {
+            root_entity,
+            hurtbox_type,
+            collision_groups: CollisionGroups::new(memberships | HURTBOX_GROUP, HITBOX_GROUP),
         }
     }
 }
@@ -87,18 +106,23 @@ pub fn spawn_hitbox_collision(
 
 pub fn spawn_hurtbox_collision(
     commands: &mut Commands,
-    root_entity: Entity,
+    hurtbox: Hurtbox,
     offset: Vec2,
     collider: Collider,
-    group: Group,
 ) -> Entity {
+    let (collision_groups, collider_color) = if hurtbox.hurtbox_type != HurtboxType::Normal {
+        (COLLISION_GROUPS_NONE, COLLIDER_COLOR_BLACK)
+    } else {
+        (hurtbox.collision_groups, COLLIDER_COLOR_WHITE)
+    };
     commands
         .spawn((
-            Hurtbox { root_entity },
+            hurtbox,
             collider,
+            collider_color,
             Sensor,
             ActiveEvents::COLLISION_EVENTS,
-            CollisionGroups::new(HURTBOX_GROUP | group, HITBOX_GROUP),
+            collision_groups,
             TransformBundle::from_transform(Transform::from_translation(offset.extend(0.0))),
         ))
         .id()

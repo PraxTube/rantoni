@@ -5,7 +5,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{
     dude::DudeAnimations,
-    world::collisions::{spawn_hurtbox_collision, ENEMY_GROUP, WORLD_GROUP},
+    world::collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType, ENEMY_GROUP, WORLD_GROUP},
     GameAssets, GameState,
 };
 
@@ -36,12 +36,17 @@ fn spawn_dummy_enemy(mut commands: Commands, assets: Res<GameAssets>) {
         ))
         .id();
 
-    let hurtbox = spawn_hurtbox_collision(
+    let hurtbox_normal = spawn_hurtbox_collision(
         &mut commands,
-        entity,
+        Hurtbox::new(entity, HurtboxType::Normal, ENEMY_GROUP),
         Vec2::new(0.0, 0.0),
         Collider::cuboid(8.0, 24.0),
-        ENEMY_GROUP,
+    );
+    let hurtbox_fallen = spawn_hurtbox_collision(
+        &mut commands,
+        Hurtbox::new(entity, HurtboxType::Fallen, ENEMY_GROUP),
+        Vec2::new(0.0, -16.0),
+        Collider::cuboid(20.0, 14.0),
     );
 
     let collider = commands
@@ -71,10 +76,12 @@ fn spawn_dummy_enemy(mut commands: Commands, assets: Res<GameAssets>) {
         .play(assets.dude_animations[DudeAnimations::Idle.index()].clone())
         .repeat();
 
-    commands
-        .entity(entity)
-        .insert(animator)
-        .push_children(&[collider, hurtbox, shadow]);
+    commands.entity(entity).insert(animator).push_children(&[
+        collider,
+        hurtbox_normal,
+        hurtbox_fallen,
+        shadow,
+    ]);
 }
 
 pub struct EnemySpawnPlugin;

@@ -5,7 +5,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{
     dude::DudeAnimations,
-    world::collisions::{spawn_hurtbox_collision, PLAYER_GROUP, WORLD_GROUP},
+    world::collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType, PLAYER_GROUP, WORLD_GROUP},
     GameAssets, GameState,
 };
 
@@ -48,12 +48,23 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
         ))
         .id();
 
-    let hurtbox = spawn_hurtbox_collision(
+    let hurtbox_default = spawn_hurtbox_collision(
         &mut commands,
-        entity,
+        Hurtbox::new(entity, HurtboxType::Normal, PLAYER_GROUP),
         Vec2::new(0.0, 0.0),
         Collider::cuboid(8.0, 24.0),
-        PLAYER_GROUP,
+    );
+    let hurtbox_jumping = spawn_hurtbox_collision(
+        &mut commands,
+        Hurtbox::new(entity, HurtboxType::Jumping, PLAYER_GROUP),
+        Vec2::new(0.0, 20.0),
+        Collider::cuboid(10.0, 14.0),
+    );
+    let hurtbox_fallen = spawn_hurtbox_collision(
+        &mut commands,
+        Hurtbox::new(entity, HurtboxType::Fallen, PLAYER_GROUP),
+        Vec2::new(0.0, -10.0),
+        Collider::cuboid(16.0, 12.0),
     );
 
     let shadow = commands
@@ -67,9 +78,13 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
         ))
         .id();
 
-    commands
-        .entity(entity)
-        .push_children(&[collider, hurtbox, shadow]);
+    commands.entity(entity).push_children(&[
+        collider,
+        hurtbox_default,
+        hurtbox_jumping,
+        hurtbox_fallen,
+        shadow,
+    ]);
 }
 
 pub struct PlayerSpawnPlugin;

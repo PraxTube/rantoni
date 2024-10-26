@@ -1,10 +1,11 @@
 use bevy::prelude::*;
+use bevy_rancic::prelude::*;
 use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 
 use crate::{
-    dude::{DudeState, ParryState},
+    dude::{DudeState, ParryState, StaggerState},
     player::Player,
-    world::collisions::{Hitbox, HitboxType, Hurtbox},
+    world::collisions::{Hitbox, HitboxType, Hurtbox, HurtboxType},
     GameState,
 };
 
@@ -115,13 +116,50 @@ fn enemy_parry_collisions(
     }
 }
 
+fn change_hurtbox_collisions(
+    q_enemies: Query<&Enemy>,
+    mut q_hurtboxes: Query<(&mut CollisionGroups, &mut ColliderDebugColor, &Hurtbox)>,
+) {
+    for (mut collision_groups, mut collider_color, hurtbox) in &mut q_hurtboxes {
+        let Ok(enemy) = q_enemies.get(hurtbox.root_entity) else {
+            continue;
+        };
+
+        let hurtbox_type = match enemy.state_machine.state() {
+            DudeState::Staggering => match enemy.state_machine.stagger_state() {
+                StaggerState::Fall => HurtboxType::Fallen,
+                StaggerState::FallRecover => HurtboxType::Fallen,
+                _ => HurtboxType::Normal,
+            },
+            _ => HurtboxType::Normal,
+        };
+
+        // TODO: Is this expensive? Are we allocating new stuff whenever we do this or is it more
+        // similar to when you set an integer? If it's the former, then you should probably check
+        // if the variable is already the corresponding thing and not do anything if it already
+        // matches.
+        if hurtbox.hurtbox_type != hurtbox_type {
+            *collision_groups = COLLISION_GROUPS_NONE;
+            *collider_color = COLLIDER_COLOR_BLACK;
+        } else {
+            *collision_groups = hurtbox.collision_groups;
+            *collider_color = COLLIDER_COLOR_WHITE;
+        }
+    }
+}
+
 pub struct EnemyCollisionsPlugin;
 
 impl Plugin for EnemyCollisionsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (player_hitbox_collisions, enemy_parry_collisions)
+            (
+                change_hurtbox_collisions,
+                player_hitbox_collisions,
+                enemy_parry_collisions,
+            )
+                .chain()
                 .before(EnemyStateSystemSet)
                 .in_set(EnemyCollisionSystemSet)
                 .run_if(not(in_state(GameState::AssetLoading))),

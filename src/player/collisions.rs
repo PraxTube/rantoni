@@ -1,10 +1,11 @@
 use bevy::prelude::*;
+use bevy_rancic::prelude::*;
 use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 
 use crate::{
-    dude::{DudeState, ParryState},
+    dude::{Attack, DudeState, JumpingState, ParryState, StaggerState},
     enemy::{Enemy, EnemyCollisionSystemSet},
-    world::collisions::{Hitbox, HitboxType, Hurtbox},
+    world::collisions::{Hitbox, HitboxType, Hurtbox, HurtboxType},
     GameState,
 };
 
@@ -69,13 +70,59 @@ fn enemy_hitbox_collisions(
     }
 }
 
+fn change_hurtbox_collisions(
+    q_players: Query<&Player>,
+    mut q_hurtboxes: Query<(&mut CollisionGroups, &mut ColliderDebugColor, &Hurtbox)>,
+) {
+    for (mut collision_groups, mut collider_color, hurtbox) in &mut q_hurtboxes {
+        let Ok(player) = q_players.get(hurtbox.root_entity) else {
+            continue;
+        };
+
+        let hurtbox_type = match player.state_machine.state() {
+            DudeState::Idling => HurtboxType::Normal,
+            DudeState::Running => HurtboxType::Normal,
+            DudeState::Attacking => match player.state_machine.attack() {
+                Attack::Slide => HurtboxType::Fallen,
+                Attack::Dropkick => HurtboxType::Jumping,
+                Attack::Kneekick => HurtboxType::Jumping,
+                _ => HurtboxType::Normal,
+            },
+            DudeState::Recovering => HurtboxType::Normal,
+            DudeState::Staggering => match player.state_machine.stagger_state() {
+                StaggerState::Fall => HurtboxType::Fallen,
+                StaggerState::FallRecover => HurtboxType::Fallen,
+                _ => HurtboxType::Normal,
+            },
+            DudeState::Parrying(_) => HurtboxType::Normal,
+            DudeState::Jumping(jumping_state) => match jumping_state {
+                JumpingState::Start => HurtboxType::Jumping,
+                _ => HurtboxType::Normal,
+            },
+        };
+
+        // TODO: Is this expensive? Are we allocating new stuff whenever we do this or is it more
+        // similar to when you set an integer? If it's the former, then you should probably check
+        // if the variable is already the corresponding thing and not do anything if it already
+        // matches.
+        if hurtbox.hurtbox_type != hurtbox_type {
+            *collision_groups = COLLISION_GROUPS_NONE;
+            *collider_color = COLLIDER_COLOR_BLACK;
+        } else {
+            *collision_groups = hurtbox.collision_groups;
+            *collider_color = COLLIDER_COLOR_WHITE;
+        }
+    }
+}
+
 pub struct PlayerCollisionsPlugin;
 
 impl Plugin for PlayerCollisionsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (enemy_hitbox_collisions,)
+            (change_hurtbox_collisions, enemy_hitbox_collisions)
+                .chain()
                 .before(PlayerStateSystemSet)
                 .before(EnemyCollisionSystemSet)
                 .run_if(not(in_state(GameState::AssetLoading))),
