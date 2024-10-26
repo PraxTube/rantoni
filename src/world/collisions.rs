@@ -32,8 +32,12 @@ pub struct Hurtbox {
 }
 
 #[derive(Component)]
-struct AttackArc {
+pub struct AttackArcGFX;
+
+#[derive(Component)]
+pub struct AttackArc {
     timer: Timer,
+    dir: Vec2,
 }
 
 impl Hitbox {
@@ -48,11 +52,16 @@ impl Hitbox {
     }
 }
 
-impl Default for AttackArc {
-    fn default() -> Self {
+impl AttackArc {
+    fn new(dir: Vec2) -> Self {
         Self {
             timer: Timer::from_seconds(0.2, TimerMode::Once),
+            dir,
         }
+    }
+
+    pub fn dir(&self) -> Vec2 {
+        self.dir
     }
 }
 
@@ -123,26 +132,33 @@ pub fn spawn_attack_effect(
     let mut animator = AnimationPlayer2D::default();
     animator.play(animation);
 
-    let pos = pos_offset + direction.normalize_or_zero() * direction_magnitude;
+    let dir = direction.normalize_or_zero();
+    let pos = pos_offset + dir * direction_magnitude;
     let transform = if with_rotation {
         Transform::from_translation(pos.extend(0.0)).with_rotation(quat_from_vec2(direction))
     } else {
         Transform::from_translation(pos.extend(0.0))
     };
 
-    let attack_arc = commands
+    let gfx = commands
         .spawn((
-            AttackArc::default(),
+            AttackArcGFX,
             animator,
-            YSortChild(10.0),
             SpriteBundle {
                 texture,
-                transform,
                 ..default()
             },
             TextureAtlas::from(layout),
         ))
-        .add_child(hitbox)
+        .id();
+
+    let attack_arc = commands
+        .spawn((
+            AttackArc::new(dir),
+            YSortChild(10.0),
+            SpatialBundle::from_transform(transform),
+        ))
+        .push_children(&[hitbox, gfx])
         .id();
     commands.entity(entity).add_child(attack_arc);
 }
@@ -169,10 +185,14 @@ fn disable_attack_arc_hitboxes(
 
 fn despawn_attack_arcs(
     mut commands: Commands,
-    q_attack_arcs: Query<(Entity, &AnimationPlayer2D), With<AttackArc>>,
+    q_attack_arc_gfxs: Query<(&Parent, &AnimationPlayer2D), With<AttackArcGFX>>,
+    q_attack_arcs: Query<Entity, With<AttackArc>>,
 ) {
-    for (entity, animator) in &q_attack_arcs {
+    for (parent, animator) in &q_attack_arc_gfxs {
         if animator.just_finished() {
+            let Ok(entity) = q_attack_arcs.get(parent.get()) else {
+                continue;
+            };
             commands.entity(entity).despawn_recursive();
         }
     }

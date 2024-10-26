@@ -4,13 +4,14 @@ use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
+    assets::PLAYER_SPRITE_SIZE,
     dude::{Attack, DudeState, JumpingState},
     player::Player,
 };
 
 use super::PlayerStateSystemSet;
 
-const JUMP_HEIGHT: f32 = 30.0 / 100.0;
+const JUMP_HEIGHT: f32 = 30.0 / PLAYER_SPRITE_SIZE as f32;
 
 #[derive(Default)]
 pub struct Jumping {

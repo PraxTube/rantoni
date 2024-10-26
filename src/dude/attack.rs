@@ -77,8 +77,18 @@ impl Attack {
                 20.0,
                 Vec2::new(0.0, -16.0),
             ),
-            Attack::Dropkick => todo!(),
-            Attack::Kneekick => todo!(),
+            Attack::Dropkick => (
+                Vec2::default(),
+                Collider::cuboid(10.0, 8.0),
+                20.0,
+                Vec2::new(0.0, -6.0),
+            ),
+            Attack::Kneekick => (
+                Vec2::default(),
+                Collider::cuboid(8.0, 6.0),
+                16.0,
+                Vec2::new(0.0, -4.0),
+            ),
         }
     }
 

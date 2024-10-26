@@ -4,6 +4,8 @@ use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_trickfilm::prelude::*;
 
+pub const PLAYER_SPRITE_SIZE: u32 = 100;
+
 pub struct AssetPlugin;
 
 impl Plugin for AssetPlugin {

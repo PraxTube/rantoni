@@ -15,4 +15,8 @@
 		keyframes: KeyframesRange((start: 0, end: 5)),
 		duration: 0.2,
 	),
+	"empty": (
+		keyframes: KeyframesRange((start: 0, end: 6)),
+		duration: 0.3,
+	),
 }

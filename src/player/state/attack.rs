@@ -1,12 +1,13 @@
-use std::time::Duration;
+use std::{f32::consts::PI, time::Duration};
 
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::Anchor};
+use bevy_rapier2d::plugin::RapierTransformPropagateSet;
 
 use crate::{
-    assets::events::SpawnHitboxEvent,
+    assets::{events::SpawnHitboxEvent, PLAYER_SPRITE_SIZE},
     dude::{Attack, AttackForm, DudeState},
     player::Player,
-    world::collisions::{spawn_attack_effect, HitboxType},
+    world::collisions::{spawn_attack_effect, AttackArc, AttackArcGFX, HitboxType},
     GameAssets, GameState,
 };
 
@@ -101,6 +102,67 @@ fn spawn_attack_arcs(
     }
 }
 
+fn move_attack_arcs_jumping(
+    q_players: Query<(&Children, &Sprite), With<Player>>,
+    q_attack_arcs: Query<(&Children, &AttackArc), Without<Player>>,
+    mut q_attack_arc_gfxs: Query<&mut Transform, With<AttackArcGFX>>,
+) {
+    for (player_children, sprite) in &q_players {
+        let anchor = match sprite.anchor {
+            Anchor::Custom(v) => Vec2::new(v.x, -v.y) * PLAYER_SPRITE_SIZE as f32,
+            _ => continue,
+        };
+
+        for child in player_children {
+            let Ok((children, attack_arc)) = q_attack_arcs.get(*child) else {
+                continue;
+            };
+
+            for child in children {
+                let Ok(mut transform) = q_attack_arc_gfxs.get_mut(*child) else {
+                    continue;
+                };
+
+                let dir = anchor_rotation_direction(attack_arc.dir());
+                transform.translation = anchor.rotate(dir).extend(0.0);
+            }
+        }
+    }
+}
+
+fn anchor_rotation_direction(dir: Vec2) -> Vec2 {
+    let angle = dir.angle_between(Vec2::Y);
+
+    if angle.abs() < PI / 8.0 {
+        // Top
+        -dir
+    } else if angle.abs() < 3.0 / 8.0 * PI {
+        // Diagonal Up
+        if angle > 0.0 {
+            // Top Right
+            Vec2::new(dir.y, -dir.x)
+        } else {
+            // Top Left
+            Vec2::new(-dir.y, dir.x)
+        }
+    } else if angle.abs() < 5.0 / 8.0 * PI {
+        // Side
+        dir
+    } else if angle.abs() < 7.0 / 8.0 * PI {
+        // Diagonal Down
+        if angle > 0.0 {
+            // Bottom Right
+            Vec2::new(-dir.y, dir.x)
+        } else {
+            // Bottom Left
+            Vec2::new(dir.y, -dir.x)
+        }
+    } else {
+        // Bottom
+        -dir
+    }
+}
+
 pub struct PlayerAttackStatePlugin;
 
 impl Plugin for PlayerAttackStatePlugin {
@@ -108,6 +170,10 @@ impl Plugin for PlayerAttackStatePlugin {
         app.add_systems(
             Update,
             (spawn_attack_arcs,).run_if(not(in_state(GameState::AssetLoading))),
+        )
+        .add_systems(
+            PostUpdate,
+            move_attack_arcs_jumping.before(RapierTransformPropagateSet),
         );
     }
 }

@@ -41,7 +41,7 @@ fn move_player_attacking(mut q_players: Query<(&AnimationPlayer2D, &mut Velocity
                 continue;
             };
 
-            let x = animator.elapsed() / duration + 0.1;
+            let x = animator.elapsed() / duration;
             let multiplier = (1.0 - x.powi(2)).max(0.0);
             velocity.linvel = player.state_machine.attack_direction() * 400.0 * multiplier;
         } else if player.state_machine.attack_eq(Attack::Dropkick)

@@ -122,34 +122,90 @@
 	"dropkick-o0": (
 		keyframes: KeyframesRange((start: 0, end: 12)),
 		duration: 0.4,
+		events: {
+			5: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o0",
+				)
+			},
+		},
 	),
 	"dropkick-o1": (
 		keyframes: KeyframesRange((start: 20, end: 32)),
 		duration: 0.4,
+		events: {
+			5: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o1",
+				)
+			},
+		},
 	),
 	"dropkick-o2": (
 		keyframes: KeyframesRange((start: 40, end: 52)),
 		duration: 0.4,
+		events: {
+			5: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o2",
+				)
+			},
+		},
 	),
 	"dropkick-o3": (
 		keyframes: KeyframesRange((start: 60, end: 72)),
 		duration: 0.4,
+		events: {
+			5: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o3",
+				)
+			},
+		},
 	),
 	"dropkick-o4": (
 		keyframes: KeyframesRange((start: 80, end: 92)),
 		duration: 0.4,
+		events: {
+			5: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o4",
+				)
+			},
+		},
 	),
 	"dropkick-o5": (
 		keyframes: KeyframesRange((start: 100, end: 112)),
 		duration: 0.4,
+		events: {
+			5: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o5",
+				)
+			},
+		},
 	),
 	"dropkick-o6": (
 		keyframes: KeyframesRange((start: 120, end: 132)),
 		duration: 0.4,
+		events: {
+			5: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o6",
+				)
+			},
+		},
 	),
 	"dropkick-o7": (
 		keyframes: KeyframesRange((start: 140, end: 152)),
 		duration: 0.4,
+		events: {
+			5: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o7",
+				)
+			},
+		},
 	),
 	"dropkick_recover-o0": (
 		keyframes: KeyframesRange((start: 0, end: 12)),
@@ -618,66 +674,122 @@
 	"kneekick-o0": (
 		keyframes: KeyframesRange((start: 0, end: 11)),
 		duration: 0.36666667,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "kneekick-o0",
+				)
+			},
+		},
 	),
 	"kneekick-o1": (
 		keyframes: KeyframesRange((start: 20, end: 31)),
 		duration: 0.36666667,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "kneekick-o1",
+				)
+			},
+		},
 	),
 	"kneekick-o2": (
 		keyframes: KeyframesRange((start: 40, end: 51)),
 		duration: 0.36666667,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "kneekick-o2",
+				)
+			},
+		},
 	),
 	"kneekick-o3": (
 		keyframes: KeyframesRange((start: 60, end: 71)),
 		duration: 0.36666667,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "kneekick-o3",
+				)
+			},
+		},
 	),
 	"kneekick-o4": (
 		keyframes: KeyframesRange((start: 80, end: 91)),
 		duration: 0.36666667,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "kneekick-o4",
+				)
+			},
+		},
 	),
 	"kneekick-o5": (
 		keyframes: KeyframesRange((start: 100, end: 111)),
 		duration: 0.36666667,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "kneekick-o5",
+				)
+			},
+		},
 	),
 	"kneekick-o6": (
 		keyframes: KeyframesRange((start: 120, end: 131)),
 		duration: 0.36666667,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "kneekick-o6",
+				)
+			},
+		},
 	),
 	"kneekick-o7": (
 		keyframes: KeyframesRange((start: 140, end: 151)),
 		duration: 0.36666667,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "kneekick-o7",
+				)
+			},
+		},
 	),
 	"kneekick_recover-o0": (
-		keyframes: KeyframesRange((start: 0, end: 9)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 0, end: 8)),
+		duration: 0.26666668,
 	),
 	"kneekick_recover-o1": (
-		keyframes: KeyframesRange((start: 20, end: 29)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 20, end: 28)),
+		duration: 0.26666668,
 	),
 	"kneekick_recover-o2": (
-		keyframes: KeyframesRange((start: 40, end: 49)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 40, end: 48)),
+		duration: 0.26666668,
 	),
 	"kneekick_recover-o3": (
-		keyframes: KeyframesRange((start: 60, end: 69)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 60, end: 68)),
+		duration: 0.26666668,
 	),
 	"kneekick_recover-o4": (
-		keyframes: KeyframesRange((start: 80, end: 89)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 80, end: 88)),
+		duration: 0.26666668,
 	),
 	"kneekick_recover-o5": (
-		keyframes: KeyframesRange((start: 100, end: 109)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 100, end: 108)),
+		duration: 0.26666668,
 	),
 	"kneekick_recover-o6": (
-		keyframes: KeyframesRange((start: 120, end: 129)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 120, end: 128)),
+		duration: 0.26666668,
 	),
 	"kneekick_recover-o7": (
-		keyframes: KeyframesRange((start: 140, end: 149)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 140, end: 148)),
+		duration: 0.26666668,
 	),
 	"parry-o0": (
 		keyframes: KeyframesRange((start: 0, end: 10)),
