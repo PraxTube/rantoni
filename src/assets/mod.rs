@@ -2,6 +2,7 @@ pub mod events;
 
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
+use bevy_ecs_ldtk::prelude::LdtkProject;
 use bevy_trickfilm::prelude::*;
 
 pub const PLAYER_SPRITE_SIZE: u32 = 100;
@@ -16,9 +17,6 @@ impl Plugin for AssetPlugin {
 
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
-    #[asset(path = "dummy_background.png")]
-    pub dummy_background: Handle<Image>,
-
     #[asset(path = "attack/arc.png")]
     pub attack_arc: Handle<Image>,
     #[asset(texture_atlas_layout(tile_size_x = 64, tile_size_y = 64, columns = 6, rows = 1))]
@@ -361,6 +359,10 @@ pub struct GameAssets {
         collection(typed)
     )]
     pub dude_animations: Vec<Handle<AnimationClip2D>>,
+
+    // --- MAP ---
+    #[asset(path = "map/map.ldtk")]
+    pub map: Handle<LdtkProject>,
 
     // --- FONTS ---
     #[asset(path = "fonts/PressStart2P.ttf")]
