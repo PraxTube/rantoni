@@ -32,7 +32,12 @@ struct Graph {
 impl Default for Grid {
     fn default() -> Self {
         Self {
-            size: IVec2::new(32, 32),
+            // TODO: We need grid size + 1, presumably because we need to test one direction to the
+            // right and top and diagonal for each grid position, so for the top right corner we
+            // need to check the top right corner + 1, which are always supposed to be 0 anyways,
+            // so we can just instantiate them as 0's, as they will always be 0 when the grid is at
+            // most size big.
+            size: IVec2::new(17, 17),
             positions: Vec::new(),
         }
     }
@@ -392,6 +397,17 @@ fn spawn_colliders(mut commands: Commands, grid: Res<Grid>) {
     }
 }
 
+fn draw_gizmos(mut gizmos: Gizmos, graph: Res<Graph>) {
+    if graph.v.is_empty() || graph.e.is_empty() {
+        return;
+    }
+
+    for [i, j] in &graph.e {
+        gizmos.circle_2d(graph.v[*i as usize], 5.0, BLACK);
+        gizmos.line_2d(graph.v[*i as usize], graph.v[*j as usize], BLACK);
+    }
+}
+
 #[test]
 fn polygon_at_edge() {
     let grid = Grid {
@@ -428,13 +444,22 @@ fn polygon_at_edge() {
     assert_eq!(expeced_vertices, vertices);
 }
 
-fn draw_gizmos(mut gizmos: Gizmos, graph: Res<Graph>) {
-    if graph.v.is_empty() || graph.e.is_empty() {
-        return;
-    }
+#[test]
+fn polygon_with_hole_decomposition() {
+    let mut vertices = vec![
+        Vec2::new(0.0, 0.0),
+        Vec2::new(10.0, 0.0),
+        Vec2::new(10.0, 5.0),
+        Vec2::new(6.0, 5.0),
+        Vec2::new(6.0, 4.0),
+        Vec2::new(4.0, 4.0),
+        Vec2::new(4.0, 5.0),
+        Vec2::new(6.0, 5.0),
+        Vec2::new(10.0, 5.0),
+        Vec2::new(10.0, 10.0),
+        Vec2::new(0.0, 10.0),
+    ];
 
-    for [i, j] in &graph.e {
-        gizmos.circle_2d(graph.v[*i as usize], 5.0, BLACK);
-        gizmos.line_2d(graph.v[*i as usize], graph.v[*j as usize], BLACK);
-    }
+    let polygons = decompose_poly(&mut vertices);
+    assert_eq!(polygons.len(), 4);
 }
