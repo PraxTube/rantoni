@@ -302,6 +302,10 @@ fn disjoint_graphs(grid: &Res<Grid>) -> Vec<Vec<IVec2>> {
             stack.push(n + IVec2::Y);
             stack.push(n + IVec2::NEG_X);
             stack.push(n + IVec2::NEG_Y);
+            stack.push(n + IVec2::ONE);
+            stack.push(n + IVec2::NEG_ONE);
+            stack.push(n + IVec2::new(1, -1));
+            stack.push(n + IVec2::new(-1, 1));
         }
         disjoint_graphs.push(current_positions);
     }
