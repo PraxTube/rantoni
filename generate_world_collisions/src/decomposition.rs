@@ -76,6 +76,71 @@ fn is_reflex(poly: &Vec<Vec2>, i: i32) -> bool {
     right(at(poly, i - 1), at(poly, i), at(poly, i + 1))
 }
 
+fn hole_bridges(poly: &Vec<Vec2>) -> Vec<Vec<Vec2>> {
+    assert_ne!(poly.len(), 0);
+
+    let bridge_vertex_indices: Vec<usize> = poly
+        .iter()
+        .filter(|v| {
+            let count = poly.iter().filter(|inner_v| inner_v == v).count();
+            assert!(count < 3);
+            count == 2
+        })
+        .map(|v| {
+            poly.iter()
+                .position(|inner_v| inner_v == v)
+                .expect("this should always be valid")
+        })
+        .collect();
+
+    // There are no hole bridges
+    if bridge_vertex_indices.is_empty() {
+        return Vec::new();
+    }
+
+    let mut hole_bridges = Vec::new();
+    for i in 0..bridge_vertex_indices.len() - 1 {
+        if i % 2 != 0 {
+            continue;
+        }
+
+        let end_index = (i + 1) % poly.len();
+
+        hole_bridges.push(vec![
+            poly[bridge_vertex_indices[i]],
+            poly[bridge_vertex_indices[end_index]],
+        ]);
+    }
+    hole_bridges
+}
+
+fn is_near_hole_bridge(hole_bridges: &Vec<Vec<Vec2>>, p0: Vec2) -> bool {
+    for hole_bridge in hole_bridges {
+        assert_eq!(hole_bridge.len(), 2);
+        let (p1, p2) = (hole_bridge[0], hole_bridge[1]);
+
+        let numerator =
+            ((p2.y - p1.y) * p0.x - (p2.x - p1.x) * p0.y + p2.x * p1.y - p2.y * p1.x).powi(2);
+        let denominator = p1.distance_squared(p2);
+
+        if numerator / denominator <= 1e-02 {
+            return true;
+        }
+    }
+    false
+}
+
+fn crosses_hole_bridge(hole_bridges: &Vec<Vec<Vec2>>, a: Vec2, b: Vec2) -> bool {
+    for hole_bridge in hole_bridges {
+        assert_eq!(hole_bridge.len(), 2);
+        let (start, end) = (hole_bridge[0], hole_bridge[1]);
+        if (left(a, b, start) != left(a, b, end)) && (left(start, end, a) != left(start, end, b)) {
+            return true;
+        }
+    }
+    false
+}
+
 fn intersection(p1: Vec2, p2: Vec2, q1: Vec2, q2: Vec2) -> Vec2 {
     let a1 = p2.y - p1.y;
     let a2 = q2.y - q1.y;
@@ -111,6 +176,8 @@ pub fn decompose_poly(poly: &mut Vec<Vec2>) -> Vec<Vec<Vec2>> {
     let mut lower_index = 0;
     let mut closest_index = 0;
 
+    let hole_bridges = hole_bridges(&poly);
+
     for i in 0..poly.len() as i32 {
         if !is_reflex(poly, i) {
             continue;
@@ -123,15 +190,16 @@ pub fn decompose_poly(poly: &mut Vec<Vec2>) -> Vec<Vec<Vec2>> {
         let mut lower_dist = f32::MAX;
 
         for j in 0..poly.len() as i32 {
-            // Line intersects with an edge
+            // Line intersects with an edge, avoid crossing hole bridge edges
             if left(at(poly, i - 1), at(poly, i), at(poly, j))
                 && right_on(at(poly, i - 1), at(poly, i), at(poly, j - 1))
             {
                 // Find point of intersection
                 p = intersection(at(poly, i - 1), at(poly, i), at(poly, j), at(poly, j - 1));
 
-                // Make sure intersection point is inside the poly
-                if right(at(poly, i + 1), at(poly, i), p) {
+                // Ensure intersection point `p` is not on or near any hole bridge edge
+                if right(at(poly, i + 1), at(poly, i), p) && !is_near_hole_bridge(&hole_bridges, p)
+                {
                     d = at(poly, i).distance_squared(p);
                     if d < lower_dist {
                         // Only keep closest intersection
@@ -146,7 +214,8 @@ pub fn decompose_poly(poly: &mut Vec<Vec2>) -> Vec<Vec<Vec2>> {
             {
                 p = intersection(at(poly, i + 1), at(poly, i), at(poly, j), at(poly, j + 1));
 
-                if left(at(poly, i - 1), at(poly, i), p) {
+                // Ensure intersection point `p` is not on or near any hole bridge edge
+                if left(at(poly, i - 1), at(poly, i), p) && !is_near_hole_bridge(&hole_bridges, p) {
                     d = at(poly, i).distance_squared(p);
                     if d < upper_dist {
                         upper_dist = d;
@@ -187,13 +256,14 @@ pub fn decompose_poly(poly: &mut Vec<Vec2>) -> Vec<Vec<Vec2>> {
 
             closest_dist = f32::MAX;
             for j in lower_index..=upper_index {
+                // Skip `j` if connecting it would cross any hole bridge
                 if left_on(at(poly, i - 1), at(poly, i), at(poly, j))
                     && right_on(at(poly, i + 1), at(poly, i), at(poly, j))
+                    && !crosses_hole_bridge(&hole_bridges, at(poly, i), at(poly, j))
                 {
                     d = at(poly, i).distance_squared(at(poly, j));
                     if d < closest_dist {
                         closest_dist = d;
-                        // TODO: Potentially bad maybe?
                         closest_index = j % poly.len() as i32;
                     }
                 }

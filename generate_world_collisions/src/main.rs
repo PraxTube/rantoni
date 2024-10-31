@@ -5,19 +5,34 @@ mod graph;
 
 use std::time::Duration;
 
-use bevy::color::palettes::css::VIOLET;
+use bevy::color::palettes::css::*;
 use bevy::prelude::*;
 use bevy::render::camera::ScalingMode;
 use bevy::time::common_conditions::once_after_delay;
 use bevy::window::{PresentMode, Window, WindowMode};
 use bevy_ecs_ldtk::prelude::*;
+use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use decomposition::decompose_poly;
 use graph::{disjoint_graphs, vertices_and_indices};
+use rand::{thread_rng, Rng};
 
 const TILE_SIZE: f32 = 16.0;
 const LDTK_FILE: &str = "map/map.ldtk";
+
+const DEBUG_COLORS: [Srgba; 10] = [
+    RED,
+    PINK,
+    ORANGE,
+    BLUE,
+    GREEN,
+    LIME,
+    LIMEGREEN,
+    YELLOW,
+    GREEN_YELLOW,
+    LIGHT_CYAN,
+];
 
 #[derive(Resource)]
 struct Grid {
@@ -58,6 +73,7 @@ fn main() {
             .set(ImagePlugin::default_nearest())
             .build(),))
         .add_plugins((
+            ShapePlugin,
             LdtkPlugin,
             RapierPhysicsPlugin::<NoUserData>::default(),
             RapierDebugRenderPlugin {
@@ -92,6 +108,7 @@ fn setup(
 
     commands.spawn(LdtkWorldBundle {
         ldtk_handle: asset_server.load(LDTK_FILE),
+        transform: Transform::from_translation(Vec3::NEG_Z * 10.0),
         ..Default::default()
     });
 }
@@ -104,6 +121,8 @@ fn add_cells(mut grid: ResMut<Grid>, q_grid_coords: Query<&GridCoords, Added<Int
 }
 
 fn spawn_colliders(mut commands: Commands, grid: Res<Grid>) {
+    let mut rng = thread_rng();
+
     for graph in disjoint_graphs(&grid) {
         let grid = Grid {
             size: grid.size,
@@ -111,8 +130,12 @@ fn spawn_colliders(mut commands: Commands, grid: Res<Grid>) {
         };
         let (vertices, _) = vertices_and_indices(&grid);
 
+        info!("verts: {:?}", vertices);
+
         let polygons = decompose_poly(&mut vertices.clone());
+        info!("polys: {}", polygons.len());
         for poly in &polygons {
+            info!("{:?}", poly);
             commands.spawn((
                 Collider::compound(vec![(
                     Vec2::default(),
@@ -120,7 +143,14 @@ fn spawn_colliders(mut commands: Commands, grid: Res<Grid>) {
                     Collider::convex_hull(poly).unwrap(),
                 )]),
                 ColliderDebugColor(VIOLET.into()),
-                SpatialBundle::default(),
+                ShapeBundle {
+                    path: GeometryBuilder::build_as(&shapes::Polygon {
+                        points: poly.clone(),
+                        closed: true,
+                    }),
+                    ..default()
+                },
+                Fill::color(DEBUG_COLORS[rng.gen_range(0..DEBUG_COLORS.len())].with_alpha(1.5)),
             ));
         }
     }
