@@ -162,6 +162,28 @@ fn index_to_vertices(index: u8) -> Vec<Vec<IVec2>> {
     }
 }
 
+fn index_to_vertices_x_zero_edge(index: u8) -> Vec<IVec2> {
+    match index {
+        0 | 2 | 4 | 6 => Vec::new(),
+        1 => vec![IVec2::Y, IVec2::ZERO],
+        3 => vec![IVec2::Y, IVec2::ZERO],
+        5 => vec![IVec2::Y, IVec2::ZERO],
+        7 => vec![IVec2::Y, IVec2::ZERO],
+        8 => vec![IVec2::new(0, 2), IVec2::Y],
+        9 => vec![IVec2::new(0, 2), IVec2::ZERO],
+        10 => vec![IVec2::new(0, 2), IVec2::Y],
+        11 => vec![IVec2::new(0, 2), IVec2::ZERO],
+        12 => vec![IVec2::new(0, 2), IVec2::Y],
+        13 => vec![IVec2::new(0, 2), IVec2::ZERO],
+        14 => vec![IVec2::new(0, 2), IVec2::Y],
+        15 => vec![IVec2::new(0, 2), IVec2::ZERO],
+        _ => {
+            error!("should never happen! Got bitmasks that are >15");
+            Vec::new()
+        }
+    }
+}
+
 fn index_matrix(grid: &Grid) -> Vec<Vec<u8>> {
     let mut matrix = vec![vec![0; grid.size.y as usize]; grid.size.x as usize];
     for pos in &grid.positions {
@@ -188,7 +210,14 @@ fn disjoint_vertices(grid: &Grid) -> Vec<Vec<IVec2>> {
     // Convert indices to vertices
     for i in 0..index_matrix.len() {
         for j in 0..index_matrix.len() {
-            for vertex_pair in index_to_vertices(index_matrix[i][j]) {
+            let mut vertex_pairs = index_to_vertices(index_matrix[i][j]);
+            if i == 0 {
+                let edge_vertices = index_to_vertices_x_zero_edge(index_matrix[i][j]);
+                if !edge_vertices.is_empty() {
+                    vertex_pairs.push(edge_vertices);
+                }
+            }
+            for vertex_pair in vertex_pairs {
                 let v_pair = vertex_pair
                     .iter()
                     .map(|v| *v + 2 * IVec2::new(i as i32, j as i32))
@@ -333,6 +362,42 @@ fn spawn_colliders(mut commands: Commands, grid: Res<Grid>) {
             ));
         }
     }
+}
+
+#[test]
+fn polygon_at_edge() {
+    let grid = Grid {
+        size: IVec2::new(3, 4),
+        positions: vec![IVec2::new(0, 1), IVec2::new(0, 2)],
+    };
+
+    let (mut vertices, _) = vertices_and_indices(&grid);
+
+    let expeced_vertices = vec![
+        Vec2::new(0.0, 8.0),
+        Vec2::new(8.0, 16.0),
+        Vec2::new(8.0, 32.0),
+        Vec2::new(0.0, 40.0),
+        Vec2::new(0.0, 32.0),
+        Vec2::new(0.0, 16.0),
+    ];
+    let expected_polygon = vec![
+        Vec2::new(0.0, 8.0),
+        Vec2::new(8.0, 16.0),
+        Vec2::new(8.0, 32.0),
+        Vec2::new(0.0, 40.0),
+        Vec2::new(0.0, 32.0),
+        Vec2::new(0.0, 16.0),
+    ];
+
+    let polygons = decompose_poly(&mut vertices);
+    assert!(polygons.len() == 1);
+
+    for polygon in &polygons {
+        assert_eq!(polygon, &expected_polygon);
+    }
+
+    assert_eq!(expeced_vertices, vertices);
 }
 
 fn draw_gizmos(mut gizmos: Gizmos, graph: Res<Graph>) {
