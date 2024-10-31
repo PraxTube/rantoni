@@ -184,6 +184,28 @@ fn index_to_vertices_x_zero_edge(index: u8) -> Vec<IVec2> {
     }
 }
 
+fn index_to_vertices_y_zero_edge(index: u8) -> Vec<IVec2> {
+    match index {
+        0 | 4 | 8 | 12 => Vec::new(),
+        1 => vec![IVec2::ZERO, IVec2::X],
+        2 => vec![IVec2::X, IVec2::new(2, 0)],
+        3 => vec![IVec2::ZERO, IVec2::new(2, 0)],
+        5 => vec![IVec2::ZERO, IVec2::X],
+        6 => vec![IVec2::X, IVec2::new(2, 0)],
+        7 => vec![IVec2::ZERO, IVec2::new(2, 0)],
+        9 => vec![IVec2::ZERO, IVec2::X],
+        10 => vec![IVec2::X, IVec2::new(2, 0)],
+        11 => vec![IVec2::ZERO, IVec2::new(2, 0)],
+        13 => vec![IVec2::ZERO, IVec2::X],
+        14 => vec![IVec2::X, IVec2::new(2, 0)],
+        15 => vec![IVec2::ZERO, IVec2::new(2, 0)],
+        _ => {
+            error!("should never happen! Got bitmasks that are >15");
+            Vec::new()
+        }
+    }
+}
+
 fn index_matrix(grid: &Grid) -> Vec<Vec<u8>> {
     let mut matrix = vec![vec![0; grid.size.y as usize]; grid.size.x as usize];
     for pos in &grid.positions {
@@ -213,6 +235,12 @@ fn disjoint_vertices(grid: &Grid) -> Vec<Vec<IVec2>> {
             let mut vertex_pairs = index_to_vertices(index_matrix[i][j]);
             if i == 0 {
                 let edge_vertices = index_to_vertices_x_zero_edge(index_matrix[i][j]);
+                if !edge_vertices.is_empty() {
+                    vertex_pairs.push(edge_vertices);
+                }
+            }
+            if j == 0 {
+                let edge_vertices = index_to_vertices_y_zero_edge(index_matrix[i][j]);
                 if !edge_vertices.is_empty() {
                     vertex_pairs.push(edge_vertices);
                 }
