@@ -34,6 +34,26 @@ fn right_on(a: Vec2, b: Vec2, c: Vec2) -> bool {
     area(a, b, c) <= 0.0
 }
 
+pub fn is_ccw(ivec_poly: &Vec<IVec2>) -> bool {
+    let mut poly = Vec::new();
+    for v in ivec_poly {
+        poly.push(Vec2::new(v.x as f32, v.y as f32));
+    }
+
+    let mut br = 0;
+    for i in 1..poly.len() {
+        if poly[i].y < poly[br].y || (poly[i].y == poly[br].y && poly[i].x > poly[br].x) {
+            br = i;
+        }
+    }
+
+    left(
+        at(&poly, br as i32 - 1),
+        at(&poly, br as i32),
+        at(&poly, br as i32 + 1),
+    )
+}
+
 fn make_ccw(poly: &mut Vec<Vec2>) {
     let mut br = 0;
 
