@@ -416,7 +416,7 @@ pub fn polygons(grid: &Grid) -> (Vec<Vec2>, Vec<Vec<Vec2>>) {
     (outer_polygon, inner_polygons)
 }
 
-pub fn disjoint_graphs_walkable(grid: &Res<Grid>) -> Vec<Vec<IVec2>> {
+pub fn disjoint_graphs_walkable(grid: &Grid) -> Vec<Vec<IVec2>> {
     let mut disjoint_graphs = Vec::new();
     let mut positions = grid.positions.clone();
 
@@ -468,7 +468,7 @@ pub fn disjoint_graphs_walkable(grid: &Res<Grid>) -> Vec<Vec<IVec2>> {
     disjoint_graphs
 }
 
-pub fn disjoint_graphs_colliders(grid: &Res<Grid>) -> Vec<Vec<IVec2>> {
+pub fn disjoint_graphs_colliders(grid: &Grid) -> Vec<Vec<IVec2>> {
     let mut reversed_matrix = vec![vec![1; (grid.size.y - 1) as usize]; (grid.size.x - 1) as usize];
 
     for pos in &grid.positions {

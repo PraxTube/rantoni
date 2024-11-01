@@ -1,9 +1,11 @@
-use bevy::prelude::*;
+use bevy::{color::palettes::css::LIME, prelude::*};
 use bevy_rancic::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{dude::Attack, GameAssets, GameState};
+
+use super::map::MapPolygonData;
 
 pub const HURTBOX_GROUP: Group = Group::GROUP_1;
 pub const HITBOX_GROUP: Group = Group::GROUP_2;
@@ -222,13 +224,36 @@ fn despawn_attack_arcs(
     }
 }
 
+fn spawn_map_collisions(mut commands: Commands, map_polygon_data: Res<MapPolygonData>) {
+    for poly in &map_polygon_data.collider_polygons {
+        commands.spawn((
+            Collider::convex_hull(poly).expect(
+                "polygon should be convertable to convex hull, something went really wrong",
+            ),
+            ColliderDebugColor(LIME.into()),
+            // ShapeBundle {
+            //     path: GeometryBuilder::build_as(&shapes::Polygon {
+            //         points: poly.clone(),
+            //         closed: true,
+            //     }),
+            //     ..default()
+            // },
+            // Fill::color(COLLIDER_COLOR.with_alpha(0.5)),
+        ));
+    }
+}
+
 pub struct WorldCollisionPlugin;
 
 impl Plugin for WorldCollisionPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (disable_attack_arc_hitboxes, despawn_attack_arcs)
+            (
+                disable_attack_arc_hitboxes,
+                despawn_attack_arcs,
+                spawn_map_collisions.run_if(resource_added::<MapPolygonData>),
+            )
                 .run_if(not(in_state(GameState::AssetLoading))),
         );
     }

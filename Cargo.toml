@@ -35,6 +35,8 @@ bevy_trickfilm = { git = "https://github.com/PraxTube/bevy_trickfilm", branch = 
 bevy_trickfilm_derive = { git = "https://github.com/KirmesBude/bevy_trickfilm", branch = "feature/issue-27-animation-event" }
 bevy_rancic = { git = "https://github.com/PraxTube/bevy_rancic", branch = "master" }
 
+generate_world_collisions = { path = "./generate_world_collisions" }
+
 [features]
 auto_input = []
 

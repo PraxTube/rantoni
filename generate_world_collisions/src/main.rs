@@ -2,10 +2,10 @@
 
 mod decomposition;
 mod graph;
+mod serialization;
 
 use std::time::Duration;
 
-use bevy::color::palettes::css::{DARK_VIOLET, RED};
 use bevy::prelude::*;
 use bevy::render::camera::ScalingMode;
 use bevy::time::common_conditions::once_after_delay;
@@ -16,12 +16,11 @@ use bevy_rapier2d::prelude::*;
 
 use decomposition::decompose_poly;
 use graph::{disjoint_graphs_colliders, disjoint_graphs_walkable, polygons};
+use serialization::save_polygons;
 
+// TODO: Adjust?
 const TILE_SIZE: f32 = 16.0;
 const LDTK_FILE: &str = "map/map.ldtk";
-
-const NAVEMESH_NODE_COLOR: Srgba = RED;
-const COLLIDER_COLOR: Srgba = DARK_VIOLET;
 
 #[derive(Resource)]
 struct Grid {
@@ -78,8 +77,7 @@ fn main() {
         .add_systems(Update, (add_cells,))
         .add_systems(
             Update,
-            (spawn_navmesh_nodes, spawn_colliders)
-                .run_if(once_after_delay(Duration::from_secs_f32(0.5))),
+            compute_and_save_shapes.run_if(once_after_delay(Duration::from_secs_f32(0.5))),
         )
         .run();
 }
@@ -112,7 +110,8 @@ fn add_cells(mut grid: ResMut<Grid>, q_grid_coords: Query<&GridCoords, Added<Int
     }
 }
 
-fn spawn_navmesh_nodes(mut commands: Commands, grid: Res<Grid>) {
+fn compute_navmesh_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
+    let mut navmesh_polygons = Vec::new();
     for graph in disjoint_graphs_walkable(&grid) {
         let grid = Grid {
             size: grid.size,
@@ -121,24 +120,14 @@ fn spawn_navmesh_nodes(mut commands: Commands, grid: Res<Grid>) {
         };
         let (outer_polygon, inner_polygons) = polygons(&grid);
 
-        let polygons = decompose_poly(&outer_polygon, &inner_polygons);
-        for poly in &polygons {
-            commands.spawn((
-                ShapeBundle {
-                    path: GeometryBuilder::build_as(&shapes::Polygon {
-                        points: poly.clone(),
-                        closed: true,
-                    }),
-                    ..default()
-                },
-                Fill::color(NAVEMESH_NODE_COLOR.with_alpha(0.5)),
-            ));
-        }
+        navmesh_polygons.append(&mut decompose_poly(&outer_polygon, &inner_polygons));
     }
+    navmesh_polygons
 }
 
-fn spawn_colliders(mut commands: Commands, grid: Res<Grid>) {
-    for graph in disjoint_graphs_colliders(&grid) {
+fn compute_collier_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
+    let mut collider_polygons = Vec::new();
+    for graph in disjoint_graphs_colliders(grid) {
         let grid = Grid {
             size: grid.size,
             positions: graph,
@@ -146,22 +135,15 @@ fn spawn_colliders(mut commands: Commands, grid: Res<Grid>) {
         };
         let (outer_polygon, inner_polygons) = polygons(&grid);
 
-        let polygons = decompose_poly(&outer_polygon, &inner_polygons);
-        for poly in &polygons {
-            commands.spawn((
-                Collider::convex_hull(poly).expect(
-                    "polygon should be convertable to convex hull, something went really wrong",
-                ),
-                ColliderDebugColor(COLLIDER_COLOR.into()),
-                ShapeBundle {
-                    path: GeometryBuilder::build_as(&shapes::Polygon {
-                        points: poly.clone(),
-                        closed: true,
-                    }),
-                    ..default()
-                },
-                Fill::color(COLLIDER_COLOR.with_alpha(0.5)),
-            ));
-        }
+        collider_polygons.append(&mut decompose_poly(&outer_polygon, &inner_polygons));
     }
+    collider_polygons
+}
+
+fn compute_and_save_shapes(grid: Res<Grid>, mut app_exit_events: EventWriter<AppExit>) {
+    save_polygons(
+        &compute_navmesh_shapes(&grid),
+        &compute_collier_shapes(&grid),
+    );
+    app_exit_events.send(AppExit::Success);
 }
