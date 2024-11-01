@@ -18,8 +18,9 @@ use decomposition::decompose_poly;
 use graph::{disjoint_graphs_colliders, disjoint_graphs_walkable, polygons};
 use serialization::save_polygons;
 
-// TODO: Adjust?
-const TILE_SIZE: f32 = 16.0;
+// TODO: Adjust? Do you want to read that in from ldtk world? Or at least make it pub so you only
+// have one place were you define it.
+const TILE_SIZE: f32 = 32.0;
 const LDTK_FILE: &str = "map/map.ldtk";
 
 #[derive(Resource)]
