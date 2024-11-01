@@ -5,7 +5,7 @@ mod graph;
 
 use std::time::Duration;
 
-use bevy::color::palettes::css::*;
+use bevy::color::palettes::css::{DARK_VIOLET, RED};
 use bevy::prelude::*;
 use bevy::render::camera::ScalingMode;
 use bevy::time::common_conditions::once_after_delay;
@@ -15,29 +15,19 @@ use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use decomposition::decompose_poly;
-use graph::{disjoint_graphs, vertices_and_indices};
-use rand::{thread_rng, Rng};
+use graph::{disjoint_graphs_colliders, disjoint_graphs_walkable, polygons};
 
 const TILE_SIZE: f32 = 16.0;
 const LDTK_FILE: &str = "map/map.ldtk";
 
-const DEBUG_COLORS: [Srgba; 10] = [
-    RED,
-    PINK,
-    ORANGE,
-    BLUE,
-    GREEN,
-    LIME,
-    LIMEGREEN,
-    YELLOW,
-    GREEN_YELLOW,
-    LIGHT_CYAN,
-];
+const NAVEMESH_NODE_COLOR: Srgba = RED;
+const COLLIDER_COLOR: Srgba = DARK_VIOLET;
 
 #[derive(Resource)]
 struct Grid {
     size: IVec2,
     positions: Vec<IVec2>,
+    is_navmesh: bool,
 }
 
 impl Default for Grid {
@@ -50,6 +40,7 @@ impl Default for Grid {
             // most size big.
             size: IVec2::new(17, 17),
             positions: Vec::new(),
+            is_navmesh: true,
         }
     }
 }
@@ -87,7 +78,8 @@ fn main() {
         .add_systems(Update, (add_cells,))
         .add_systems(
             Update,
-            spawn_colliders.run_if(once_after_delay(Duration::from_secs_f32(0.5))),
+            (spawn_navmesh_nodes, spawn_colliders)
+                .run_if(once_after_delay(Duration::from_secs_f32(0.5))),
         )
         .run();
 }
@@ -120,29 +112,18 @@ fn add_cells(mut grid: ResMut<Grid>, q_grid_coords: Query<&GridCoords, Added<Int
     }
 }
 
-fn spawn_colliders(mut commands: Commands, grid: Res<Grid>) {
-    let mut rng = thread_rng();
-
-    for graph in disjoint_graphs(&grid) {
+fn spawn_navmesh_nodes(mut commands: Commands, grid: Res<Grid>) {
+    for graph in disjoint_graphs_walkable(&grid) {
         let grid = Grid {
             size: grid.size,
             positions: graph,
+            is_navmesh: true,
         };
-        let (vertices, _) = vertices_and_indices(&grid);
+        let (outer_polygon, inner_polygons) = polygons(&grid);
 
-        info!("verts: {:?}", vertices);
-
-        let polygons = decompose_poly(&mut vertices.clone());
-        info!("polys: {}", polygons.len());
+        let polygons = decompose_poly(&outer_polygon, &inner_polygons);
         for poly in &polygons {
-            info!("{:?}", poly);
             commands.spawn((
-                Collider::compound(vec![(
-                    Vec2::default(),
-                    0.0,
-                    Collider::convex_hull(poly).unwrap(),
-                )]),
-                ColliderDebugColor(VIOLET.into()),
                 ShapeBundle {
                     path: GeometryBuilder::build_as(&shapes::Polygon {
                         points: poly.clone(),
@@ -150,64 +131,37 @@ fn spawn_colliders(mut commands: Commands, grid: Res<Grid>) {
                     }),
                     ..default()
                 },
-                Fill::color(DEBUG_COLORS[rng.gen_range(0..DEBUG_COLORS.len())].with_alpha(1.5)),
+                Fill::color(NAVEMESH_NODE_COLOR.with_alpha(0.5)),
             ));
         }
     }
 }
 
-#[test]
-fn polygon_at_edge() {
-    let grid = Grid {
-        size: IVec2::new(3, 4),
-        positions: vec![IVec2::new(0, 1), IVec2::new(0, 2)],
-    };
+fn spawn_colliders(mut commands: Commands, grid: Res<Grid>) {
+    for graph in disjoint_graphs_colliders(&grid) {
+        let grid = Grid {
+            size: grid.size,
+            positions: graph,
+            is_navmesh: false,
+        };
+        let (outer_polygon, inner_polygons) = polygons(&grid);
 
-    let (mut vertices, _) = vertices_and_indices(&grid);
-
-    let expeced_vertices = vec![
-        Vec2::new(0.0, 8.0),
-        Vec2::new(8.0, 16.0),
-        Vec2::new(8.0, 32.0),
-        Vec2::new(0.0, 40.0),
-        Vec2::new(0.0, 32.0),
-        Vec2::new(0.0, 16.0),
-    ];
-    let expected_polygon = vec![
-        Vec2::new(0.0, 8.0),
-        Vec2::new(8.0, 16.0),
-        Vec2::new(8.0, 32.0),
-        Vec2::new(0.0, 40.0),
-        Vec2::new(0.0, 32.0),
-        Vec2::new(0.0, 16.0),
-    ];
-
-    let polygons = decompose_poly(&mut vertices);
-    assert!(polygons.len() == 1);
-
-    for polygon in &polygons {
-        assert_eq!(polygon, &expected_polygon);
+        let polygons = decompose_poly(&outer_polygon, &inner_polygons);
+        for poly in &polygons {
+            commands.spawn((
+                Collider::convex_hull(poly).expect(
+                    "polygon should be convertable to convex hull, something went really wrong",
+                ),
+                ColliderDebugColor(COLLIDER_COLOR.into()),
+                ShapeBundle {
+                    path: GeometryBuilder::build_as(&shapes::Polygon {
+                        points: poly.clone(),
+                        closed: true,
+                    }),
+                    ..default()
+                },
+                Fill::color(COLLIDER_COLOR.with_alpha(0.5)),
+            ));
+        }
     }
-
-    assert_eq!(expeced_vertices, vertices);
-}
-
-#[test]
-fn polygon_with_hole_decomposition() {
-    let mut vertices = vec![
-        Vec2::new(0.0, 0.0),
-        Vec2::new(10.0, 0.0),
-        Vec2::new(10.0, 5.0),
-        Vec2::new(6.0, 5.0),
-        Vec2::new(6.0, 4.0),
-        Vec2::new(4.0, 4.0),
-        Vec2::new(4.0, 5.0),
-        Vec2::new(6.0, 5.0),
-        Vec2::new(10.0, 5.0),
-        Vec2::new(10.0, 10.0),
-        Vec2::new(0.0, 10.0),
-    ];
-
-    let polygons = decompose_poly(&mut vertices);
-    assert_eq!(polygons.len(), 4);
 }

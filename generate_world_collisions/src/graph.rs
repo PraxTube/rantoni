@@ -93,6 +93,8 @@ fn minimal_vertices(v: &Vec<IVec2>) -> Vec<IVec2> {
     }
 
     for i in 1..n {
+        // TODO: can you use (i + n - i) % n?
+        // Would work for usize?
         if collinear(v[i - 1], v[i], v[(i + 1) % n]) {
             redundant_vert_indices.push(i);
         }
@@ -181,6 +183,68 @@ fn index_to_vertices_y_zero_edge(index: u8) -> Vec<IVec2> {
     }
 }
 
+fn index_to_vertices_collider(index: u8) -> Vec<Vec<IVec2>> {
+    match index {
+        0..=4 | 6..=9 | 11..=15 => index_to_vertices(index),
+        5 => vec![
+            vec![IVec2::X, IVec2::Y],
+            vec![IVec2::new(1, 2), IVec2::new(2, 1)],
+        ],
+        10 => vec![
+            vec![IVec2::Y, IVec2::new(1, 2)],
+            vec![IVec2::new(2, 1), IVec2::X],
+        ],
+        _ => {
+            error!("should never happen! Got bitmasks that are >15, {}", index);
+            Vec::new()
+        }
+    }
+}
+
+fn index_to_vertices_x_zero_edge_collider(index: u8) -> Vec<IVec2> {
+    match index {
+        0 | 2 | 4 | 6 => Vec::new(),
+        1 => vec![IVec2::Y, IVec2::ZERO],
+        3 => vec![IVec2::Y, IVec2::ZERO],
+        5 => vec![IVec2::Y, IVec2::ZERO],
+        7 => vec![IVec2::Y, IVec2::ZERO],
+        8 => vec![IVec2::new(0, 2), IVec2::Y],
+        9 => vec![IVec2::new(0, 2), IVec2::ZERO],
+        10 => vec![IVec2::new(0, 2), IVec2::Y],
+        11 => vec![IVec2::new(0, 2), IVec2::ZERO],
+        12 => vec![IVec2::new(0, 2), IVec2::Y],
+        13 => vec![IVec2::new(0, 2), IVec2::ZERO],
+        14 => vec![IVec2::new(0, 2), IVec2::Y],
+        15 => vec![IVec2::new(0, 2), IVec2::ZERO],
+        _ => {
+            error!("should never happen! Got bitmasks that are >15, {}", index);
+            Vec::new()
+        }
+    }
+}
+
+fn index_to_vertices_y_zero_edge_collider(index: u8) -> Vec<IVec2> {
+    match index {
+        0 | 4 | 8 | 12 => Vec::new(),
+        1 => vec![IVec2::ZERO, IVec2::X],
+        2 => vec![IVec2::X, IVec2::new(2, 0)],
+        3 => vec![IVec2::ZERO, IVec2::new(2, 0)],
+        5 => vec![IVec2::ZERO, IVec2::X],
+        6 => vec![IVec2::X, IVec2::new(2, 0)],
+        7 => vec![IVec2::ZERO, IVec2::new(2, 0)],
+        9 => vec![IVec2::ZERO, IVec2::X],
+        10 => vec![IVec2::X, IVec2::new(2, 0)],
+        11 => vec![IVec2::ZERO, IVec2::new(2, 0)],
+        13 => vec![IVec2::ZERO, IVec2::X],
+        14 => vec![IVec2::X, IVec2::new(2, 0)],
+        15 => vec![IVec2::ZERO, IVec2::new(2, 0)],
+        _ => {
+            error!("should never happen! Got bitmasks that are >15, {}", index);
+            Vec::new()
+        }
+    }
+}
+
 fn index_matrix(grid: &Grid) -> Vec<Vec<u8>> {
     let mut matrix = vec![vec![0; grid.size.y as usize]; grid.size.x as usize];
     for pos in &grid.positions {
@@ -200,6 +264,36 @@ fn index_matrix(grid: &Grid) -> Vec<Vec<u8>> {
     index_matrix
 }
 
+fn get_vertex_pairs(index: u8, x: usize, y: usize, is_navmesh: bool) -> Vec<Vec<IVec2>> {
+    let mut vertex_pairs = if is_navmesh {
+        index_to_vertices(index)
+    } else {
+        index_to_vertices_collider(index)
+    };
+
+    if x == 0 {
+        let edge_vertices = if is_navmesh {
+            index_to_vertices_x_zero_edge(index)
+        } else {
+            index_to_vertices_x_zero_edge_collider(index)
+        };
+        if !edge_vertices.is_empty() {
+            vertex_pairs.push(edge_vertices);
+        }
+    }
+    if y == 0 {
+        let edge_vertices = if is_navmesh {
+            index_to_vertices_y_zero_edge(index)
+        } else {
+            index_to_vertices_y_zero_edge_collider(index)
+        };
+        if !edge_vertices.is_empty() {
+            vertex_pairs.push(edge_vertices);
+        }
+    }
+    vertex_pairs
+}
+
 fn disjoint_vertices(grid: &Grid) -> Vec<Vec<IVec2>> {
     let index_matrix = index_matrix(grid);
     let mut vertices: Vec<Vec<IVec2>> = Vec::new();
@@ -207,19 +301,7 @@ fn disjoint_vertices(grid: &Grid) -> Vec<Vec<IVec2>> {
     // Convert indices to vertices
     for i in 0..index_matrix.len() {
         for j in 0..index_matrix.len() {
-            let mut vertex_pairs = index_to_vertices(index_matrix[i][j]);
-            if i == 0 {
-                let edge_vertices = index_to_vertices_x_zero_edge(index_matrix[i][j]);
-                if !edge_vertices.is_empty() {
-                    vertex_pairs.push(edge_vertices);
-                }
-            }
-            if j == 0 {
-                let edge_vertices = index_to_vertices_y_zero_edge(index_matrix[i][j]);
-                if !edge_vertices.is_empty() {
-                    vertex_pairs.push(edge_vertices);
-                }
-            }
+            let vertex_pairs = get_vertex_pairs(index_matrix[i][j], i, j, grid.is_navmesh);
             for vertex_pair in vertex_pairs {
                 let v_pair = vertex_pair
                     .iter()
@@ -275,124 +357,66 @@ fn connected_vertices_without_hole(grid: &Grid) -> Vec<IVec2> {
     vertices[0].clone()
 }
 
-fn connected_vertices_with_holes(grid: &Grid) -> Vec<Vec<IVec2>> {
+fn connected_vertices_with_holes(grid: &Grid) -> (Vec<IVec2>, Vec<Vec<IVec2>>) {
     let mut vertices = disjoint_vertices(grid);
-    let mut disjoint_vertices = Vec::new();
+    let mut disjoint_polygons = Vec::new();
 
     while !vertices.is_empty() {
-        disjoint_vertices.push(get_polygon_vertices(&mut vertices));
+        disjoint_polygons.push(get_polygon_vertices(&mut vertices));
     }
 
-    let mut outer_polygon = None;
-    for i in 0..disjoint_vertices.len() {
-        if is_ccw(&disjoint_vertices[i]) {
+    let mut outer_polygon_index = None;
+    for i in 0..disjoint_polygons.len() {
+        if is_ccw(&disjoint_polygons[i]) {
             assert!(
-                outer_polygon.is_none(),
-                "There must be exactly one outer polygon"
+                outer_polygon_index.is_none(),
+                "There must be exactly one outer polygon, but there are multiple, {:?}",
+                disjoint_polygons
             );
-            outer_polygon = Some(i);
+            outer_polygon_index = Some(i);
         }
     }
-    // assert_eq!(outer_polygon, Some(0), "If this fails, well remove this assert. I think the outer polygon is always going to be the first one because of how the index matrix is calculated, but I might be wrong, just putting this here to see if it will break at some point");
-
-    disjoint_vertices.swap(
-        0,
-        outer_polygon.expect("There must always be outer polygon"),
-    );
-    disjoint_vertices
+    let outer_polygon =
+        disjoint_polygons.remove(outer_polygon_index.expect("There must always be outer polygon"));
+    (outer_polygon, disjoint_polygons)
 }
 
-fn connected_vertices(grid: &Grid) -> Vec<IVec2> {
+fn connected_vertices(grid: &Grid) -> (Vec<IVec2>, Vec<Vec<IVec2>>) {
     let vertices = disjoint_vertices(grid);
 
     if !has_holes(&vertices) {
-        return connected_vertices_without_hole(grid);
+        (connected_vertices_without_hole(grid), Vec::new())
+    } else {
+        connected_vertices_with_holes(grid)
     }
-
-    let mut polygons = connected_vertices_with_holes(grid);
-
-    let n = polygons.len() - 1;
-    for i in 0..n {
-        let i = n - i;
-        info!("HELLOOOOOOOOOOOOOOO {}", i);
-        let mut top_right_vertex = polygons[i][0];
-        let mut top_right_vertex_index = 0;
-        for (v_index, v) in polygons[i].iter().enumerate() {
-            if v.x > top_right_vertex.x || v.x == top_right_vertex.x && v.y > top_right_vertex.y {
-                top_right_vertex = *v;
-                top_right_vertex_index = v_index;
-            }
-        }
-
-        let mut other_poly_index = 0;
-        let mut other_poly_vert_index = 0;
-        let mut min_vertex_x_dist = i32::MAX;
-
-        for (j, other_polygon) in polygons.iter().enumerate() {
-            // Skip when it's the same polygon
-            if i == j {
-                continue;
-            }
-
-            for (k, v) in other_polygon.iter().enumerate() {
-                // TODO: Change this to actually work for more general cases.
-                // In our case it _should_ work, though if you decide to minimize the vertices
-                // before this step then you will run into trouble. Also it _might_ still fail in
-                // some cases that I have not forseen.
-                if v.y != top_right_vertex.y || v.x < top_right_vertex.x {
-                    continue;
-                }
-                assert_ne!(v.x, top_right_vertex.x);
-
-                if v.x - top_right_vertex.x < min_vertex_x_dist {
-                    min_vertex_x_dist = v.x - top_right_vertex.x;
-                    other_poly_index = j;
-                    other_poly_vert_index = k;
-                }
-            }
-        }
-        assert_ne!(min_vertex_x_dist, i32::MAX);
-
-        let bridge_vertex = polygons[other_poly_index][other_poly_vert_index];
-
-        let mut inner_polygon = polygons[i].clone();
-        info!("{:?}", inner_polygon);
-        // TODO: Handle first and last elemnt being teh same
-        inner_polygon.rotate_left(top_right_vertex_index);
-        inner_polygon.push(top_right_vertex);
-        inner_polygon.push(bridge_vertex);
-
-        assert_eq!(polygons.len() - 1, i);
-        polygons.pop();
-
-        polygons[other_poly_index].splice(
-            other_poly_vert_index + 1..other_poly_vert_index + 1,
-            inner_polygon,
-        );
-    }
-    assert_eq!(polygons.len(), 1);
-    info!("{:?}", polygons);
-    polygons[0].clone()
 }
 
-pub fn vertices_and_indices(grid: &Grid) -> (Vec<Vec2>, Vec<[u32; 2]>) {
-    let minimal_vertices = minimal_vertices(&connected_vertices(grid));
-
-    let mut vertices = Vec::new();
-    for uvert in &minimal_vertices {
-        let v = Vec2::new(uvert.x as f32, uvert.y as f32) / 2.0 * TILE_SIZE;
-        vertices.push(v);
+/// Vertices of the polygons, first is the outer polygon and the second is a list of inner polygons
+/// (empty if no inner polygons).
+pub fn polygons(grid: &Grid) -> (Vec<Vec2>, Vec<Vec<Vec2>>) {
+    fn ivec_to_vec2(i: &IVec2) -> Vec2 {
+        Vec2::new(i.x as f32, i.y as f32) / 2.0 * TILE_SIZE
     }
 
-    let mut indices = Vec::new();
-    for i in 0..vertices.len() - 1 {
-        indices.push([i as u32, i as u32 + 1]);
-    }
-    indices.push([vertices.len() as u32 - 1, 0]);
-    (vertices, indices)
+    let (outer_polygon, inner_polygons) = connected_vertices(grid);
+    let outer_polygon = minimal_vertices(&outer_polygon)
+        .iter()
+        .map(|i| ivec_to_vec2(i))
+        .collect();
+    let inner_polygons = inner_polygons
+        .iter()
+        .map(|polygon| {
+            minimal_vertices(&polygon)
+                .iter()
+                .map(|i| ivec_to_vec2(i))
+                .collect()
+        })
+        .collect();
+
+    (outer_polygon, inner_polygons)
 }
 
-pub fn disjoint_graphs(grid: &Res<Grid>) -> Vec<Vec<IVec2>> {
+pub fn disjoint_graphs_walkable(grid: &Res<Grid>) -> Vec<Vec<IVec2>> {
     let mut disjoint_graphs = Vec::new();
     let mut positions = grid.positions.clone();
 
@@ -438,6 +462,68 @@ pub fn disjoint_graphs(grid: &Res<Grid>) -> Vec<Vec<IVec2>> {
             stack.push(n + IVec2::NEG_ONE);
             stack.push(n + IVec2::new(1, -1));
             stack.push(n + IVec2::new(-1, 1));
+        }
+        disjoint_graphs.push(current_positions);
+    }
+    disjoint_graphs
+}
+
+pub fn disjoint_graphs_colliders(grid: &Res<Grid>) -> Vec<Vec<IVec2>> {
+    let mut reversed_matrix = vec![vec![1; (grid.size.y - 1) as usize]; (grid.size.x - 1) as usize];
+
+    for pos in &grid.positions {
+        reversed_matrix[pos.x as usize][pos.y as usize] = 0;
+    }
+
+    let mut positions = Vec::new();
+    for i in 0..grid.size.x - 1 {
+        for j in 0..grid.size.y - 1 {
+            if reversed_matrix[i as usize][j as usize] == 1 {
+                positions.push(IVec2::new(i, j));
+            }
+        }
+    }
+
+    let mut disjoint_graphs = Vec::new();
+
+    let mut graph = vec![vec![0; grid.size.y as usize]; grid.size.x as usize];
+    for pos in &positions {
+        graph[pos.x as usize][pos.y as usize] = 1;
+    }
+
+    while !positions.is_empty() {
+        let mut current_positions = Vec::new();
+        let mut stack = vec![positions[0]];
+        while let Some(n) = stack.pop() {
+            // Out of bounds
+            if n.x < 0 || n.y < 0 || n.x >= grid.size.x || n.y >= grid.size.y {
+                continue;
+            }
+            let (Ok(x), Ok(y)): (Result<usize, _>, Result<usize, _>) =
+                (n.x.try_into(), n.y.try_into())
+            else {
+                continue;
+            };
+
+            // We have hit a dead end (or a node we already visited)
+            if graph[x][y] == 0 {
+                continue;
+            }
+            graph[x][y] = 0;
+
+            current_positions.push(n);
+            // Delete the node from the positions, it should always be valid
+            positions.swap_remove(
+                positions
+                    .iter()
+                    .position(|x| *x == n)
+                    .expect("node should be inside positions, something is fucky"),
+            );
+
+            stack.push(n + IVec2::X);
+            stack.push(n + IVec2::Y);
+            stack.push(n + IVec2::NEG_X);
+            stack.push(n + IVec2::NEG_Y);
         }
         disjoint_graphs.push(current_positions);
     }
