@@ -3632,6 +3632,7 @@ dependencies = [
  "bevy_ecs_ldtk",
  "bevy_kira_audio",
  "bevy_particle_systems",
+ "bevy_prototype_lyon",
  "bevy_rancic",
  "bevy_rapier2d",
  "bevy_trickfilm",

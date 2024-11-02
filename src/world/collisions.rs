@@ -231,14 +231,6 @@ fn spawn_map_collisions(mut commands: Commands, map_polygon_data: Res<MapPolygon
                 "polygon should be convertable to convex hull, something went really wrong",
             ),
             ColliderDebugColor(LIME.into()),
-            // ShapeBundle {
-            //     path: GeometryBuilder::build_as(&shapes::Polygon {
-            //         points: poly.clone(),
-            //         closed: true,
-            //     }),
-            //     ..default()
-            // },
-            // Fill::color(COLLIDER_COLOR.with_alpha(0.5)),
         ));
     }
 }
