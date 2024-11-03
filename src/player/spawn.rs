@@ -5,7 +5,10 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{
     dude::DudeAnimations,
-    world::collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType, PLAYER_GROUP, WORLD_GROUP},
+    world::{
+        collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType, PLAYER_GROUP, WORLD_GROUP},
+        PathfindingTarget,
+    },
     GameAssets, GameState,
 };
 
@@ -36,6 +39,7 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
 
     let collider = commands
         .spawn((
+            PathfindingTarget,
             Collider::ball(10.0),
             ActiveEvents::COLLISION_EVENTS,
             // TODO: Disable player - enemy collision when the player is sliding

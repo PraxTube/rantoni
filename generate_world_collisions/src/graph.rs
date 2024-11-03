@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{decomposition::is_ccw, Grid, TILE_SIZE};
+use crate::{decomposition::is_ccw_ivec, Grid, TILE_SIZE};
 
 fn collinear(a: IVec2, b: IVec2, c: IVec2) -> bool {
     let dir_ab = b - a;
@@ -367,7 +367,7 @@ fn connected_vertices_with_holes(grid: &Grid) -> (Vec<IVec2>, Vec<Vec<IVec2>>) {
 
     let mut outer_polygon_index = None;
     for i in 0..disjoint_polygons.len() {
-        if is_ccw(&disjoint_polygons[i]) {
+        if is_ccw_ivec(&disjoint_polygons[i]) {
             assert!(
                 outer_polygon_index.is_none(),
                 "There must be exactly one outer polygon, but there are multiple, {:?}",

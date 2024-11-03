@@ -5,7 +5,10 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{
     dude::DudeAnimations,
-    world::collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType, ENEMY_GROUP, WORLD_GROUP},
+    world::{
+        collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType, ENEMY_GROUP, WORLD_GROUP},
+        PathfindingSource,
+    },
     GameAssets, GameState,
 };
 
@@ -25,7 +28,6 @@ fn spawn_dummy_enemy(mut commands: Commands, assets: Res<GameAssets>) {
             YSort(0.0),
             SpriteBundle {
                 texture: assets.dude_textures[0].clone(),
-                transform: Transform::from_translation(Vec3::new(100.0, 100.0, 0.0)),
                 sprite: Sprite {
                     color: RED.into(),
                     ..default()
@@ -51,6 +53,7 @@ fn spawn_dummy_enemy(mut commands: Commands, assets: Res<GameAssets>) {
 
     let collider = commands
         .spawn((
+            PathfindingSource,
             Collider::ball(10.0),
             ActiveEvents::COLLISION_EVENTS,
             CollisionGroups::new(WORLD_GROUP | ENEMY_GROUP, WORLD_GROUP),

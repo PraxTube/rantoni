@@ -21,12 +21,7 @@ fn left(a: Vec2, b: Vec2, c: Vec2) -> bool {
     area(a, b, c) > 0.0
 }
 
-pub fn is_ccw(ivec_poly: &Vec<IVec2>) -> bool {
-    let mut poly = Vec::new();
-    for v in ivec_poly {
-        poly.push(Vec2::new(v.x as f32, v.y as f32));
-    }
-
+pub fn is_ccw(poly: &Vec<Vec2>) -> bool {
     let mut br = 0;
     for i in 1..poly.len() {
         if poly[i].y < poly[br].y || (poly[i].y == poly[br].y && poly[i].x > poly[br].x) {
@@ -39,6 +34,15 @@ pub fn is_ccw(ivec_poly: &Vec<IVec2>) -> bool {
         at(&poly, br as i32),
         at(&poly, br as i32 + 1),
     )
+}
+
+pub fn is_ccw_ivec(ivec_poly: &Vec<IVec2>) -> bool {
+    let mut poly = Vec::new();
+    for v in ivec_poly {
+        poly.push(Vec2::new(v.x as f32, v.y as f32));
+    }
+
+    is_ccw(&poly)
 }
 
 fn vec_to_point(v: &Vec2) -> Point {
