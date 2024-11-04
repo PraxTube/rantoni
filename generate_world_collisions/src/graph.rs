@@ -6,6 +6,9 @@ use crate::{
     Edge, Grid, Polygon, ATOL, TILE_SIZE,
 };
 
+type IGraph = Vec<IVec2>;
+type IPolygon = Vec<IVec2>;
+
 // TODO: What does this do?
 fn get_polygon_vertices(vertices: &mut Vec<Vec<IVec2>>) -> Vec<IVec2> {
     while vertices.len() > 1 {
@@ -85,23 +88,18 @@ fn has_holes(vertices: &[Vec<IVec2>]) -> bool {
 
 fn minimal_vertices(v: &[IVec2]) -> Vec<IVec2> {
     let mut redundant_vert_indices = Vec::new();
-
     let n = v.len();
-    if collinear_ivec(v[n - 1], v[0], v[1]) {
-        redundant_vert_indices.push(0);
-    }
-
-    for i in 1..n {
-        // TODO: can you use (i + n - i) % n?
-        // Would work for usize?
-        if collinear_ivec(v[i - 1], v[i], v[(i + 1) % n]) {
+    for i in 0..n {
+        if collinear_ivec(v[(i + n - 1) % n], v[i], v[(i + 1) % n]) {
             redundant_vert_indices.push(i);
         }
     }
+    // Reverse so that we have a descending order, important when removing indices.
     redundant_vert_indices.reverse();
 
     let mut minimal_vertices = v.to_owned();
     for index in redundant_vert_indices {
+        // We can just remove them as we know that the indices are descending.
         minimal_vertices.remove(index);
     }
     minimal_vertices
@@ -143,41 +141,42 @@ fn disjoint_vertices(grid: &Grid) -> Vec<Vec<IVec2>> {
 ///
 /// This for example, the first three vertices are already connected into one graph, then 2 and
 /// 0 share one graph (edge in this case because I didn't draw it propely).
-fn connected_vertices_without_hole(grid: &Grid) -> Vec<IVec2> {
-    let mut vertices = disjoint_vertices(grid);
-    while vertices.len() > 1 {
+fn connected_vertices_without_hole(disjoint_vertices: &mut Vec<Vec<IVec2>>) -> IPolygon {
+    while disjoint_vertices.len() > 1 {
         let mut group_index = 0;
-        for (i, vertex_group) in vertices.iter().enumerate() {
+        for (i, vertex_group) in disjoint_vertices.iter().enumerate() {
             if i == 0 {
                 continue;
             }
 
-            if vertices[0][vertices[0].len() - 1] == vertex_group[0] {
+            if disjoint_vertices[0][disjoint_vertices[0].len() - 1] == vertex_group[0] {
                 group_index = i;
                 break;
             }
         }
 
         assert!(group_index != 0);
-        let mut new_group = vertices.remove(group_index);
+        let mut new_group = disjoint_vertices.remove(group_index);
         new_group.remove(0);
-        vertices[0].append(&mut new_group);
+        disjoint_vertices[0].append(&mut new_group);
     }
-    let n = vertices[0].len() - 1;
     // First and last vertex should be equal, we now have a connected line, to bring it to a loop
     // we just remove the last vertex and it now "loops" to the first one.
-    assert!(vertices[0][0] == vertices[0][n]);
-    vertices[0].remove(n);
-    vertices[0].clone()
+    let n = disjoint_vertices[0].len() - 1;
+    assert!(disjoint_vertices[0][0] == disjoint_vertices[0][n]);
+    disjoint_vertices[0].remove(n);
+    assert_eq!(disjoint_vertices.len(), 1);
+    disjoint_vertices[0].clone()
 }
 
 // TODO: What does this do?
-fn connected_vertices_with_holes(grid: &Grid) -> (Vec<IVec2>, Vec<Vec<IVec2>>) {
-    let mut vertices = disjoint_vertices(grid);
+fn connected_vertices_with_holes(
+    disjoint_vertices: &mut Vec<Vec<IVec2>>,
+) -> (IPolygon, Vec<IPolygon>) {
     let mut disjoint_polygons = Vec::new();
 
-    while !vertices.is_empty() {
-        disjoint_polygons.push(get_polygon_vertices(&mut vertices));
+    while !disjoint_vertices.is_empty() {
+        disjoint_polygons.push(get_polygon_vertices(disjoint_vertices));
     }
 
     let mut outer_polygon_index = None;
@@ -196,24 +195,28 @@ fn connected_vertices_with_holes(grid: &Grid) -> (Vec<IVec2>, Vec<Vec<IVec2>>) {
     (outer_polygon, disjoint_polygons)
 }
 
-fn connected_vertices(grid: &Grid) -> (Vec<IVec2>, Vec<Vec<IVec2>>) {
-    let vertices = disjoint_vertices(grid);
+/// Calculate the outer and inner (IVec2)polygons of the given `Grid`.
+/// The first entry in the returned tuple is the outer polygon,
+/// the second entry is a `Vec` of the inner polygons (the holes), if any.
+fn outer_inner_ipolygons(grid: &Grid) -> (IPolygon, Vec<IPolygon>) {
+    let mut vertices = disjoint_vertices(grid);
 
     if !has_holes(&vertices) {
-        (connected_vertices_without_hole(grid), Vec::new())
+        (connected_vertices_without_hole(&mut vertices), Vec::new())
     } else {
-        connected_vertices_with_holes(grid)
+        connected_vertices_with_holes(&mut vertices)
     }
 }
 
-/// Vertices of the polygons, first is the outer polygon and the second is a list of inner polygons
+/// Calculate the outer and inner polygons of the given `Grid`.
+/// First is the outer polygon and the second is a list of inner polygons
 /// (empty if no inner polygons, i.e. no holes).
-pub fn polygons(grid: &Grid) -> (Polygon, Vec<Polygon>) {
+pub fn outer_inner_polygons(grid: &Grid) -> (Polygon, Vec<Polygon>) {
     fn ivec_to_vec2(i: &IVec2) -> Vec2 {
         Vec2::new(i.x as f32, i.y as f32) / 2.0 * TILE_SIZE
     }
 
-    let (outer_polygon, inner_polygons) = connected_vertices(grid);
+    let (outer_polygon, inner_polygons) = outer_inner_ipolygons(grid);
     let outer_polygon = minimal_vertices(&outer_polygon)
         .iter()
         .map(ivec_to_vec2)
@@ -226,16 +229,18 @@ pub fn polygons(grid: &Grid) -> (Polygon, Vec<Polygon>) {
     (outer_polygon, inner_polygons)
 }
 
-// TODO: What does this do?
-pub fn disjoint_graphs_walkable(grid: &Grid) -> Vec<Vec<IVec2>> {
+/// Construct the disjoint graph for the given parameters.
+/// This will perform a flood algorithm, either 4-directional or 8-directional, depending on
+/// `connect_with_diagonals`. The returned `Vec` contains the positions of the graphs in the 2D
+/// grid. There are no vertices or edges at this point. It's only about the position of the
+/// disjointed graphs.
+fn construct_disjoint_graphs(
+    grid: &Grid,
+    positions: &mut Vec<IVec2>,
+    graph: &mut [Vec<i32>],
+    connect_with_diagonals: bool,
+) -> Vec<IGraph> {
     let mut disjoint_graphs = Vec::new();
-    let mut positions = grid.positions.clone();
-
-    let mut graph = vec![vec![0; grid.size.y as usize]; grid.size.x as usize];
-    for pos in &grid.positions {
-        graph[pos.x as usize][pos.y as usize] = 1;
-    }
-
     while !positions.is_empty() {
         let mut current_positions = Vec::new();
         let mut stack = vec![positions[0]];
@@ -244,11 +249,7 @@ pub fn disjoint_graphs_walkable(grid: &Grid) -> Vec<Vec<IVec2>> {
             if n.x < 0 || n.y < 0 || n.x >= grid.size.x || n.y >= grid.size.y {
                 continue;
             }
-            let (Ok(x), Ok(y)): (Result<usize, _>, Result<usize, _>) =
-                (n.x.try_into(), n.y.try_into())
-            else {
-                continue;
-            };
+            let (x, y) = (n.x as usize, n.y as usize);
 
             // We have hit a dead end (or a node we already visited)
             if graph[x][y] == 0 {
@@ -269,20 +270,37 @@ pub fn disjoint_graphs_walkable(grid: &Grid) -> Vec<Vec<IVec2>> {
             stack.push(n + IVec2::Y);
             stack.push(n + IVec2::NEG_X);
             stack.push(n + IVec2::NEG_Y);
-            stack.push(n + IVec2::ONE);
-            stack.push(n + IVec2::NEG_ONE);
-            stack.push(n + IVec2::new(1, -1));
-            stack.push(n + IVec2::new(-1, 1));
+            if connect_with_diagonals {
+                stack.push(n + IVec2::ONE);
+                stack.push(n + IVec2::NEG_ONE);
+                stack.push(n + IVec2::new(1, -1));
+                stack.push(n + IVec2::new(-1, 1));
+            }
         }
         disjoint_graphs.push(current_positions);
     }
     disjoint_graphs
 }
 
-// TODO: What does this do?
-pub fn disjoint_graphs_colliders(grid: &Grid) -> Vec<Vec<IVec2>> {
-    let mut reversed_matrix = vec![vec![1; (grid.size.y - 1) as usize]; (grid.size.x - 1) as usize];
+/// Construct the disjoint graphs of the given grid for the NAVMESH!
+/// It treats the positions in the `Grid` as walkable.
+/// The returned `Vec` contains disjoint graphs with their positions on the 2D grid.
+pub fn disjoint_graphs_walkable(grid: &Grid) -> Vec<IGraph> {
+    let mut positions = grid.positions.clone();
 
+    let mut graph = vec![vec![0; grid.size.y as usize]; grid.size.x as usize];
+    for pos in &grid.positions {
+        graph[pos.x as usize][pos.y as usize] = 1;
+    }
+
+    construct_disjoint_graphs(grid, &mut positions, &mut graph, true)
+}
+
+/// Construct the disjoint graphs of the given grid for COLLIDERS!
+/// This will reverse the positions (as it treats the positions in the grid as walkable).
+/// The returned `Vec` contains disjoint graphs with their positions on the 2D grid.
+pub fn disjoint_graphs_colliders(grid: &Grid) -> Vec<IGraph> {
+    let mut reversed_matrix = vec![vec![1; (grid.size.y - 1) as usize]; (grid.size.x - 1) as usize];
     for pos in &grid.positions {
         reversed_matrix[pos.x as usize][pos.y as usize] = 0;
     }
@@ -296,50 +314,12 @@ pub fn disjoint_graphs_colliders(grid: &Grid) -> Vec<Vec<IVec2>> {
         }
     }
 
-    let mut disjoint_graphs = Vec::new();
-
     let mut graph = vec![vec![0; grid.size.y as usize]; grid.size.x as usize];
     for pos in &positions {
         graph[pos.x as usize][pos.y as usize] = 1;
     }
 
-    while !positions.is_empty() {
-        let mut current_positions = Vec::new();
-        let mut stack = vec![positions[0]];
-        while let Some(n) = stack.pop() {
-            // Out of bounds
-            if n.x < 0 || n.y < 0 || n.x >= grid.size.x || n.y >= grid.size.y {
-                continue;
-            }
-            let (Ok(x), Ok(y)): (Result<usize, _>, Result<usize, _>) =
-                (n.x.try_into(), n.y.try_into())
-            else {
-                continue;
-            };
-
-            // We have hit a dead end (or a node we already visited)
-            if graph[x][y] == 0 {
-                continue;
-            }
-            graph[x][y] = 0;
-
-            current_positions.push(n);
-            // Delete the node from the positions, it should always be valid
-            positions.swap_remove(
-                positions
-                    .iter()
-                    .position(|x| *x == n)
-                    .expect("node should be inside positions, something is fucky"),
-            );
-
-            stack.push(n + IVec2::X);
-            stack.push(n + IVec2::Y);
-            stack.push(n + IVec2::NEG_X);
-            stack.push(n + IVec2::NEG_Y);
-        }
-        disjoint_graphs.push(current_positions);
-    }
-    disjoint_graphs
+    construct_disjoint_graphs(grid, &mut positions, &mut graph, false)
 }
 
 /// Return the edge that both polygons share.

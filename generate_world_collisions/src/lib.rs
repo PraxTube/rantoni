@@ -20,7 +20,8 @@ pub const LDTK_FILE: &str = "map/map.ldtk";
 pub use decomposition::decompose_poly;
 pub use geometry::{is_ccw, point_to_polygon_index};
 pub use graph::{
-    construct_adjacency_graph, disjoint_graphs_colliders, disjoint_graphs_walkable, polygons,
+    construct_adjacency_graph, disjoint_graphs_colliders, disjoint_graphs_walkable,
+    outer_inner_polygons,
 };
 pub use matrix::Grid;
 pub use serialization::{deserialize_polygons, serialize_polygons};
