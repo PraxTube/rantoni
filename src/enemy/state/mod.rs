@@ -94,7 +94,6 @@ fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy)>)
             DudeState::Idling | DudeState::Parrying(_) | DudeState::Jumping(_) => {}
             DudeState::Running => {
                 if enemy.target.is_none() {
-                    warn!("yap, fuck");
                     enemy.state_machine.set_state(DudeState::Idling);
                 }
             }
@@ -153,19 +152,25 @@ fn reset_new_state(mut q_enemies: Query<&mut Enemy>) {
     }
 }
 
-fn reset_enemey_targets(mut q_enemies: Query<(&Transform, &mut Enemy)>) {
+fn reset_enemey_targets(
+    q_transforms: Query<&Transform, Without<Enemy>>,
+    mut q_enemies: Query<(&Transform, &mut Enemy)>,
+) {
     for (transform, mut enemy) in &mut q_enemies {
-        if enemy.target.is_none() {
+        let Some(target) = enemy.target else {
             continue;
-        }
+        };
+        let Ok(target_transform) = q_transforms.get(target) else {
+            continue;
+        };
 
         if transform
             .translation
             .truncate()
-            .distance_squared(enemy.target_pos)
+            .distance_squared(target_transform.translation.truncate())
             < MIN_TARGET_DISTANCE.powi(2)
         {
-            // enemy.target = None;
+            enemy.target = None;
         }
     }
 }

@@ -13,19 +13,19 @@ fn point_to_vec(p: &Point) -> Vec2 {
 
 fn triangulate_concave_polygon(
     outer_polygon: &Polygon,
-    inner_polygons: &Vec<Polygon>,
+    inner_polygons: &[Polygon],
 ) -> Vec<Polygon> {
     let holes = inner_polygons
         .iter()
-        .map(|poly| poly.iter().map(|v| vec_to_point(v)).collect::<Vec<Point>>());
-    let builder = SweeperBuilder::new(outer_polygon.iter().map(|v| vec_to_point(v)).collect())
-        .add_holes(holes);
+        .map(|poly| poly.iter().map(vec_to_point).collect::<Vec<Point>>());
+    let builder =
+        SweeperBuilder::new(outer_polygon.iter().map(vec_to_point).collect()).add_holes(holes);
     let sweeper = builder.build();
 
     let mut triangles = Vec::new();
 
-    for triangle in sweeper.triangulate().into_iter() {
-        triangles.push(triangle.points.iter().map(|p| point_to_vec(p)).collect());
+    for triangle in sweeper.triangulate() {
+        triangles.push(triangle.points.iter().map(point_to_vec).collect());
     }
     triangles
 }

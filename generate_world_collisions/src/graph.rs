@@ -39,8 +39,8 @@ fn get_polygon_vertices(vertices: &mut Vec<Vec<IVec2>>) -> Vec<IVec2> {
     vertices[0].remove(n);
 
     let mut extracted_poly = None;
-    for i in 0..vertices.len() {
-        if vertices[i].len() > 2 {
+    for (i, v) in vertices.iter().enumerate() {
+        if v.len() > 2 {
             assert!(
                 extracted_poly.is_none(),
                 "{:?}, {:?}",
@@ -54,8 +54,8 @@ fn get_polygon_vertices(vertices: &mut Vec<Vec<IVec2>>) -> Vec<IVec2> {
 }
 
 // TODO: Use above function get_polygon_vertices and simply check if the remaining vertices len
-fn has_holes(vertices: &Vec<Vec<IVec2>>) -> bool {
-    let mut vertices = vertices.clone();
+fn has_holes(vertices: &[Vec<IVec2>]) -> bool {
+    let mut vertices = vertices.to_owned();
     while vertices.len() > 1 {
         let mut group_index = 0;
         let mut has_hole = true;
@@ -83,7 +83,7 @@ fn has_holes(vertices: &Vec<Vec<IVec2>>) -> bool {
     false
 }
 
-fn minimal_vertices(v: &Vec<IVec2>) -> Vec<IVec2> {
+fn minimal_vertices(v: &[IVec2]) -> Vec<IVec2> {
     let mut redundant_vert_indices = Vec::new();
 
     let n = v.len();
@@ -100,7 +100,7 @@ fn minimal_vertices(v: &Vec<IVec2>) -> Vec<IVec2> {
     }
     redundant_vert_indices.reverse();
 
-    let mut minimal_vertices = v.clone();
+    let mut minimal_vertices = v.to_owned();
     for index in redundant_vert_indices {
         minimal_vertices.remove(index);
     }
@@ -216,16 +216,11 @@ pub fn polygons(grid: &Grid) -> (Polygon, Vec<Polygon>) {
     let (outer_polygon, inner_polygons) = connected_vertices(grid);
     let outer_polygon = minimal_vertices(&outer_polygon)
         .iter()
-        .map(|i| ivec_to_vec2(i))
+        .map(ivec_to_vec2)
         .collect();
     let inner_polygons = inner_polygons
         .iter()
-        .map(|polygon| {
-            minimal_vertices(&polygon)
-                .iter()
-                .map(|i| ivec_to_vec2(i))
-                .collect()
-        })
+        .map(|polygon| minimal_vertices(polygon).iter().map(ivec_to_vec2).collect())
         .collect();
 
     (outer_polygon, inner_polygons)

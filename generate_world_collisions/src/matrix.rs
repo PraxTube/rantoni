@@ -169,7 +169,7 @@ pub fn index_matrix(grid: &Grid) -> Vec<Vec<u8>> {
 
     for i in 0..matrix.len() - 1 {
         for j in 0..matrix[i].len() - 1 {
-            index_matrix[i][j] = matrix[i][j] << 0
+            index_matrix[i][j] = matrix[i][j]
                 | matrix[i + 1][j] << 1
                 | matrix[i + 1][j + 1] << 2
                 | matrix[i][j + 1] << 3;

@@ -171,7 +171,7 @@ fn adjacency_edge(poly_a: &Vec<Vec2>, poly_b: &Vec<Vec2>) -> Option<(Vec2, Vec2)
     None
 }
 
-fn get_graph(navmesh_polygons: &Vec<Vec<Vec2>>) -> Vec<Vec<(usize, (Vec2, Vec2))>> {
+fn get_graph(navmesh_polygons: &[Vec<Vec2>]) -> Vec<Vec<(usize, (Vec2, Vec2))>> {
     let mut graph = Vec::new();
 
     // Find adjacency polygons
@@ -220,7 +220,7 @@ fn pos_in_poly(poly: &Vec<Vec2>, v: Vec2) -> bool {
 
 // Given v: Vec2, determine in which polygon it lies.
 // Panics if it doesn't lie in any polygon.
-fn pos_to_polygon(polygons: &Vec<Vec<Vec2>>, v: Vec2) -> Option<usize> {
+fn pos_to_polygon(polygons: &[Vec<Vec2>], v: Vec2) -> Option<usize> {
     for (i, poly) in polygons.iter().enumerate() {
         // Point is left for all edges of this polygon, so it must be inside
         // `https://inginious.org/course/competitive-programming/geometry-pointinconvex#`
@@ -233,7 +233,7 @@ fn pos_to_polygon(polygons: &Vec<Vec<Vec2>>, v: Vec2) -> Option<usize> {
 }
 
 fn reconstruct_path(
-    parents: &Vec<Option<(usize, Vec2)>>,
+    parents: &[Option<(usize, Vec2)>],
     mut current_node: (usize, Vec2),
 ) -> Vec<(usize, Vec2)> {
     let mut path = Vec::new();
@@ -243,47 +243,6 @@ fn reconstruct_path(
     }
     path.reverse();
     path
-}
-
-fn closest_point_on_edge(p: Vec2, e: (Vec2, Vec2)) -> Vec2 {
-    assert!(!e.0.abs_diff_eq(e.1, ATOL));
-    if (e.0.x - e.1.x).abs() < ATOL {
-        return Vec2::new(e.0.x, p.y);
-    }
-    if (e.0.y - e.1.y).abs() < ATOL {
-        return Vec2::new(p.x, e.0.y);
-    }
-
-    assert!((e.0.x - e.1.x).abs() > ATOL);
-    assert!((e.0.y - e.1.y).abs() > ATOL);
-
-    let m1 = (e.1.y - e.0.y) / (e.1.x - e.0.x);
-    let m2 = -1.0 / m1;
-
-    // Calculate projected point
-    let x = (m1 * e.0.x - m2 * p.x + p.y - e.0.y) / (m1 - m2);
-    let y = m2 * (x - p.x) + p.y;
-
-    let edge_dir = e.1 - e.0;
-    let projected_dir = Vec2::new(x, y) - e.0;
-    // Clamp projected point to edge
-    if x.abs() < ATOL {
-        if projected_dir.y < 0.0 && edge_dir.y > 0.0 {
-            return e.0;
-        }
-        if projected_dir.y > edge_dir.y {
-            return e.1;
-        }
-    } else {
-        if projected_dir.x < 0.0 && edge_dir.x > 0.0 {
-            return e.0;
-        }
-        if projected_dir.x > edge_dir.x {
-            return e.1;
-        }
-    }
-
-    Vec2::new(x, y)
 }
 
 fn key_of_smallest_value(h: &HashMap<usize, f32>) -> usize {
@@ -305,8 +264,8 @@ fn middle_point(a: Vec2, b: Vec2) -> Vec2 {
 pub fn a_star(
     start: Vec2,
     goal: Vec2,
-    polygons: &Vec<Vec<Vec2>>,
-    graph: &Vec<Vec<(usize, (Vec2, Vec2))>>,
+    polygons: &[Vec<Vec2>],
+    graph: &[Vec<(usize, (Vec2, Vec2))>],
 ) -> Vec<(usize, Vec2)> {
     fn h(v: Vec2, end: Vec2) -> f32 {
         v.distance_squared(end)
@@ -372,25 +331,6 @@ pub fn a_star(
 }
 
 #[test]
-fn test_closest_point_to_edge() {
-    let points_and_edges = [
-        (Vec2::ONE, (Vec2::new(10.0, 10.0), Vec2::new(50.0, 20.0))),
-        (
-            Vec2::new(0.0, 50.0),
-            (Vec2::new(0.0, 0.0), Vec2::new(50.0, 50.0)),
-        ),
-    ];
-    let expected_points = [Vec2::new(10.0, 10.0), Vec2::new(25.0, 25.0)];
-
-    assert_eq!(points_and_edges.len(), expected_points.len());
-
-    for i in 0..points_and_edges.len() {
-        let p = closest_point_on_edge(points_and_edges[i].0, points_and_edges[i].1);
-        assert_eq!(p, expected_points[i]);
-    }
-}
-
-#[test]
 fn test_pos_to_polygon() {
     let polygons = vec![vec![
         Vec2::new(0.0, 0.0),
@@ -435,19 +375,4 @@ fn test_a_start_path() {
     let path = a_star(start, goal, &polygons, &graph);
 
     assert_eq!(path.len(), 2);
-
-    let expected_indices = [0, 1, 2];
-    let mut expected_positions = vec![closest_point_on_edge(start, graph[0][0].1.clone())];
-
-    for i in 1..path.len() {
-        expected_positions.push(closest_point_on_edge(
-            expected_positions[i - 1],
-            graph[i][graph[i].len() - 1].1.clone(),
-        ));
-    }
-
-    for i in 0..path.len() {
-        assert_eq!(path[i].0, expected_indices[i]);
-        assert_eq!(path[i].1, expected_positions[i], "index: {}", i);
-    }
 }

@@ -55,21 +55,19 @@ fn update_target_positions(
 
         let pos = if path.is_empty() {
             target_transform.translation().truncate()
-        } else {
-            if enemy_transform
-                .translation()
-                .truncate()
-                .distance_squared(path[0].1)
-                < 1e-05
-            {
-                if path.len() == 1 {
-                    target_transform.translation().truncate()
-                } else {
-                    path[1].1
-                }
+        } else if enemy_transform
+            .translation()
+            .truncate()
+            .distance_squared(path[0].1)
+            < 1e-05
+        {
+            if path.len() == 1 {
+                target_transform.translation().truncate()
             } else {
-                path[0].1
+                path[1].1
             }
+        } else {
+            path[0].1
         };
 
         // info!("p: {}, e: {}", pos, enemy_transform.translation.truncate());
