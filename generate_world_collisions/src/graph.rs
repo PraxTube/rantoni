@@ -1,26 +1,12 @@
 use bevy::prelude::*;
 
 use crate::{
-    is_ccw,
+    geometry::{collinear_ivec, is_ccw_ivec},
     matrix::{get_vertex_pairs, index_matrix},
-    Grid, TILE_SIZE,
+    Grid, Polygon, TILE_SIZE,
 };
 
-fn is_ccw_ivec(ivec_poly: &Vec<IVec2>) -> bool {
-    let mut poly = Vec::new();
-    for v in ivec_poly {
-        poly.push(Vec2::new(v.x as f32, v.y as f32));
-    }
-
-    is_ccw(&poly)
-}
-
-fn collinear(a: IVec2, b: IVec2, c: IVec2) -> bool {
-    let dir_ab = b - a;
-    let dir_bc = c - b;
-    dir_ab == dir_bc
-}
-
+// TODO: What does this do?
 fn get_polygon_vertices(vertices: &mut Vec<Vec<IVec2>>) -> Vec<IVec2> {
     while vertices.len() > 1 {
         let mut group_index = 0;
@@ -101,14 +87,14 @@ fn minimal_vertices(v: &Vec<IVec2>) -> Vec<IVec2> {
     let mut redundant_vert_indices = Vec::new();
 
     let n = v.len();
-    if collinear(v[n - 1], v[0], v[1]) {
+    if collinear_ivec(v[n - 1], v[0], v[1]) {
         redundant_vert_indices.push(0);
     }
 
     for i in 1..n {
         // TODO: can you use (i + n - i) % n?
         // Would work for usize?
-        if collinear(v[i - 1], v[i], v[(i + 1) % n]) {
+        if collinear_ivec(v[i - 1], v[i], v[(i + 1) % n]) {
             redundant_vert_indices.push(i);
         }
     }
@@ -121,6 +107,7 @@ fn minimal_vertices(v: &Vec<IVec2>) -> Vec<IVec2> {
     minimal_vertices
 }
 
+// TODO: What does this do?
 fn disjoint_vertices(grid: &Grid) -> Vec<Vec<IVec2>> {
     let index_matrix = index_matrix(grid);
     let mut vertices: Vec<Vec<IVec2>> = Vec::new();
@@ -184,6 +171,7 @@ fn connected_vertices_without_hole(grid: &Grid) -> Vec<IVec2> {
     vertices[0].clone()
 }
 
+// TODO: What does this do?
 fn connected_vertices_with_holes(grid: &Grid) -> (Vec<IVec2>, Vec<Vec<IVec2>>) {
     let mut vertices = disjoint_vertices(grid);
     let mut disjoint_polygons = Vec::new();
@@ -219,8 +207,8 @@ fn connected_vertices(grid: &Grid) -> (Vec<IVec2>, Vec<Vec<IVec2>>) {
 }
 
 /// Vertices of the polygons, first is the outer polygon and the second is a list of inner polygons
-/// (empty if no inner polygons).
-pub fn polygons(grid: &Grid) -> (Vec<Vec2>, Vec<Vec<Vec2>>) {
+/// (empty if no inner polygons, i.e. no holes).
+pub fn polygons(grid: &Grid) -> (Polygon, Vec<Polygon>) {
     fn ivec_to_vec2(i: &IVec2) -> Vec2 {
         Vec2::new(i.x as f32, i.y as f32) / 2.0 * TILE_SIZE
     }
@@ -243,6 +231,7 @@ pub fn polygons(grid: &Grid) -> (Vec<Vec2>, Vec<Vec<Vec2>>) {
     (outer_polygon, inner_polygons)
 }
 
+// TODO: What does this do?
 pub fn disjoint_graphs_walkable(grid: &Grid) -> Vec<Vec<IVec2>> {
     let mut disjoint_graphs = Vec::new();
     let mut positions = grid.positions.clone();
@@ -295,6 +284,7 @@ pub fn disjoint_graphs_walkable(grid: &Grid) -> Vec<Vec<IVec2>> {
     disjoint_graphs
 }
 
+// TODO: What does this do?
 pub fn disjoint_graphs_colliders(grid: &Grid) -> Vec<Vec<IVec2>> {
     let mut reversed_matrix = vec![vec![1; (grid.size.y - 1) as usize]; (grid.size.x - 1) as usize];
 

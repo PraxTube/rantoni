@@ -5,13 +5,11 @@ use bevy_ecs_ldtk::prelude::*;
 use bevy_prototype_lyon::prelude::*;
 
 use bevy_rancic::prelude::ToggleDebugStateEvent;
-use generate_world_collisions::{deserialize_polygons, is_ccw, MAP_POLYGON_DATA};
+use generate_world_collisions::{deserialize_polygons, is_ccw, ATOL, MAP_POLYGON_DATA};
 
 use crate::{GameAssets, GameState};
 
 const Z_LEVEL_BACKGROUND: f32 = -999.0;
-// TODO: Use this across everywhere?
-const ATOL: f32 = 1e-05;
 
 // const NAVMESH_FILL_COLORS: [Srgba; 10] = [
 //     RED, AQUA, BLUE, GREEN, MAROON, NAVY, OLIVE, TEAL, YELLOW, PURPLE,
@@ -212,7 +210,7 @@ fn pos_in_poly(poly: &Vec<Vec2>, v: Vec2) -> bool {
         if area(a, b, v) == 0.0 {
             return true;
         }
-        //
+        // Because poly is counter-clockwise oriented, the point lies outside the poly.
         if !left(a, b, v) {
             return false;
         }

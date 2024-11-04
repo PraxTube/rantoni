@@ -1,10 +1,5 @@
 use bevy::prelude::*;
 
-// TODO: Adjust? Do you want to read that in from ldtk world? Or at least make it pub so you only
-// have one place were you define it.
-pub const TILE_SIZE: f32 = 32.0;
-pub const LDTK_FILE: &str = "map/map.ldtk";
-
 #[derive(Resource)]
 pub struct Grid {
     pub size: IVec2,

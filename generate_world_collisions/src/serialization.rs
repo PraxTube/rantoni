@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-pub const MAP_POLYGON_DATA: &str = "assets/map/polygons.data";
+use crate::Polygon;
 
-pub fn serialize_polygons(polygons: &[Vec<Vec2>]) -> String {
+pub fn serialize_polygons(polygons: &[Polygon]) -> String {
     polygons
         .iter()
         .map(|polygon| {
@@ -16,7 +16,7 @@ pub fn serialize_polygons(polygons: &[Vec<Vec2>]) -> String {
         .join("|")
 }
 
-fn deserialize_part(serialized_part: &str) -> Vec<Vec<Vec2>> {
+fn deserialize_part(serialized_part: &str) -> Vec<Polygon> {
     let mut polygons = Vec::new();
     for serialized_polygon in serialized_part.split('|') {
         let mut polygon = Vec::new();
@@ -33,7 +33,10 @@ fn deserialize_part(serialized_part: &str) -> Vec<Vec<Vec2>> {
     polygons
 }
 
-pub fn deserialize_polygons(serialized_polygons: &str) -> (Vec<Vec<Vec2>>, Vec<Vec<Vec2>>) {
+/// Deserialize the given serialized map_polygon_data string.
+/// Returns a tuple where the first entry are the navmesh polygons and the second entry contains
+/// the collider polygons.
+pub fn deserialize_polygons(serialized_polygons: &str) -> (Vec<Polygon>, Vec<Polygon>) {
     let serialized_parts = serialized_polygons.split('\n').collect::<Vec<&str>>();
     assert_eq!(serialized_parts.len(), 2);
 

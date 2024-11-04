@@ -11,8 +11,7 @@ use bevy_ecs_ldtk::prelude::*;
 use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::prelude::*;
 use generate_world_collisions::{
-    decompose_poly, disjoint_graphs_colliders, disjoint_graphs_walkable, polygons,
-    serialize_polygons, Grid, LDTK_FILE, MAP_POLYGON_DATA,
+    decompose_poly, serialize_polygons, Grid, LDTK_FILE, MAP_POLYGON_DATA,
 };
 
 fn main() {
@@ -82,33 +81,19 @@ fn add_cells(mut grid: ResMut<Grid>, q_grid_coords: Query<&GridCoords, Added<Int
 }
 
 fn compute_navmesh_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
-    let mut navmesh_polygons = Vec::new();
-    for graph in disjoint_graphs_walkable(&grid) {
-        let grid = Grid {
-            size: grid.size,
-            positions: graph,
-            is_navmesh: true,
-        };
-        let (outer_polygon, inner_polygons) = polygons(&grid);
-
-        navmesh_polygons.append(&mut decompose_poly(&outer_polygon, &inner_polygons));
-    }
-    navmesh_polygons
+    decompose_poly(&Grid {
+        size: grid.size,
+        positions: grid.positions.clone(),
+        is_navmesh: true,
+    })
 }
 
 fn compute_collier_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
-    let mut collider_polygons = Vec::new();
-    for graph in disjoint_graphs_colliders(grid) {
-        let grid = Grid {
-            size: grid.size,
-            positions: graph,
-            is_navmesh: false,
-        };
-        let (outer_polygon, inner_polygons) = polygons(&grid);
-
-        collider_polygons.append(&mut decompose_poly(&outer_polygon, &inner_polygons));
-    }
-    collider_polygons
+    decompose_poly(&Grid {
+        size: grid.size,
+        positions: grid.positions.clone(),
+        is_navmesh: false,
+    })
 }
 
 fn compute_and_save_shapes(grid: Res<Grid>, mut app_exit_events: EventWriter<AppExit>) {
