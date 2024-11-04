@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     geometry::{collinear_ivec, is_ccw_ivec},
     matrix::{get_vertex_pairs, index_matrix},
-    Grid, Polygon, TILE_SIZE,
+    Edge, Grid, Polygon, ATOL, TILE_SIZE,
 };
 
 // TODO: What does this do?
@@ -340,4 +340,60 @@ pub fn disjoint_graphs_colliders(grid: &Grid) -> Vec<Vec<IVec2>> {
         disjoint_graphs.push(current_positions);
     }
     disjoint_graphs
+}
+
+/// Return the edge that both polygons share.
+/// None if polygons are not adjacent.
+fn adjacency_edge(poly_a: &Polygon, poly_b: &Polygon) -> Option<Edge> {
+    let mut first_shared_vertex = None;
+    for v in poly_a {
+        for u in poly_b {
+            if !v.abs_diff_eq(*u, ATOL) {
+                continue;
+            }
+
+            match first_shared_vertex {
+                Some(shared_vertex) => {
+                    return {
+                        assert_ne!(
+                            shared_vertex, *u,
+                            "poly a: {:?}, poly b: {:?}",
+                            poly_a, poly_b
+                        );
+                        Some((shared_vertex, *u))
+                    }
+                }
+                None => first_shared_vertex = Some(*u),
+            };
+        }
+    }
+    None
+}
+
+/// Find adjacent polygons and return them in the form
+///     - Same len as number of polygons given
+///     - For each adjacent polygon to `i`, store in returned `graph[i]`
+///       the index `j` of the adjacent polygon and the Edge: (Vec2, Vec2) they share.
+/// Note that for a navmesh every entry in this graph should be NOT EMPTY.
+/// Otherwise the graph would be not be connected, which doesn't make a lot of sense in-game.
+pub fn construct_adjacency_graph(navmesh_polygons: &[Polygon]) -> Vec<Vec<(usize, Edge)>> {
+    let mut graph = Vec::new();
+
+    // Find adjacency polygons
+    for (i, poly) in navmesh_polygons.iter().enumerate() {
+        graph.push(Vec::new());
+        for (j, other_poly) in navmesh_polygons.iter().enumerate() {
+            if i == j {
+                continue;
+            }
+
+            let Some(edge) = adjacency_edge(poly, other_poly) else {
+                continue;
+            };
+
+            // j is a neigbhour of i, with `edge` the shared edge between them
+            graph[i].push((j, (edge.0, edge.1)));
+        }
+    }
+    graph
 }

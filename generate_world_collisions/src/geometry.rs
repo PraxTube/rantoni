@@ -94,6 +94,38 @@ pub fn collinear_ivec(a: IVec2, b: IVec2, c: IVec2) -> bool {
     dir_ab == dir_bc
 }
 
+/// Given a counter-clockwise (ccw) oriented `Polygon`, will determine whether or not the point lies in the
+/// polygon or not. Panics if polygon not ccw.
+pub fn point_in_polygon(poly: &Polygon, v: Vec2) -> bool {
+    assert!(is_ccw(poly));
+    assert!(poly.len() > 2);
+    for i in 0..poly.len() {
+        let (a, b) = (poly[i], poly[(i + 1) % poly.len()]);
+        // Collinear
+        if area(a, b, v) == 0.0 {
+            return true;
+        }
+        // Because poly is counter-clockwise oriented, the point lies outside the poly.
+        if !left(a, b, v) {
+            return false;
+        }
+    }
+    true
+}
+
+/// Return index of the polygon the given point lies in.
+/// Null if the point doesn't lie in any polygon.
+pub fn point_to_polygon_index(polygons: &[Polygon], v: Vec2) -> Option<usize> {
+    for (i, poly) in polygons.iter().enumerate() {
+        // Point is left for all edges of this polygon, so it must be inside
+        // `https://inginious.org/course/competitive-programming/geometry-pointinconvex#`
+        if point_in_polygon(poly, v) {
+            return Some(i);
+        }
+    }
+    None
+}
+
 #[test]
 fn test_closest_point_to_edge() {
     let points_and_edges = [
