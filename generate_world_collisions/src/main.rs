@@ -1,9 +1,6 @@
 #![allow(clippy::too_many_arguments, clippy::type_complexity)]
 
-mod decomposition;
-mod graph;
-mod serialization;
-
+use std::fs;
 use std::time::Duration;
 
 use bevy::prelude::*;
@@ -13,37 +10,10 @@ use bevy::window::{PresentMode, Window, WindowMode};
 use bevy_ecs_ldtk::prelude::*;
 use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use decomposition::decompose_poly;
-use graph::{disjoint_graphs_colliders, disjoint_graphs_walkable, polygons};
-use serialization::save_polygons;
-
-// TODO: Adjust? Do you want to read that in from ldtk world? Or at least make it pub so you only
-// have one place were you define it.
-const TILE_SIZE: f32 = 32.0;
-const LDTK_FILE: &str = "map/map.ldtk";
-
-#[derive(Resource)]
-struct Grid {
-    size: IVec2,
-    positions: Vec<IVec2>,
-    is_navmesh: bool,
-}
-
-impl Default for Grid {
-    fn default() -> Self {
-        Self {
-            // TODO: We need grid size + 1, presumably because we need to test one direction to the
-            // right and top and diagonal for each grid position, so for the top right corner we
-            // need to check the top right corner + 1, which are always supposed to be 0 anyways,
-            // so we can just instantiate them as 0's, as they will always be 0 when the grid is at
-            // most size big.
-            size: IVec2::new(17, 17),
-            positions: Vec::new(),
-            is_navmesh: true,
-        }
-    }
-}
+use generate_world_collisions::{
+    decompose_poly, disjoint_graphs_colliders, disjoint_graphs_walkable, polygons,
+    serialize_polygons, Grid, LDTK_FILE, MAP_POLYGON_DATA,
+};
 
 fn main() {
     App::new()
@@ -142,9 +112,11 @@ fn compute_collier_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
 }
 
 fn compute_and_save_shapes(grid: Res<Grid>, mut app_exit_events: EventWriter<AppExit>) {
-    save_polygons(
-        &compute_navmesh_shapes(&grid),
-        &compute_collier_shapes(&grid),
+    let contents = format!(
+        "{}\n{}",
+        serialize_polygons(&compute_navmesh_shapes(&grid)),
+        serialize_polygons(&compute_collier_shapes(&grid))
     );
+    fs::write(MAP_POLYGON_DATA, contents).unwrap();
     app_exit_events.send(AppExit::Success);
 }

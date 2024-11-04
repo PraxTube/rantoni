@@ -1,16 +1,11 @@
-use std::{cmp::Reverse, collections::BinaryHeap, fs, str::from_utf8};
+use std::{fs, str::from_utf8};
 
-use bevy::{
-    color::palettes::css::*,
-    prelude::*,
-    utils::{HashMap, HashSet},
-};
+use bevy::{color::palettes::css::*, prelude::*, utils::HashMap};
 use bevy_ecs_ldtk::prelude::*;
 use bevy_prototype_lyon::prelude::*;
 
 use bevy_rancic::prelude::ToggleDebugStateEvent;
 use generate_world_collisions::{deserialize_polygons, is_ccw, MAP_POLYGON_DATA};
-use rand::{thread_rng, Rng};
 
 use crate::{GameAssets, GameState};
 
@@ -82,8 +77,6 @@ fn insert_polygon_data(mut commands: Commands) {
 }
 
 fn spawn_navmesh_debug_shapes(mut commands: Commands, map_polygon_data: Res<MapPolygonData>) {
-    let mut rng = thread_rng();
-
     for (i, poly) in map_polygon_data.navmesh_polygons.iter().enumerate() {
         commands.spawn((
             DebugNavmeshPolygon,

@@ -1,12 +1,8 @@
-#![allow(dead_code)]
-
-use std::fs;
-
 use bevy::prelude::*;
 
 pub const MAP_POLYGON_DATA: &str = "assets/map/polygons.data";
 
-fn serialize_polygons(polygons: &[Vec<Vec2>]) -> String {
+pub fn serialize_polygons(polygons: &[Vec<Vec2>]) -> String {
     polygons
         .iter()
         .map(|polygon| {
@@ -45,13 +41,4 @@ pub fn deserialize_polygons(serialized_polygons: &str) -> (Vec<Vec<Vec2>>, Vec<V
         deserialize_part(serialized_parts[0]),
         deserialize_part(serialized_parts[1]),
     )
-}
-
-pub fn save_polygons(navmesh_polygons: &[Vec<Vec2>], collider_polygons: &[Vec<Vec2>]) {
-    let contents = format!(
-        "{}\n{}",
-        serialize_polygons(navmesh_polygons),
-        serialize_polygons(collider_polygons)
-    );
-    fs::write(MAP_POLYGON_DATA, contents).unwrap();
 }
