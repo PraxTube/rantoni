@@ -9,8 +9,64 @@ use crate::{
 type IGraph = Vec<IVec2>;
 type IPolygon = Vec<IVec2>;
 
-// TODO: What does this do?
-fn get_polygon_vertices(vertices: &mut Vec<Vec<IVec2>>) -> Vec<IVec2> {
+/// Get the disjoint vertices (essentially just the collection of raw edges).
+/// Uses the given grid to get the positions and then apply marching squares to get the countour of
+/// the polygons, which we save as edges (v1, v2).
+fn disjoint_vertices(grid: &Grid) -> Vec<Vec<IVec2>> {
+    let index_matrix = index_matrix(grid);
+    let mut vertices: Vec<Vec<IVec2>> = Vec::new();
+
+    // Convert indices to vertices
+    for i in 0..index_matrix.len() {
+        for j in 0..index_matrix.len() {
+            let vertex_pairs = get_vertex_pairs(index_matrix[i][j], i, j, grid.is_navmesh);
+            for vertex_pair in vertex_pairs {
+                let v_pair = vertex_pair
+                    .iter()
+                    .map(|v| *v + 2 * IVec2::new(i as i32, j as i32))
+                    .collect();
+                vertices.push(v_pair);
+            }
+        }
+    }
+    vertices
+}
+
+/// Compute the minimum vertices needed to describe the same polygon.
+/// Removes redundant vertices by checking for collinearity.
+/// It's not perfect I think, this is not the _absolute_ minimum, but it does get rid of a fair
+/// share of redundant vertices.
+fn minimal_vertices(v: &[IVec2]) -> Vec<IVec2> {
+    let mut redundant_vert_indices = Vec::new();
+    let n = v.len();
+    for i in 0..n {
+        if collinear_ivec(v[(i + n - 1) % n], v[i], v[(i + 1) % n]) {
+            redundant_vert_indices.push(i);
+        }
+    }
+    // Reverse so that we have a descending order, important when removing indices.
+    redundant_vert_indices.reverse();
+
+    let mut minimal_vertices = v.to_owned();
+    for index in redundant_vert_indices {
+        // We can just remove them as we know that the indices are descending.
+        minimal_vertices.remove(index);
+    }
+    minimal_vertices
+}
+
+/// Extract one (IVec2)Polygon from the given vertices.
+/// The input vertices are just edges, meaning they are not representing any polygons,
+/// that is what this function is for.
+///
+/// Note that, if there are no holes in the polygon described by the vertices, then this function
+/// will completely exhaust the vertices and return the underlying polygon.
+///
+/// If there are holes, then this function will return _one_ polygon, there is not guarantee about
+/// what type of polygon (outer or inner).
+fn extract_single_polygon(vertices: &mut Vec<Vec<IVec2>>) -> IPolygon {
+    // If there are holes in the polygon, then this condition will never evaluate to false.
+    // In that case the while will break after adding all possible vertices to the polygon.
     while vertices.len() > 1 {
         let mut group_index = 0;
         let mut is_finished = true;
@@ -35,9 +91,9 @@ fn get_polygon_vertices(vertices: &mut Vec<Vec<IVec2>>) -> Vec<IVec2> {
         new_group.remove(0);
         vertices[0].append(&mut new_group);
     }
-    let n = vertices[0].len() - 1;
     // First and last vertex should be equal, we now have a connected line, to bring it to a loop
     // we just remove the last vertex and it now "loops" to the first one.
+    let n = vertices[0].len() - 1;
     assert!(vertices[0][0] == vertices[0][n]);
     vertices[0].remove(n);
 
@@ -56,80 +112,17 @@ fn get_polygon_vertices(vertices: &mut Vec<Vec<IVec2>>) -> Vec<IVec2> {
     vertices.remove(extracted_poly.expect("There should always be a polygon at this stage"))
 }
 
-// TODO: Use above function get_polygon_vertices and simply check if the remaining vertices len
-fn has_holes(vertices: &[Vec<IVec2>]) -> bool {
-    let mut vertices = vertices.to_owned();
-    while vertices.len() > 1 {
-        let mut group_index = 0;
-        let mut has_hole = true;
-        for (i, vertex_group) in vertices.iter().enumerate() {
-            if i == 0 {
-                continue;
-            }
-
-            if vertices[0][vertices[0].len() - 1] == vertex_group[0] {
-                has_hole = false;
-                group_index = i;
-                break;
-            }
-        }
-
-        if has_hole {
-            return true;
-        }
-
-        assert!(group_index != 0);
-        let mut new_group = vertices.remove(group_index);
-        new_group.remove(0);
-        vertices[0].append(&mut new_group);
-    }
-    false
-}
-
-fn minimal_vertices(v: &[IVec2]) -> Vec<IVec2> {
-    let mut redundant_vert_indices = Vec::new();
-    let n = v.len();
-    for i in 0..n {
-        if collinear_ivec(v[(i + n - 1) % n], v[i], v[(i + 1) % n]) {
-            redundant_vert_indices.push(i);
-        }
-    }
-    // Reverse so that we have a descending order, important when removing indices.
-    redundant_vert_indices.reverse();
-
-    let mut minimal_vertices = v.to_owned();
-    for index in redundant_vert_indices {
-        // We can just remove them as we know that the indices are descending.
-        minimal_vertices.remove(index);
-    }
-    minimal_vertices
-}
-
-// TODO: What does this do?
-fn disjoint_vertices(grid: &Grid) -> Vec<Vec<IVec2>> {
-    let index_matrix = index_matrix(grid);
-    let mut vertices: Vec<Vec<IVec2>> = Vec::new();
-
-    // Convert indices to vertices
-    for i in 0..index_matrix.len() {
-        for j in 0..index_matrix.len() {
-            let vertex_pairs = get_vertex_pairs(index_matrix[i][j], i, j, grid.is_navmesh);
-            for vertex_pair in vertex_pairs {
-                let v_pair = vertex_pair
-                    .iter()
-                    .map(|v| *v + 2 * IVec2::new(i as i32, j as i32))
-                    .collect();
-                vertices.push(v_pair);
-            }
-        }
-    }
-    vertices
-}
-
-/// Merge disjoint graphs together until there is only one left
-/// We do can do this by simply checking if the last and the first element of any two graphs
+/// Calculate the outer and inner (IVec2)polygons of the given `Grid`.
+/// The first entry in the returned tuple is the outer polygon,
+/// the second entry is a `Vec` of the inner polygons (the holes), if any.
+///
+/// Merges disjoint graphs together until there is only one left (outer).
+/// If there are holes (inner polygons), then those will be in the second entry of the returned
+/// tuple.
+///
+/// The merging works by simply checking if the last and the first element of any two graphs
 /// match. We know that this must be true for for all graphs with one other graph because the
-/// whole collider must be closed and non-selfcrossing without loops.
+/// whole collider must be closed and non-selfcrossing.
 ///
 /// 0 --- 1 --- 2
 ///              \
@@ -139,44 +132,14 @@ fn disjoint_vertices(grid: &Grid) -> Vec<Vec<IVec2>> {
 ///                  \       /
 ///                   1 --- 0
 ///
-/// This for example, the first three vertices are already connected into one graph, then 2 and
-/// 0 share one graph (edge in this case because I didn't draw it propely).
-fn connected_vertices_without_hole(disjoint_vertices: &mut Vec<Vec<IVec2>>) -> IPolygon {
-    while disjoint_vertices.len() > 1 {
-        let mut group_index = 0;
-        for (i, vertex_group) in disjoint_vertices.iter().enumerate() {
-            if i == 0 {
-                continue;
-            }
-
-            if disjoint_vertices[0][disjoint_vertices[0].len() - 1] == vertex_group[0] {
-                group_index = i;
-                break;
-            }
-        }
-
-        assert!(group_index != 0);
-        let mut new_group = disjoint_vertices.remove(group_index);
-        new_group.remove(0);
-        disjoint_vertices[0].append(&mut new_group);
-    }
-    // First and last vertex should be equal, we now have a connected line, to bring it to a loop
-    // we just remove the last vertex and it now "loops" to the first one.
-    let n = disjoint_vertices[0].len() - 1;
-    assert!(disjoint_vertices[0][0] == disjoint_vertices[0][n]);
-    disjoint_vertices[0].remove(n);
-    assert_eq!(disjoint_vertices.len(), 1);
-    disjoint_vertices[0].clone()
-}
-
-// TODO: What does this do?
-fn connected_vertices_with_holes(
-    disjoint_vertices: &mut Vec<Vec<IVec2>>,
-) -> (IPolygon, Vec<IPolygon>) {
+/// Take this for example, the first three vertices are already connected into one graph, then 2 and
+/// 0 share one vertex (edge in this case because I didn't draw it propely).
+fn outer_inner_ipolygons(grid: &Grid) -> (IPolygon, Vec<IPolygon>) {
+    let mut disjoint_vertices = disjoint_vertices(grid);
     let mut disjoint_polygons = Vec::new();
 
     while !disjoint_vertices.is_empty() {
-        disjoint_polygons.push(get_polygon_vertices(disjoint_vertices));
+        disjoint_polygons.push(extract_single_polygon(&mut disjoint_vertices));
     }
 
     let mut outer_polygon_index = None;
@@ -190,22 +153,9 @@ fn connected_vertices_with_holes(
             outer_polygon_index = Some(i);
         }
     }
-    let outer_polygon =
-        disjoint_polygons.remove(outer_polygon_index.expect("There must always be outer polygon"));
+    let outer_polygon = disjoint_polygons
+        .remove(outer_polygon_index.expect("There must always be one outer polygon"));
     (outer_polygon, disjoint_polygons)
-}
-
-/// Calculate the outer and inner (IVec2)polygons of the given `Grid`.
-/// The first entry in the returned tuple is the outer polygon,
-/// the second entry is a `Vec` of the inner polygons (the holes), if any.
-fn outer_inner_ipolygons(grid: &Grid) -> (IPolygon, Vec<IPolygon>) {
-    let mut vertices = disjoint_vertices(grid);
-
-    if !has_holes(&vertices) {
-        (connected_vertices_without_hole(&mut vertices), Vec::new())
-    } else {
-        connected_vertices_with_holes(&mut vertices)
-    }
 }
 
 /// Calculate the outer and inner polygons of the given `Grid`.
