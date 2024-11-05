@@ -37,7 +37,7 @@ fn deserialize_part(serialized_part: &str) -> Vec<Polygon> {
 /// Returns a tuple where the first entry are the navmesh polygons and the second entry contains
 /// the collider polygons.
 pub fn deserialize_polygons(serialized_polygons: &str) -> (Vec<Polygon>, Vec<Polygon>) {
-    let serialized_parts = serialized_polygons.split('\n').collect::<Vec<&str>>();
+    let serialized_parts = serialized_polygons.lines().collect::<Vec<&str>>();
     assert_eq!(serialized_parts.len(), 2);
 
     (
