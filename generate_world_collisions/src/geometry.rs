@@ -2,18 +2,6 @@ use bevy::prelude::*;
 
 use crate::{construct_adjacency_graph, Edge, Polygon, ATOL};
 
-fn wrap(a: i32, b: i32) -> usize {
-    if a < 0 {
-        (a % b + b) as usize
-    } else {
-        (a % b) as usize
-    }
-}
-
-fn at(poly: &[Vec2], index: i32) -> Vec2 {
-    poly[wrap(index, poly.len() as i32)]
-}
-
 fn area(a: Vec2, b: Vec2, c: Vec2) -> f32 {
     ((b.x - a.x) * (c.y - a.y)) - ((c.x - a.x) * (b.y - a.y))
 }
@@ -71,17 +59,14 @@ fn closest_point_on_edge(p: Vec2, e: (Vec2, Vec2)) -> Vec2 {
 
 pub fn is_ccw(poly: &Polygon) -> bool {
     let mut br = 0;
-    for i in 1..poly.len() {
+    let n = poly.len();
+    for i in 1..n {
         if poly[i].y < poly[br].y || (poly[i].y == poly[br].y && poly[i].x > poly[br].x) {
             br = i;
         }
     }
 
-    left(
-        at(poly, br as i32 - 1),
-        at(poly, br as i32),
-        at(poly, br as i32 + 1),
-    )
+    left(poly[(br + n - 1) % n], poly[br], poly[(br + 1) % n])
 }
 
 pub fn is_ccw_ivec(ivec_poly: &Vec<IVec2>) -> bool {
