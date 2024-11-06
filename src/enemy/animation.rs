@@ -19,10 +19,10 @@ fn update_animations(
         );
 
         if &animation == animator.animation_clip() {
-            return;
+            continue;
         }
         if !repeat && animation_state == enemy.state_machine.animation_state() {
-            return;
+            continue;
         }
         enemy.state_machine.set_animation_state(animation_state);
 

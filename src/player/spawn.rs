@@ -43,7 +43,6 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
                 root_entity: entity,
             },
             Collider::ball(10.0),
-            ActiveEvents::COLLISION_EVENTS,
             // TODO: Disable player - enemy collision when the player is sliding
             // Though only start doing this once you have some world collisions (like walls) in the
             // game, otherwise you can't really properly test this.

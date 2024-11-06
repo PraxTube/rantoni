@@ -49,18 +49,15 @@ fn update_target_positions(
         (With<PathfindingTarget>, Without<PathfindingSource>),
     >,
     mut q_enemies: Query<&mut Enemy>,
-    mut q_pathfinding_sources: Query<(&Parent, &GlobalTransform, &mut PathfindingSource)>,
+    mut q_pathfinding_sources: Query<(&GlobalTransform, &mut PathfindingSource)>,
 ) {
-    for (parent, pf_source_transform, mut pf_source) in &mut q_pathfinding_sources {
-        let Ok(mut enemy) = q_enemies.get_mut(parent.get()) else {
+    for (pf_source_transform, mut pf_source) in &mut q_pathfinding_sources {
+        let Ok(mut enemy) = q_enemies.get_mut(pf_source.root_entity) else {
             continue;
         };
         let Some(pf_taget_entity) = pf_source.target else {
             continue;
         };
-
-        // TODO: Reimplement this to work with multiple enemies(/players?)
-        // let Some(target) = enemy.target else { continue };
         let Ok(target_transform) = q_pf_target_transforms.get(pf_taget_entity) else {
             continue;
         };
@@ -76,11 +73,10 @@ fn update_target_positions(
         let pos = if path.len() < 2 {
             target_transform.translation().truncate()
         } else {
-            // Check triangle
             let path_dir = path[1] - path[0];
             let dir = pf_source_transform.translation().truncate() - path[0];
 
-            // Enemy is left to orthogonal vector, meaning it's already passed `path[0]`
+            // Enemy is already past `path[0]`, so skip to the next point on path.
             if dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_LEFT)) >= 0.0
                 && dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_RIGHT)) <= 0.0
                 || pf_source_transform
