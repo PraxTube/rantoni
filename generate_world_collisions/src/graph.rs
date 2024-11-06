@@ -19,7 +19,7 @@ fn disjoint_vertices(grid: &Grid) -> Vec<Vec<IVec2>> {
     // Convert indices to vertices
     for i in 0..index_matrix.len() {
         for j in 0..index_matrix.len() {
-            let vertex_pairs = get_vertex_pairs(index_matrix[i][j], i, j, grid.is_navmesh);
+            let vertex_pairs = get_vertex_pairs(index_matrix[i][j], i, j, grid.is_walkable);
             for vertex_pair in vertex_pairs {
                 let v_pair = vertex_pair
                     .iter()
@@ -236,6 +236,7 @@ fn construct_disjoint_graphs(
 /// It treats the positions in the `Grid` as walkable.
 /// The returned `Vec` contains disjoint graphs with their positions on the 2D grid.
 pub fn disjoint_graphs_walkable(grid: &Grid) -> Vec<IGraph> {
+    assert!(grid.is_walkable);
     let mut positions = grid.positions.clone();
 
     let mut graph = vec![vec![0; grid.size.y as usize]; grid.size.x as usize];
@@ -250,6 +251,7 @@ pub fn disjoint_graphs_walkable(grid: &Grid) -> Vec<IGraph> {
 /// This will reverse the positions (as it treats the positions in the grid as walkable).
 /// The returned `Vec` contains disjoint graphs with their positions on the 2D grid.
 pub fn disjoint_graphs_colliders(grid: &Grid) -> Vec<IGraph> {
+    assert!(!grid.is_walkable);
     let mut reversed_matrix = vec![vec![1; (grid.size.y - 1) as usize]; (grid.size.x - 1) as usize];
     for pos in &grid.positions {
         reversed_matrix[pos.x as usize][pos.y as usize] = 0;

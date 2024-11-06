@@ -1,5 +1,6 @@
 mod pathfinding;
 
+use bevy_rancic::prelude::ToggleDebugStateEvent;
 pub use pathfinding::a_star;
 
 use std::{fs, str::from_utf8};
@@ -8,18 +9,11 @@ use bevy::{color::palettes::css::*, prelude::*};
 use bevy_ecs_ldtk::prelude::*;
 use bevy_prototype_lyon::prelude::*;
 
-use bevy_rancic::prelude::ToggleDebugStateEvent;
-use generate_world_collisions::{
-    construct_adjacency_graph, deserialize_polygons, MAP_POLYGON_DATA,
-};
+use generate_world_collisions::{deserialize_polygons, MAP_POLYGON_DATA, TILE_SIZE};
 
 use crate::{GameAssets, GameState};
 
 const Z_LEVEL_BACKGROUND: f32 = -999.0;
-
-// const NAVMESH_FILL_COLORS: [Srgba; 10] = [
-//     RED, AQUA, BLUE, GREEN, MAROON, NAVY, OLIVE, TEAL, YELLOW, PURPLE,
-// ];
 
 pub struct WorldMapPlugin;
 
@@ -35,8 +29,8 @@ impl Plugin for WorldMapPlugin {
                 Update,
                 (
                     spawn_navmesh_debug_shapes.run_if(resource_added::<MapPolygonData>),
-                    toggle_navmesh_polygons_visibility.run_if(on_event::<ToggleDebugStateEvent>()),
                     debug_enemy_pathfinding.run_if(resource_exists::<MapPolygonData>),
+                    toggle_navmesh_polygons_visibility.run_if(on_event::<ToggleDebugStateEvent>()),
                 ),
             );
     }
@@ -52,9 +46,8 @@ struct DebugNavmeshPolygon;
 
 #[derive(Resource)]
 pub struct MapPolygonData {
-    pub navmesh_polygons: Vec<Vec<Vec2>>,
+    pub grid_matrix: Vec<Vec<u8>>,
     pub collider_polygons: Vec<Vec<Vec2>>,
-    pub adjacency_graph: Vec<Vec<(usize, (Vec2, Vec2))>>,
 }
 
 fn spawn_ldtk_world(mut commands: Commands, assets: Res<GameAssets>) {
@@ -69,39 +62,55 @@ fn insert_polygon_data(mut commands: Commands) {
     let serialized_buffer = fs::read(MAP_POLYGON_DATA).expect("failed to read map polygon data");
     let serialized_data =
         from_utf8(&serialized_buffer).expect("invalid UTF-8 sequence in map polygon data");
-    let (navmesh_polygons, collider_polygons) = deserialize_polygons(serialized_data);
-
-    let adjacency_graph = construct_adjacency_graph(&navmesh_polygons);
+    let (grid_matrix, collider_polygons) = deserialize_polygons(serialized_data);
 
     commands.insert_resource(MapPolygonData {
-        navmesh_polygons,
+        grid_matrix,
         collider_polygons,
-        adjacency_graph,
     });
 }
 
 fn spawn_navmesh_debug_shapes(mut commands: Commands, map_polygon_data: Res<MapPolygonData>) {
-    for (i, poly) in map_polygon_data.navmesh_polygons.iter().enumerate() {
-        commands.spawn((
-            DebugNavmeshPolygon,
-            ShapeBundle {
-                path: GeometryBuilder::build_as(&shapes::Polygon {
-                    points: poly.clone(),
-                    closed: true,
-                }),
-                spatial: SpatialBundle {
-                    transform: Transform::from_xyz(0.0, 0.0, Z_LEVEL_BACKGROUND + 10.0),
-                    visibility: Visibility::Hidden,
+    for i in 0..map_polygon_data.grid_matrix.len() {
+        for j in 0..map_polygon_data.grid_matrix[i].len() {
+            if map_polygon_data.grid_matrix[i][j] == 0 {
+                continue;
+            }
+
+            let color = if i % 2 == 0 {
+                if j % 2 == 0 {
+                    RED
+                } else {
+                    DARK_RED
+                }
+            } else if j % 2 == 0 {
+                DARK_RED
+            } else {
+                RED
+            };
+
+            commands.spawn((
+                DebugNavmeshPolygon,
+                ShapeBundle {
+                    path: GeometryBuilder::build_as(&shapes::Rectangle {
+                        // extents: Vec2::new(TILE_SIZE / 2.0, TILE_SIZE / 2.0),
+                        extents: Vec2::new(TILE_SIZE, TILE_SIZE),
+                        origin: RectangleOrigin::Center,
+                    }),
+                    spatial: SpatialBundle {
+                        transform: Transform::from_xyz(
+                            i as f32 * TILE_SIZE,
+                            j as f32 * TILE_SIZE,
+                            Z_LEVEL_BACKGROUND + 10.0,
+                        ),
+                        visibility: Visibility::Hidden,
+                        ..default()
+                    },
                     ..default()
                 },
-                ..default()
-            },
-            Fill::color(Color::srgb(
-                i as f32 / map_polygon_data.navmesh_polygons.len() as f32,
-                0.0,
-                0.0,
-            )),
-        ));
+                Fill::color(color),
+            ));
+        }
     }
 }
 
@@ -131,15 +140,10 @@ fn debug_enemy_pathfinding(
         let start = enemy_transform.translation().truncate();
         let end = player_transform.translation().truncate();
 
-        let mut path = a_star(
-            start,
-            end,
-            &map_polygon_data.navmesh_polygons,
-            &map_polygon_data.adjacency_graph,
-        );
+        let mut path = a_star(start, end, &map_polygon_data.grid_matrix);
 
-        path.insert(0, (0, start));
-        path.push((0, end));
+        path.insert(0, start);
+        path.push(end);
 
         for i in 0..path.len() - 1 {
             let color = Srgba::new(
@@ -148,30 +152,7 @@ fn debug_enemy_pathfinding(
                 LIGHT_GREEN.blue,
                 1.0,
             );
-            gizmos.line_2d(path[i].1, path[i + 1].1, color);
+            gizmos.line_2d(path[i], path[i + 1], color);
         }
     }
-}
-
-#[test]
-fn test_a_start_path() {
-    let start = Vec2::new(2.0, 2.0);
-    let goal = Vec2::new(7.0, 16.0);
-    let polygons = vec![
-        vec![Vec2::ZERO, Vec2::new(10.0, 0.0), Vec2::new(10.0, 10.0)],
-        vec![
-            Vec2::new(10.0, 10.0),
-            Vec2::new(10.0, 0.0),
-            Vec2::new(20.0, 5.0),
-        ],
-        vec![
-            Vec2::new(5.0, 20.0),
-            Vec2::new(10.0, 10.0),
-            Vec2::new(20.0, 5.0),
-        ],
-    ];
-    let graph = construct_adjacency_graph(&polygons);
-    let path = a_star(start, goal, &polygons, &graph);
-
-    assert_eq!(path.len(), 2);
 }

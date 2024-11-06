@@ -11,7 +11,8 @@ use bevy_ecs_ldtk::prelude::*;
 use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::prelude::*;
 use generate_world_collisions::{
-    decompose_poly, merge_convex_polygons, serialize_polygons, Grid, LDTK_FILE, MAP_POLYGON_DATA,
+    decompose_poly, grid_matrix, merge_convex_polygons, serialize_grid_matrix, serialize_polygons,
+    Grid, LDTK_FILE, MAP_POLYGON_DATA,
 };
 
 fn main() {
@@ -80,21 +81,11 @@ fn add_cells(mut grid: ResMut<Grid>, q_grid_coords: Query<&GridCoords, Added<Int
     }
 }
 
-fn compute_navmesh_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
-    let mut polygons = decompose_poly(&Grid {
-        size: grid.size,
-        positions: grid.positions.clone(),
-        is_navmesh: true,
-    });
-    merge_convex_polygons(&mut polygons);
-    polygons
-}
-
 fn compute_collier_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
     let mut polygons = decompose_poly(&Grid {
         size: grid.size,
         positions: grid.positions.clone(),
-        is_navmesh: false,
+        is_walkable: false,
     });
     merge_convex_polygons(&mut polygons);
     polygons
@@ -103,7 +94,7 @@ fn compute_collier_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
 fn compute_and_save_shapes(grid: Res<Grid>, mut app_exit_events: EventWriter<AppExit>) {
     let contents = format!(
         "{}\n{}",
-        serialize_polygons(&compute_navmesh_shapes(&grid)),
+        serialize_grid_matrix(&grid_matrix(&grid)),
         serialize_polygons(&compute_collier_shapes(&grid))
     );
     fs::write(MAP_POLYGON_DATA, contents).unwrap();

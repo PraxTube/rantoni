@@ -1,21 +1,33 @@
 use bevy::{prelude::*, utils::HashMap};
+use generate_world_collisions::TILE_SIZE;
 
-use generate_world_collisions::{point_to_polygon_index, Edge, Polygon};
+#[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
+struct USVec2 {
+    x: usize,
+    y: usize,
+}
 
-fn reconstruct_path(
-    parents: &[Option<(usize, Vec2)>],
-    mut current_node: (usize, Vec2),
-) -> Vec<(usize, Vec2)> {
+impl USVec2 {
+    fn new(x: usize, y: usize) -> Self {
+        Self { x, y }
+    }
+
+    fn to_vec2(&self) -> Vec2 {
+        Vec2::new(self.x as f32 * TILE_SIZE, self.y as f32 * TILE_SIZE)
+    }
+}
+
+fn reconstruct_path(parents: &[Vec<Option<USVec2>>], mut current_node: USVec2) -> Vec<Vec2> {
     let mut path = Vec::new();
-    while let Some(parent) = parents[current_node.0] {
+    while let Some(parent) = parents[current_node.x][current_node.y] {
         current_node = parent;
-        path.push(current_node);
+        path.push(current_node.to_vec2());
     }
     path.reverse();
     path
 }
 
-fn key_of_smallest_value(h: &HashMap<usize, f32>) -> usize {
+fn key_of_smallest_value(h: &HashMap<USVec2, f32>) -> USVec2 {
     let mut smallest_value = f32::MAX;
     let mut current_key = None;
     for (key, value) in h {
@@ -27,116 +39,159 @@ fn key_of_smallest_value(h: &HashMap<usize, f32>) -> usize {
     *current_key.expect("Something went very wrong with you smallest value in hashmap fn")
 }
 
-fn middle_point(e: Edge) -> Vec2 {
-    e.0 + (e.1 - e.0) / 2.0
+fn point_to_matrix_indices(grid_matrix: &Vec<Vec<u8>>, p: Vec2) -> Option<USVec2> {
+    let u = if p.x < 0.0 || p.y < 0.0 {
+        USVec2::new(0, 0)
+    } else {
+        let u = USVec2::new(
+            ((p.x + TILE_SIZE / 2.0) / TILE_SIZE) as usize,
+            ((p.y + TILE_SIZE / 2.0) / TILE_SIZE) as usize,
+        );
+        USVec2::new(u.x.min(grid_matrix.len()), u.y.min(grid_matrix[0].len()))
+    };
+
+    if grid_matrix[u.x][u.y] == 1 {
+        return Some(u);
+    }
+
+    info!("find closest point");
+
+    // Find closest walkable grid index
+    let mut distance_to_neighbours = Vec::new();
+    for neigbhour in grid_neigbhours(grid_matrix, u) {
+        distance_to_neighbours.push((neigbhour, neigbhour.to_vec2().distance_squared(p)));
+    }
+    distance_to_neighbours.sort_by(|a, b| a.1.total_cmp(&b.1));
+    // This should ONLY happen when out of bounds
+    if distance_to_neighbours.is_empty() {
+        return None;
+    }
+    Some(distance_to_neighbours[0].0)
 }
 
-pub fn a_star(
-    start: Vec2,
-    goal: Vec2,
-    polygons: &[Polygon],
-    graph: &[Vec<(usize, Edge)>],
-) -> Vec<(usize, Vec2)> {
+fn grid_neigbhours(grid_matrix: &Vec<Vec<u8>>, u: USVec2) -> Vec<USVec2> {
+    let mut neigbhours = Vec::new();
+    // TODO: Check for upper boundary (grid size)
+    if u.x > 0 {
+        let w = USVec2::new(u.x - 1, u.y);
+        if grid_matrix[w.x][w.y] != 0 {
+            neigbhours.push(w);
+        }
+        let w = USVec2::new(u.x - 1, u.y + 1);
+        if grid_matrix[w.x][w.y] != 0 {
+            neigbhours.push(w);
+        }
+    }
+    if u.y > 0 {
+        let w = USVec2::new(u.x, u.y - 1);
+        if grid_matrix[w.x][w.y] != 0 {
+            neigbhours.push(w);
+        }
+        let w = USVec2::new(u.x + 1, u.y - 1);
+        if grid_matrix[w.x][w.y] != 0 {
+            neigbhours.push(w);
+        }
+    }
+    if u.x > 0 && u.y > 0 {
+        let w = USVec2::new(u.x - 1, u.y - 1);
+        if grid_matrix[w.x][w.y] != 0 {
+            neigbhours.push(w);
+        }
+    }
+    let w = USVec2::new(u.x + 1, u.y);
+    if grid_matrix[w.x][w.y] != 0 {
+        neigbhours.push(w);
+    }
+    let w = USVec2::new(u.x, u.y + 1);
+    if grid_matrix[w.x][w.y] != 0 {
+        neigbhours.push(w);
+    }
+    let w = USVec2::new(u.x + 1, u.y + 1);
+    if grid_matrix[w.x][w.y] != 0 {
+        neigbhours.push(w);
+    }
+    neigbhours
+}
+
+pub fn a_star(start: Vec2, goal: Vec2, grid_matrix: &Vec<Vec<u8>>) -> Vec<Vec2> {
+    // info!(
+    //     "{}, {:?}",
+    //     goal,
+    //     point_to_matrix_indices(&grid_matrix, goal)
+    // );
+    // return Vec::new();
     fn h(v: Vec2, end: Vec2) -> f32 {
         v.distance_squared(end)
     }
 
-    fn d(p: Vec2, e: (Vec2, Vec2)) -> f32 {
-        p.distance_squared(middle_point(e))
+    fn d(v: Vec2, w: Vec2) -> f32 {
+        v.distance_squared(w)
     }
 
-    let Some(start_polygon) = point_to_polygon_index(polygons, start) else {
+    // TODO: This should always be valid in an actual game, probably want to remove the Option and
+    // fail explcitely?
+    // TODO: No, instead map to nearest walkable point on grid matrix, that is way better
+    let Some(start_indices) = point_to_matrix_indices(&grid_matrix, start) else {
         return Vec::new();
     };
-    let Some(goal_polygon) = point_to_polygon_index(polygons, goal) else {
+    let Some(goal_indices) = point_to_matrix_indices(&grid_matrix, goal) else {
         return Vec::new();
     };
 
+    assert_ne!(
+        grid_matrix[start_indices.x][start_indices.y], 0,
+        "{}",
+        start
+    );
+    assert_ne!(grid_matrix[goal_indices.x][goal_indices.y], 0, "{}", goal);
+
     // Given points are already in the same polygon, trivial case.
-    if start_polygon == goal_polygon {
+    if start_indices == goal_indices {
         return Vec::new();
     }
 
     // Nodes as `usize` index with their local score.
     let mut nodes_to_explore = HashMap::new();
-    nodes_to_explore.insert(start_polygon, 0.0);
+    nodes_to_explore.insert(start_indices, 0.0);
 
+    let grid_width = grid_matrix.len();
+    let grid_height = grid_matrix[0].len();
     // Parents, where we come from, used to reconstruct the path at the end.
-    let mut parents = vec![None; polygons.len()];
+    let mut parents = vec![vec![None; grid_height]; grid_width];
 
-    let mut global_scores = vec![f32::MAX; polygons.len()];
-    global_scores[start_polygon] = 0.0;
+    let mut global_scores = vec![vec![f32::MAX; grid_height]; grid_width];
+    global_scores[start_indices.x][start_indices.y] = 0.0;
 
-    let mut local_scores = vec![f32::MAX; polygons.len()];
-    local_scores[start_polygon] = h(start, goal);
-
-    let mut current_location = start;
+    let mut local_scores = vec![vec![f32::MAX; grid_height]; grid_width];
+    local_scores[start_indices.x][start_indices.y] = h(start, goal);
 
     while !nodes_to_explore.is_empty() {
         let current_node = key_of_smallest_value(&nodes_to_explore);
 
-        if current_node == goal_polygon {
-            return reconstruct_path(&parents, (current_node, Vec2::ZERO));
+        if current_node == goal_indices {
+            return reconstruct_path(&parents, current_node);
         }
 
         nodes_to_explore
             .remove(&current_node)
             .expect("should contain the key, something is fishy with the while loop");
 
-        for neigbhour in &graph[current_node] {
-            assert_ne!(current_node, neigbhour.0, "adjacency graph invalid");
+        for neigbhour in grid_neigbhours(&grid_matrix, current_node) {
+            assert_ne!(current_node, neigbhour, "adjacency graph invalid");
 
-            let tentative_score = global_scores[current_node] + d(current_location, neigbhour.1);
-            if tentative_score < global_scores[neigbhour.0] {
-                current_location = middle_point(neigbhour.1);
-                parents[neigbhour.0] = Some((current_node, current_location));
-                global_scores[neigbhour.0] = tentative_score;
-                local_scores[neigbhour.0] = tentative_score + h(current_location, goal);
+            let tentative_score = global_scores[current_node.x][current_node.y]
+                + d(current_node.to_vec2(), neigbhour.to_vec2());
+            if tentative_score < global_scores[neigbhour.x][neigbhour.y] {
+                parents[neigbhour.x][neigbhour.y] = Some(current_node);
+                global_scores[neigbhour.x][neigbhour.y] = tentative_score;
+                local_scores[neigbhour.x][neigbhour.y] =
+                    tentative_score + h(neigbhour.to_vec2(), goal);
 
-                if !nodes_to_explore.contains_key(&neigbhour.0) {
-                    nodes_to_explore.insert(neigbhour.0, local_scores[neigbhour.0]);
+                if !nodes_to_explore.contains_key(&neigbhour) {
+                    nodes_to_explore.insert(neigbhour, local_scores[neigbhour.x][neigbhour.y]);
                 }
             }
         }
     }
-    panic!("There is no path between, start: {}, end: {}\nShould never happen, this most likely means you have some navmesh islands which is not supported, as they don't make much sense.", start, goal);
-}
-
-#[test]
-fn test_point_to_polygon_index() {
-    let polygons = vec![vec![
-        Vec2::new(0.0, 0.0),
-        Vec2::new(10.0, 10.0),
-        Vec2::new(0.0, 10.0),
-    ]];
-    assert_eq!(
-        point_to_polygon_index(&polygons, Vec2::new(100.0, 10.0)),
-        None
-    );
-    assert_eq!(
-        point_to_polygon_index(&polygons, Vec2::new(10.0, 10.0)),
-        Some(0)
-    );
-    assert_eq!(
-        point_to_polygon_index(&polygons, Vec2::new(5.0, 10.0)),
-        Some(0)
-    );
-    assert_eq!(
-        point_to_polygon_index(&polygons, Vec2::new(10.0, 1.0)),
-        None
-    );
-}
-
-#[test]
-#[should_panic(expected = "assertion failed: is_ccw(poly)")]
-fn test_panic_when_polygon_not_ccw() {
-    let polygons = vec![vec![
-        Vec2::new(0.0, 10.0),
-        Vec2::new(10.0, 10.0),
-        Vec2::new(0.0, 0.0),
-    ]];
-    assert_eq!(
-        point_to_polygon_index(&polygons, Vec2::new(100.0, 10.0)),
-        None
-    );
+    panic!("There is no path between, start: {}, end: {}\nShould never happen, this most likely means you have some navmesh islands which is not supported, as they don't make much sense.\nIndicies: start: {:?}, goal: {:?}", start, goal, start_indices, goal_indices);
 }

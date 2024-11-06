@@ -8,6 +8,9 @@ use crate::{
 
 use super::{state::EnemyStateSystemSet, Enemy, MOVE_SPEED};
 
+const ROT_MATRIX_LEFT: [[f32; 2]; 2] = [[0.7071, -0.7071], [0.7071, 0.7071]];
+const ROT_MATRIX_RIGHT: [[f32; 2]; 2] = [[0.7071, 0.7071], [-0.7071, 0.7071]];
+
 fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
     for (mut velocity, enemy) in &mut q_enemies {
         match enemy.state_machine.state() {
@@ -24,6 +27,13 @@ fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
     }
 }
 
+fn rotate_vec(v: Vec2, rot_matrix: [[f32; 2]; 2]) -> Vec2 {
+    Vec2::new(
+        rot_matrix[0][0] * v.x + rot_matrix[0][1] * v.y,
+        rot_matrix[1][0] * v.x + rot_matrix[1][1] * v.y,
+    )
+}
+
 fn update_target_positions(
     map_polygon_data: Res<MapPolygonData>,
     q_transforms: Query<&GlobalTransform, (With<PathfindingTarget>, Without<PathfindingSource>)>,
@@ -31,13 +41,11 @@ fn update_target_positions(
     q_pathfinding_sources: Query<(&Parent, &GlobalTransform), With<PathfindingSource>>,
 ) {
     let Ok(target_transform) = q_transforms.get_single() else {
-        error!("not good");
         return;
     };
 
     for (parent, enemy_transform) in &q_pathfinding_sources {
         let Ok(mut enemy) = q_enemies.get_mut(parent.get()) else {
-            warn!("no enemy");
             continue;
         };
 
@@ -49,28 +57,48 @@ fn update_target_positions(
         let path = a_star(
             enemy_transform.translation().truncate(),
             target_transform.translation().truncate(),
-            &map_polygon_data.navmesh_polygons,
-            &map_polygon_data.adjacency_graph,
+            &map_polygon_data.grid_matrix,
         );
 
-        let pos = if path.is_empty() {
+        let pos = if path.len() < 2 {
             target_transform.translation().truncate()
-        } else if enemy_transform
-            .translation()
-            .truncate()
-            .distance_squared(path[0].1)
-            < 1e-05
-        {
-            if path.len() == 1 {
-                target_transform.translation().truncate()
-            } else {
-                path[1].1
-            }
         } else {
-            path[0].1
+            // Check triangle
+            let path_dir = path[1] - path[0];
+            let dir = enemy_transform.translation().truncate() - path[0];
+
+            // Enemy is left to orthogonal vector, meaning it's already passed `path[0]`
+            if dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_LEFT)) >= 0.0
+                && dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_RIGHT)) <= 0.0
+            {
+                warn!("dir: {}", dir);
+                path[1]
+            } else if enemy_transform
+                .translation()
+                .truncate()
+                .distance_squared(path[0])
+                < 1.0
+            {
+                path[1]
+            } else {
+                error!(
+                    "dir: {}, path_dir: {}, left: {}, right: {}",
+                    dir,
+                    path_dir,
+                    dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_LEFT)),
+                    dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_RIGHT))
+                );
+                path[0]
+            }
         };
 
-        // info!("p: {}, e: {}", pos, enemy_transform.translation.truncate());
+        // info!(
+        //     "e_t: {}, p_t: {}, path: {:?}",
+        //     enemy_transform.translation().truncate(),
+        //     pos,
+        //     path
+        // );
+
         enemy.target_pos = pos;
     }
 }
@@ -89,7 +117,6 @@ fn update_move_directions(
 
         enemy.move_direction =
             (enemy.target_pos - transform.translation().truncate()).normalize_or_zero();
-        info!("move_dir: {}", enemy.move_direction);
     }
 }
 

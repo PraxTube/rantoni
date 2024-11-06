@@ -15,8 +15,7 @@ fn right(a: Vec2, b: Vec2, c: Vec2) -> bool {
 }
 
 // TODO
-#[allow(dead_code)]
-fn closest_point_on_edge(p: Vec2, e: (Vec2, Vec2)) -> Vec2 {
+pub fn closest_point_on_edge(p: Vec2, e: Edge) -> Vec2 {
     assert!(!e.0.abs_diff_eq(e.1, ATOL));
     if (e.0.x - e.1.x).abs() < ATOL {
         return Vec2::new(e.0.x, p.y);

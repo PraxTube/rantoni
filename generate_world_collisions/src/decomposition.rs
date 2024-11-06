@@ -34,7 +34,7 @@ fn triangulate_concave_polygon(
 
 pub fn decompose_poly(grid: &Grid) -> Vec<Polygon> {
     let mut collider_polygons = Vec::new();
-    let disjoin_graphs = if grid.is_navmesh {
+    let disjoin_graphs = if grid.is_walkable {
         disjoint_graphs_walkable(grid)
     } else {
         disjoint_graphs_colliders(grid)
@@ -44,7 +44,7 @@ pub fn decompose_poly(grid: &Grid) -> Vec<Polygon> {
         let grid = Grid {
             size: grid.size,
             positions: graph,
-            is_navmesh: grid.is_navmesh,
+            is_walkable: grid.is_walkable,
         };
         let (outer_polygon, inner_polygons) = outer_inner_polygons(&grid);
 

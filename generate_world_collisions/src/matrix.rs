@@ -4,7 +4,7 @@ use bevy::prelude::*;
 pub struct Grid {
     pub size: IVec2,
     pub positions: Vec<IVec2>,
-    pub is_navmesh: bool,
+    pub is_walkable: bool,
 }
 
 impl Default for Grid {
@@ -17,7 +17,7 @@ impl Default for Grid {
             // most size big.
             size: IVec2::new(17, 17),
             positions: Vec::new(),
-            is_navmesh: true,
+            is_walkable: true,
         }
     }
 }
@@ -159,12 +159,18 @@ fn index_to_vertices_y_zero_edge_collider(index: u8) -> Vec<IVec2> {
     }
 }
 
-pub fn index_matrix(grid: &Grid) -> Vec<Vec<u8>> {
+/// Create `grid.size.x` x `grid.size.y` matrix with the given `Grid`.
+/// Treats the `Grid.positions` as `1`, everything else is `0`.
+pub fn grid_matrix(grid: &Grid) -> Vec<Vec<u8>> {
     let mut matrix = vec![vec![0; grid.size.y as usize]; grid.size.x as usize];
     for pos in &grid.positions {
         matrix[pos.x as usize][pos.y as usize] = 1;
     }
+    matrix
+}
 
+pub fn index_matrix(grid: &Grid) -> Vec<Vec<u8>> {
+    let matrix = grid_matrix(grid);
     let mut index_matrix = vec![vec![0; grid.size.y as usize]; grid.size.y as usize];
 
     for i in 0..matrix.len() - 1 {
@@ -178,15 +184,15 @@ pub fn index_matrix(grid: &Grid) -> Vec<Vec<u8>> {
     index_matrix
 }
 
-pub fn get_vertex_pairs(index: u8, x: usize, y: usize, is_navmesh: bool) -> Vec<Vec<IVec2>> {
-    let mut vertex_pairs = if is_navmesh {
+pub fn get_vertex_pairs(index: u8, x: usize, y: usize, is_walkable: bool) -> Vec<Vec<IVec2>> {
+    let mut vertex_pairs = if is_walkable {
         index_to_vertices(index)
     } else {
         index_to_vertices_collider(index)
     };
 
     if x == 0 {
-        let edge_vertices = if is_navmesh {
+        let edge_vertices = if is_walkable {
             index_to_vertices_x_zero_edge(index)
         } else {
             index_to_vertices_x_zero_edge_collider(index)
@@ -196,7 +202,7 @@ pub fn get_vertex_pairs(index: u8, x: usize, y: usize, is_navmesh: bool) -> Vec<
         }
     }
     if y == 0 {
-        let edge_vertices = if is_navmesh {
+        let edge_vertices = if is_walkable {
             index_to_vertices_y_zero_edge(index)
         } else {
             index_to_vertices_y_zero_edge_collider(index)

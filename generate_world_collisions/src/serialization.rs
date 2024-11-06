@@ -2,6 +2,19 @@ use bevy::prelude::*;
 
 use crate::Polygon;
 
+pub fn serialize_grid_matrix(grid_matrix: &Vec<Vec<u8>>) -> String {
+    grid_matrix
+        .iter()
+        .map(|row| {
+            row.iter()
+                .map(|u| format!("{}", u))
+                .collect::<Vec<String>>()
+                .join(";")
+        })
+        .collect::<Vec<String>>()
+        .join("|")
+}
+
 pub fn serialize_polygons(polygons: &[Polygon]) -> String {
     polygons
         .iter()
@@ -16,7 +29,20 @@ pub fn serialize_polygons(polygons: &[Polygon]) -> String {
         .join("|")
 }
 
-fn deserialize_part(serialized_part: &str) -> Vec<Polygon> {
+fn deserialize_grid_matrix(serialized_matrix: &str) -> Vec<Vec<u8>> {
+    let mut grid_matrix = Vec::new();
+    for serialized_row in serialized_matrix.split('|') {
+        let mut row = Vec::new();
+        for serialized_int in serialized_row.split(';') {
+            let x = serialized_int.parse::<u8>().expect("failed to parse u8");
+            row.push(x);
+        }
+        grid_matrix.push(row);
+    }
+    grid_matrix
+}
+
+fn deserialize_collider(serialized_part: &str) -> Vec<Polygon> {
     let mut polygons = Vec::new();
     for serialized_polygon in serialized_part.split('|') {
         let mut polygon = Vec::new();
@@ -36,12 +62,12 @@ fn deserialize_part(serialized_part: &str) -> Vec<Polygon> {
 /// Deserialize the given serialized map_polygon_data string.
 /// Returns a tuple where the first entry are the navmesh polygons and the second entry contains
 /// the collider polygons.
-pub fn deserialize_polygons(serialized_polygons: &str) -> (Vec<Polygon>, Vec<Polygon>) {
+pub fn deserialize_polygons(serialized_polygons: &str) -> (Vec<Vec<u8>>, Vec<Polygon>) {
     let serialized_parts = serialized_polygons.lines().collect::<Vec<&str>>();
     assert_eq!(serialized_parts.len(), 2);
 
     (
-        deserialize_part(serialized_parts[0]),
-        deserialize_part(serialized_parts[1]),
+        deserialize_grid_matrix(serialized_parts[0]),
+        deserialize_collider(serialized_parts[1]),
     )
 }
