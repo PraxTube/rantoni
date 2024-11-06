@@ -36,8 +36,10 @@ impl Plugin for WorldMapPlugin {
     }
 }
 
-#[derive(Component)]
-pub struct PathfindingSource;
+#[derive(Component, Default)]
+pub struct PathfindingSource {
+    pub path: Option<Vec<Vec2>>,
+}
 #[derive(Component)]
 pub struct PathfindingTarget;
 
@@ -140,7 +142,7 @@ fn debug_enemy_pathfinding(
         let start = enemy_transform.translation().truncate();
         let end = player_transform.translation().truncate();
 
-        let mut path = a_star(start, end, &map_polygon_data.grid_matrix);
+        let mut path = a_star(start, end, &map_polygon_data.grid_matrix, &None);
 
         path.insert(0, start);
         path.push(end);

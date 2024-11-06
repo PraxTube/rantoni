@@ -53,7 +53,7 @@ fn spawn_dummy_enemy(mut commands: Commands, assets: Res<GameAssets>) {
 
     let collider = commands
         .spawn((
-            PathfindingSource,
+            PathfindingSource::default(),
             Collider::ball(10.0),
             ActiveEvents::COLLISION_EVENTS,
             CollisionGroups::new(WORLD_GROUP | ENEMY_GROUP, WORLD_GROUP),

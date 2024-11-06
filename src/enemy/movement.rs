@@ -38,13 +38,13 @@ fn update_target_positions(
     map_polygon_data: Res<MapPolygonData>,
     q_transforms: Query<&GlobalTransform, (With<PathfindingTarget>, Without<PathfindingSource>)>,
     mut q_enemies: Query<&mut Enemy>,
-    q_pathfinding_sources: Query<(&Parent, &GlobalTransform), With<PathfindingSource>>,
+    mut q_pathfinding_sources: Query<(&Parent, &GlobalTransform, &mut PathfindingSource)>,
 ) {
     let Ok(target_transform) = q_transforms.get_single() else {
         return;
     };
 
-    for (parent, enemy_transform) in &q_pathfinding_sources {
+    for (parent, enemy_transform, mut pf_source) in &mut q_pathfinding_sources {
         let Ok(mut enemy) = q_enemies.get_mut(parent.get()) else {
             continue;
         };
@@ -58,7 +58,9 @@ fn update_target_positions(
             enemy_transform.translation().truncate(),
             target_transform.translation().truncate(),
             &map_polygon_data.grid_matrix,
+            &pf_source.path,
         );
+        pf_source.path = Some(path.clone());
 
         let pos = if path.len() < 2 {
             target_transform.translation().truncate()
@@ -77,6 +79,8 @@ fn update_target_positions(
                 .translation()
                 .truncate()
                 .distance_squared(path[0])
+                // TODO: figure out a good value here, also don't use magic numbers, make const or
+                // something
                 < 1.0
             {
                 path[1]
