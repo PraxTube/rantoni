@@ -36,12 +36,16 @@ impl Plugin for WorldMapPlugin {
     }
 }
 
-#[derive(Component, Default)]
+#[derive(Component)]
 pub struct PathfindingSource {
+    pub root_entity: Entity,
+    pub target: Option<Entity>,
     pub path: Option<Vec<Vec2>>,
 }
 #[derive(Component)]
-pub struct PathfindingTarget;
+pub struct PathfindingTarget {
+    pub root_entity: Entity,
+}
 
 #[derive(Component)]
 struct DebugNavmeshPolygon;
@@ -50,6 +54,16 @@ struct DebugNavmeshPolygon;
 pub struct MapPolygonData {
     pub grid_matrix: Vec<Vec<u8>>,
     pub collider_polygons: Vec<Vec<Vec2>>,
+}
+
+impl PathfindingSource {
+    pub fn new(root_entity: Entity) -> Self {
+        Self {
+            root_entity,
+            target: None,
+            path: None,
+        }
+    }
 }
 
 fn spawn_ldtk_world(mut commands: Commands, assets: Res<GameAssets>) {

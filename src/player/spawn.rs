@@ -39,7 +39,9 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
 
     let collider = commands
         .spawn((
-            PathfindingTarget,
+            PathfindingTarget {
+                root_entity: entity,
+            },
             Collider::ball(10.0),
             ActiveEvents::COLLISION_EVENTS,
             // TODO: Disable player - enemy collision when the player is sliding

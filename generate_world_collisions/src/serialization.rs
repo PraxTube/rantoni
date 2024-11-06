@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::Polygon;
 
-pub fn serialize_grid_matrix(grid_matrix: &Vec<Vec<u8>>) -> String {
+pub fn serialize_grid_matrix(grid_matrix: &[Vec<u8>]) -> String {
     grid_matrix
         .iter()
         .map(|row| {

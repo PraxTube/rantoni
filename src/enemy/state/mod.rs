@@ -9,6 +9,7 @@ use bevy_trickfilm::prelude::*;
 use crate::{
     dude::{Attack, DudeState},
     player::Player,
+    world::{PathfindingSource, PathfindingTarget},
 };
 
 use super::{Enemy, MAX_AGGRO_DISTANCE, MIN_AGGRO_DISTANCE, MIN_TARGET_DISTANCE};
@@ -123,9 +124,15 @@ fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy)>)
 
 fn transition_run_state(
     q_players: Query<(Entity, &Transform), With<Player>>,
+    q_pf_targets: Query<(Entity, &PathfindingTarget)>,
     mut q_enemies: Query<(&Transform, &mut Enemy), Without<Player>>,
+    mut q_pf_sources: Query<&mut PathfindingSource>,
 ) {
-    for (enemy_transform, mut enemy) in &mut q_enemies {
+    for mut pf_source in &mut q_pf_sources {
+        let Ok((enemy_transform, mut enemy)) = q_enemies.get_mut(pf_source.root_entity) else {
+            continue;
+        };
+
         if enemy.state_machine.just_changed() {
             continue;
         }
@@ -133,12 +140,17 @@ fn transition_run_state(
             continue;
         }
 
-        for (player, player_transform) in &q_players {
+        for (pf_target_entity, pf_target) in &q_pf_targets {
+            let Ok((player, player_transform)) = q_players.get(pf_target.root_entity) else {
+                continue;
+            };
+
             let dis = enemy_transform
                 .translation
                 .truncate()
                 .distance_squared(player_transform.translation.truncate());
             if dis > MIN_AGGRO_DISTANCE.powi(2) && dis < MAX_AGGRO_DISTANCE.powi(2) {
+                pf_source.target = Some(pf_target_entity);
                 enemy.target = Some(player);
                 enemy.state_machine.set_state(DudeState::Running);
             }
@@ -152,11 +164,20 @@ fn reset_new_state(mut q_enemies: Query<&mut Enemy>) {
     }
 }
 
+// TODO: This is an issue if you want to allow enemy on enemy targets.
+// The simplest solution is to just load the transform of the target in another system before this
+// one, I think one solution is to have something like a `Target` component? That could then have
+// tmp stuff like current transform or some shit like that.
 fn reset_enemey_targets(
     q_transforms: Query<&Transform, Without<Enemy>>,
     mut q_enemies: Query<(&Transform, &mut Enemy)>,
+    mut q_pf_sources: Query<&mut PathfindingSource>,
 ) {
-    for (transform, mut enemy) in &mut q_enemies {
+    for mut pf_source in &mut q_pf_sources {
+        let Ok((transform, mut enemy)) = q_enemies.get_mut(pf_source.root_entity) else {
+            continue;
+        };
+
         let Some(target) = enemy.target else {
             continue;
         };
@@ -170,6 +191,7 @@ fn reset_enemey_targets(
             .distance_squared(target_transform.translation.truncate())
             < MIN_TARGET_DISTANCE.powi(2)
         {
+            pf_source.target = None;
             enemy.target = None;
         }
     }

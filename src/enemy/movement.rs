@@ -1,3 +1,5 @@
+use std::f32::consts::FRAC_1_SQRT_2;
+
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -8,8 +10,14 @@ use crate::{
 
 use super::{state::EnemyStateSystemSet, Enemy, MOVE_SPEED};
 
-const ROT_MATRIX_LEFT: [[f32; 2]; 2] = [[0.7071, -0.7071], [0.7071, 0.7071]];
-const ROT_MATRIX_RIGHT: [[f32; 2]; 2] = [[0.7071, 0.7071], [-0.7071, 0.7071]];
+const ROT_MATRIX_LEFT: [[f32; 2]; 2] = [
+    [FRAC_1_SQRT_2, -FRAC_1_SQRT_2],
+    [FRAC_1_SQRT_2, FRAC_1_SQRT_2],
+];
+const ROT_MATRIX_RIGHT: [[f32; 2]; 2] = [
+    [FRAC_1_SQRT_2, FRAC_1_SQRT_2],
+    [-FRAC_1_SQRT_2, FRAC_1_SQRT_2],
+];
 
 fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
     for (mut velocity, enemy) in &mut q_enemies {
@@ -36,27 +44,29 @@ fn rotate_vec(v: Vec2, rot_matrix: [[f32; 2]; 2]) -> Vec2 {
 
 fn update_target_positions(
     map_polygon_data: Res<MapPolygonData>,
-    q_transforms: Query<&GlobalTransform, (With<PathfindingTarget>, Without<PathfindingSource>)>,
+    q_pf_target_transforms: Query<
+        &GlobalTransform,
+        (With<PathfindingTarget>, Without<PathfindingSource>),
+    >,
     mut q_enemies: Query<&mut Enemy>,
     mut q_pathfinding_sources: Query<(&Parent, &GlobalTransform, &mut PathfindingSource)>,
 ) {
-    let Ok(target_transform) = q_transforms.get_single() else {
-        return;
-    };
-
-    for (parent, enemy_transform, mut pf_source) in &mut q_pathfinding_sources {
+    for (parent, pf_source_transform, mut pf_source) in &mut q_pathfinding_sources {
         let Ok(mut enemy) = q_enemies.get_mut(parent.get()) else {
+            continue;
+        };
+        let Some(pf_taget_entity) = pf_source.target else {
             continue;
         };
 
         // TODO: Reimplement this to work with multiple enemies(/players?)
         // let Some(target) = enemy.target else { continue };
-        // let Ok(target_transform) = q_transforms.get(target) else {
-        //     continue;
-        // };
+        let Ok(target_transform) = q_pf_target_transforms.get(pf_taget_entity) else {
+            continue;
+        };
 
         let path = a_star(
-            enemy_transform.translation().truncate(),
+            pf_source_transform.translation().truncate(),
             target_transform.translation().truncate(),
             &map_polygon_data.grid_matrix,
             &pf_source.path,
@@ -68,14 +78,12 @@ fn update_target_positions(
         } else {
             // Check triangle
             let path_dir = path[1] - path[0];
-            let dir = enemy_transform.translation().truncate() - path[0];
+            let dir = pf_source_transform.translation().truncate() - path[0];
 
             // Enemy is left to orthogonal vector, meaning it's already passed `path[0]`
             if dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_LEFT)) >= 0.0
                 && dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_RIGHT)) <= 0.0
-            {
-                path[1]
-            } else if enemy_transform
+                || pf_source_transform
                 .translation()
                 .truncate()
                 .distance_squared(path[0])

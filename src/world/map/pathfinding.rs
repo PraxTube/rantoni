@@ -12,7 +12,7 @@ impl USVec2 {
         Self { x, y }
     }
 
-    fn to_vec2(&self) -> Vec2 {
+    fn to_vec2(self) -> Vec2 {
         Vec2::new(self.x as f32 * TILE_SIZE, self.y as f32 * TILE_SIZE)
     }
 }
@@ -39,7 +39,7 @@ fn key_of_smallest_value(h: &HashMap<USVec2, f32>) -> USVec2 {
     *current_key.expect("Something went very wrong with you smallest value in hashmap fn")
 }
 
-fn point_to_matrix_indices(grid_matrix: &Vec<Vec<u8>>, p: Vec2) -> Option<USVec2> {
+fn point_to_matrix_indices(grid_matrix: &[Vec<u8>], p: Vec2) -> Option<USVec2> {
     let u = if p.x < 0.0 || p.y < 0.0 {
         USVec2::new(0, 0)
     } else {
@@ -70,7 +70,7 @@ fn point_to_matrix_indices(grid_matrix: &Vec<Vec<u8>>, p: Vec2) -> Option<USVec2
     Some(distance_to_neighbours[0].0)
 }
 
-fn grid_neigbhours(grid_matrix: &Vec<Vec<u8>>, u: USVec2) -> Vec<USVec2> {
+fn grid_neigbhours(grid_matrix: &[Vec<u8>], u: USVec2) -> Vec<USVec2> {
     let mut neigbhours = Vec::new();
     let (width, height) = (grid_matrix.len() - 1, grid_matrix[0].len() - 1);
     if u.x > 0 {
@@ -117,7 +117,7 @@ fn grid_neigbhours(grid_matrix: &Vec<Vec<u8>>, u: USVec2) -> Vec<USVec2> {
 pub fn a_star(
     start: Vec2,
     goal: Vec2,
-    grid_matrix: &Vec<Vec<u8>>,
+    grid_matrix: &[Vec<u8>],
     _path: &Option<Vec<Vec2>>,
 ) -> Vec<Vec2> {
     fn h(v: Vec2, end: Vec2) -> f32 {
@@ -128,10 +128,10 @@ pub fn a_star(
         v.distance_squared(w)
     }
 
-    let Some(start_indices) = point_to_matrix_indices(&grid_matrix, start) else {
+    let Some(start_indices) = point_to_matrix_indices(grid_matrix, start) else {
         return Vec::new();
     };
-    let Some(goal_indices) = point_to_matrix_indices(&grid_matrix, goal) else {
+    let Some(goal_indices) = point_to_matrix_indices(grid_matrix, goal) else {
         return Vec::new();
     };
 
@@ -173,7 +173,7 @@ pub fn a_star(
             .remove(&current_node)
             .expect("should contain the key, something is fishy with the while loop");
 
-        for neigbhour in grid_neigbhours(&grid_matrix, current_node) {
+        for neigbhour in grid_neigbhours(grid_matrix, current_node) {
             assert_ne!(current_node, neigbhour, "adjacency graph invalid");
 
             let tentative_score = global_scores[current_node.x][current_node.y]
