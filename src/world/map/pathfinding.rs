@@ -57,8 +57,6 @@ fn point_to_matrix_indices(grid_matrix: &Vec<Vec<u8>>, p: Vec2) -> Option<USVec2
         return Some(u);
     }
 
-    info!("find closest point");
-
     // Find closest walkable grid index
     let mut distance_to_neighbours = Vec::new();
     for neigbhour in grid_neigbhours(grid_matrix, u) {
@@ -120,14 +118,8 @@ pub fn a_star(
     start: Vec2,
     goal: Vec2,
     grid_matrix: &Vec<Vec<u8>>,
-    path: &Option<Vec<Vec2>>,
+    _path: &Option<Vec<Vec2>>,
 ) -> Vec<Vec2> {
-    // info!(
-    //     "{}, {:?}",
-    //     goal,
-    //     point_to_matrix_indices(&grid_matrix, goal)
-    // );
-    // return Vec::new();
     fn h(v: Vec2, end: Vec2) -> f32 {
         v.distance_squared(end)
     }
@@ -136,9 +128,6 @@ pub fn a_star(
         v.distance_squared(w)
     }
 
-    // TODO: This should always be valid in an actual game, probably want to remove the Option and
-    // fail explcitely?
-    // TODO: No, instead map to nearest walkable point on grid matrix, that is way better
     let Some(start_indices) = point_to_matrix_indices(&grid_matrix, start) else {
         return Vec::new();
     };

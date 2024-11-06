@@ -49,6 +49,7 @@ fn update_target_positions(
             continue;
         };
 
+        // TODO: Reimplement this to work with multiple enemies(/players?)
         // let Some(target) = enemy.target else { continue };
         // let Ok(target_transform) = q_transforms.get(target) else {
         //     continue;
@@ -73,7 +74,6 @@ fn update_target_positions(
             if dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_LEFT)) >= 0.0
                 && dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_RIGHT)) <= 0.0
             {
-                warn!("dir: {}", dir);
                 path[1]
             } else if enemy_transform
                 .translation()
@@ -85,23 +85,9 @@ fn update_target_positions(
             {
                 path[1]
             } else {
-                error!(
-                    "dir: {}, path_dir: {}, left: {}, right: {}",
-                    dir,
-                    path_dir,
-                    dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_LEFT)),
-                    dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_RIGHT))
-                );
                 path[0]
             }
         };
-
-        // info!(
-        //     "e_t: {}, p_t: {}, path: {:?}",
-        //     enemy_transform.translation().truncate(),
-        //     pos,
-        //     path
-        // );
 
         enemy.target_pos = pos;
     }

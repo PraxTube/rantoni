@@ -116,17 +116,15 @@ fn handle_gamepad_inputs(
     };
 
     input.light_attack =
-        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::South));
-    input.heavy_attack =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::West));
+    input.heavy_attack =
+        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::North));
     input.parry =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::LeftTrigger));
     input.slide =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::LeftTrigger2));
-    input.jump = gamepad_buttons.just_pressed(GamepadButton::new(
-        gamepad,
-        GamepadButtonType::RightTrigger2,
-    ));
+    input.jump =
+        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::South));
     input.toggle_fullscreen =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::DPadDown));
     input.toggle_debug =
