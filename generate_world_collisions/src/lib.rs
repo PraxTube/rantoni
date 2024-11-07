@@ -24,4 +24,4 @@ pub use graph::{
     outer_inner_polygons,
 };
 pub use matrix::{grid_matrix, Grid};
-pub use serialization::{deserialize_polygons, serialize_grid_matrix, serialize_polygons};
+pub use serialization::{deserialize_polygons, serialize_collider_polygons, serialize_grid_matrix};

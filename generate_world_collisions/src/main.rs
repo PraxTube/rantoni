@@ -11,8 +11,8 @@ use bevy_ecs_ldtk::prelude::*;
 use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::prelude::*;
 use generate_world_collisions::{
-    decompose_poly, grid_matrix, merge_convex_polygons, serialize_grid_matrix, serialize_polygons,
-    Grid, LDTK_FILE, MAP_POLYGON_DATA,
+    decompose_poly, grid_matrix, merge_convex_polygons, serialize_collider_polygons,
+    serialize_grid_matrix, Grid, LDTK_FILE, MAP_POLYGON_DATA,
 };
 
 fn main() {
@@ -95,7 +95,7 @@ fn compute_and_save_shapes(grid: Res<Grid>, mut app_exit_events: EventWriter<App
     let contents = format!(
         "{}\n{}",
         serialize_grid_matrix(&grid_matrix(&grid)),
-        serialize_polygons(&compute_collier_shapes(&grid))
+        serialize_collider_polygons(&compute_collier_shapes(&grid))
     );
     fs::write(MAP_POLYGON_DATA, contents).unwrap();
     app_exit_events.send(AppExit::Success);

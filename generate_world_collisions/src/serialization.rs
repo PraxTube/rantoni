@@ -15,8 +15,8 @@ pub fn serialize_grid_matrix(grid_matrix: &[Vec<u8>]) -> String {
         .join("|")
 }
 
-pub fn serialize_polygons(polygons: &[Polygon]) -> String {
-    polygons
+pub fn serialize_collider_polygons(polygons: &[Polygon]) -> String {
+    let serialized_polygons = polygons
         .iter()
         .map(|polygon| {
             polygon
@@ -26,7 +26,13 @@ pub fn serialize_polygons(polygons: &[Polygon]) -> String {
                 .join(";")
         })
         .collect::<Vec<String>>()
-        .join("|")
+        .join("|");
+    assert_ne!(
+        serialized_polygons,
+        String::new(),
+        "No colliders in level, this should never be the case"
+    );
+    serialized_polygons
 }
 
 fn deserialize_grid_matrix(serialized_matrix: &str) -> Vec<Vec<u8>> {
