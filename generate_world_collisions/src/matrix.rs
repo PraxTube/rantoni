@@ -169,6 +169,23 @@ pub fn grid_matrix(grid: &Grid) -> Vec<Vec<u8>> {
     matrix
 }
 
+/// Create `grid.size.x - 1` x `grid.size.y - 1` matrix with the given `Grid`.
+/// Treats the `Grid.positions` as `1`, everything else is `0`.
+///
+/// Note that you want to use this for the actual world and the following pathfinding.
+/// The collision generation requires the grid size to be one bigger than it actually is because of
+/// the 2x2 bitmasking we apply. However the final pathfinding only requires size - 1.
+pub fn map_grid_matrix(grid: &Grid) -> Vec<Vec<u8>> {
+    let mut matrix = grid_matrix(grid);
+    assert!(matrix.len() > 2);
+    matrix.pop();
+
+    for row in &mut matrix {
+        row.pop();
+    }
+    matrix
+}
+
 pub fn index_matrix(grid: &Grid) -> Vec<Vec<u8>> {
     let matrix = grid_matrix(grid);
     let mut index_matrix = vec![vec![0; grid.size.y as usize]; grid.size.y as usize];

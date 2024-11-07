@@ -18,10 +18,10 @@ pub const TILE_SIZE: f32 = 32.0;
 pub const LDTK_FILE: &str = "map/map.ldtk";
 
 pub use decomposition::decompose_poly;
-pub use geometry::{closest_point_on_edge, is_ccw, merge_convex_polygons, point_to_polygon_index};
+pub use geometry::{is_ccw, merge_convex_polygons, point_to_polygon_index};
 pub use graph::{
     construct_adjacency_graph, disjoint_graphs_colliders, disjoint_graphs_walkable,
     outer_inner_polygons,
 };
-pub use matrix::{grid_matrix, Grid};
+pub use matrix::{map_grid_matrix, Grid};
 pub use serialization::{deserialize_polygons, serialize_collider_polygons, serialize_grid_matrix};

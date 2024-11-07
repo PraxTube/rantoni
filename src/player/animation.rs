@@ -49,6 +49,8 @@ fn update_player_animation(
     } else {
         animator.play(animation);
         // TODO: Handle this better, maybe you want to put this outside the if else statement?
+        // I think this is actually why the stagger direction can change mid-attack, see
+        // https://github.com/PraxTube/rantoni/issues/2
         let direction = player.current_direction;
         player.state_machine.set_attack_direction(direction);
     }

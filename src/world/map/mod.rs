@@ -1,6 +1,6 @@
 mod pathfinding;
 
-use bevy_rancic::prelude::ToggleDebugStateEvent;
+use bevy_rancic::prelude::{DebugState, ToggleDebugStateEvent};
 pub use pathfinding::a_star;
 
 use std::{fs, str::from_utf8};
@@ -109,7 +109,6 @@ fn spawn_navmesh_debug_shapes(mut commands: Commands, map_polygon_data: Res<MapP
                 DebugNavmeshPolygon,
                 ShapeBundle {
                     path: GeometryBuilder::build_as(&shapes::Rectangle {
-                        // extents: Vec2::new(TILE_SIZE / 2.0, TILE_SIZE / 2.0),
                         extents: Vec2::new(TILE_SIZE, TILE_SIZE),
                         origin: RectangleOrigin::Center,
                     }),
@@ -124,7 +123,7 @@ fn spawn_navmesh_debug_shapes(mut commands: Commands, map_polygon_data: Res<MapP
                     },
                     ..default()
                 },
-                Fill::color(color),
+                Fill::color(color.with_alpha(0.5)),
             ));
         }
     }
@@ -144,10 +143,14 @@ fn toggle_navmesh_polygons_visibility(
 
 fn debug_enemy_pathfinding(
     mut gizmos: Gizmos,
+    debug_state: Res<DebugState>,
     map_polygon_data: Res<MapPolygonData>,
     q_player: Query<&GlobalTransform, With<PathfindingTarget>>,
     q_enemies: Query<&GlobalTransform, (With<PathfindingSource>, Without<PathfindingTarget>)>,
 ) {
+    if !debug_state.0 {
+        return;
+    }
     let Ok(player_transform) = q_player.get_single() else {
         return;
     };

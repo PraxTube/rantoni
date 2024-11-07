@@ -73,43 +73,62 @@ fn point_to_matrix_indices(grid_matrix: &[Vec<u8>], p: Vec2) -> Option<USVec2> {
 fn grid_neigbhours(grid_matrix: &[Vec<u8>], u: USVec2) -> Vec<USVec2> {
     let mut neigbhours = Vec::new();
     let (width, height) = (grid_matrix.len() - 1, grid_matrix[0].len() - 1);
+
+    // Left
     if u.x > 0 {
         let w = USVec2::new(u.x - 1, u.y);
         if grid_matrix[w.x][w.y] != 0 {
             neigbhours.push(w);
         }
-        let w = USVec2::new(u.x - 1, (u.y + 1).min(height));
+    }
+    // Right
+    if u.x < width {
+        let w = USVec2::new(u.x + 1, u.y);
         if grid_matrix[w.x][w.y] != 0 {
             neigbhours.push(w);
         }
     }
+    // Down
     if u.y > 0 {
         let w = USVec2::new(u.x, u.y - 1);
         if grid_matrix[w.x][w.y] != 0 {
             neigbhours.push(w);
         }
-        let w = USVec2::new((u.x + 1).min(width), u.y - 1);
+    }
+    // Up
+    if u.y < height {
+        let w = USVec2::new(u.x, u.y + 1);
         if grid_matrix[w.x][w.y] != 0 {
             neigbhours.push(w);
         }
     }
+    // Down Left
     if u.x > 0 && u.y > 0 {
         let w = USVec2::new(u.x - 1, u.y - 1);
         if grid_matrix[w.x][w.y] != 0 {
             neigbhours.push(w);
         }
     }
-    let w = USVec2::new((u.x + 1).min(width), u.y);
-    if grid_matrix[w.x][w.y] != 0 {
-        neigbhours.push(w);
+    // Down Right
+    if u.x < width && u.y > 0 {
+        let w = USVec2::new(u.x + 1, u.y - 1);
+        if grid_matrix[w.x][w.y] != 0 {
+            neigbhours.push(w);
+        }
     }
-    let w = USVec2::new(u.x, (u.y + 1).min(height));
-    if grid_matrix[w.x][w.y] != 0 {
-        neigbhours.push(w);
+    // Up Left
+    if u.x > 0 && u.y < height {
+        let w = USVec2::new(u.x - 1, u.y + 1);
+        if grid_matrix[w.x][w.y] != 0 {
+            neigbhours.push(w);
+        }
     }
-    let w = USVec2::new((u.x + 1).min(width), (u.y + 1).min(height));
-    if grid_matrix[w.x][w.y] != 0 {
-        neigbhours.push(w);
+    // Up Right
+    if u.x < width && u.y < height {
+        let w = USVec2::new(u.x + 1, u.y + 1);
+        if grid_matrix[w.x][w.y] != 0 {
+            neigbhours.push(w);
+        }
     }
     neigbhours
 }
