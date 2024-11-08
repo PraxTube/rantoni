@@ -3,9 +3,11 @@ mod pathfinding;
 use bevy_rancic::prelude::{DebugState, ToggleDebugStateEvent};
 pub use pathfinding::a_star;
 
-use std::{fs, str::from_utf8};
+use std::{fs, str::from_utf8, time::Duration};
 
-use bevy::{color::palettes::css::*, prelude::*};
+use bevy::{
+    color::palettes::css::*, prelude::*, time::common_conditions::on_timer, utils::HashMap,
+};
 use bevy_ecs_ldtk::prelude::*;
 use bevy_prototype_lyon::prelude::*;
 
@@ -20,18 +22,21 @@ pub struct WorldMapPlugin;
 impl Plugin for WorldMapPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(LdtkPlugin)
-            .insert_resource(LevelSelection::indices(1, 1))
-            .add_systems(
-                OnEnter(GameState::Gaming),
-                (spawn_ldtk_world, insert_polygon_data),
-            )
+            .insert_resource(LevelSelection::indices(0, 0))
+            .add_event::<LevelChanged>()
+            .add_systems(OnExit(GameState::AssetLoading), spawn_ldtk_world)
+            .add_systems(OnEnter(GameState::Gaming), insert_polygon_data)
             .add_systems(
                 Update,
                 (
-                    spawn_navmesh_debug_shapes.run_if(resource_added::<MapPolygonData>),
-                    debug_enemy_pathfinding.run_if(resource_exists::<MapPolygonData>),
+                    spawn_navmesh_debug_shapes.run_if(resource_added::<WorldSpatialData>),
+                    debug_enemy_pathfinding.run_if(resource_exists::<WorldSpatialData>),
                     toggle_navmesh_polygons_visibility.run_if(on_event::<ToggleDebugStateEvent>()),
                 ),
+            )
+            .add_systems(
+                Update,
+                change_level_on_start.run_if(on_timer(Duration::from_secs_f32(2.0))),
             );
     }
 }
@@ -50,11 +55,21 @@ pub struct PathfindingTarget {
 #[derive(Component)]
 struct DebugNavmeshPolygon;
 
-#[derive(Resource)]
-pub struct MapPolygonData {
+#[derive(Resource, Debug)]
+pub struct WorldSpatialData {
+    pub levels_spatial_data: HashMap<(usize, usize), LevelSpatialData>,
+    current_level: (usize, usize),
+}
+
+#[derive(Debug)]
+pub struct LevelSpatialData {
     pub grid_matrix: Vec<Vec<u8>>,
     pub collider_polygons: Vec<Vec<Vec2>>,
+    pub neighbours: [Option<usize>; 4],
 }
+
+#[derive(Event)]
+pub struct LevelChanged;
 
 impl PathfindingSource {
     pub fn new(root_entity: Entity) -> Self {
@@ -63,6 +78,23 @@ impl PathfindingSource {
             target: None,
             path: None,
         }
+    }
+}
+
+impl WorldSpatialData {
+    pub fn current_level(&self) -> &LevelSpatialData {
+        match self.levels_spatial_data.get(&self.current_level) {
+            Some(level) => level,
+            None => panic!("should never happen, world: {:?}", self),
+        }
+    }
+
+    pub fn grid_matrix(&self) -> &Vec<Vec<u8>> {
+        &self.current_level().grid_matrix
+    }
+
+    pub fn collider_polygons(&self) -> &Vec<Vec<Vec2>> {
+        &self.current_level().collider_polygons
     }
 }
 
@@ -78,18 +110,30 @@ fn insert_polygon_data(mut commands: Commands) {
     let serialized_buffer = fs::read(MAP_POLYGON_DATA).expect("failed to read map polygon data");
     let serialized_data =
         from_utf8(&serialized_buffer).expect("invalid UTF-8 sequence in map polygon data");
-    let (grid_matrix, collider_polygons) = deserialize_polygons(serialized_data);
+    let raw_levels_spatial_data = deserialize_polygons(serialized_data);
 
-    commands.insert_resource(MapPolygonData {
-        grid_matrix,
-        collider_polygons,
+    let mut levels_spatial_data = HashMap::new();
+    for level_data in raw_levels_spatial_data {
+        levels_spatial_data.insert(
+            level_data.0,
+            LevelSpatialData {
+                grid_matrix: level_data.1,
+                collider_polygons: level_data.2,
+                neighbours: level_data.3,
+            },
+        );
+    }
+
+    commands.insert_resource(WorldSpatialData {
+        levels_spatial_data,
+        current_level: (0, 0),
     });
 }
 
-fn spawn_navmesh_debug_shapes(mut commands: Commands, map_polygon_data: Res<MapPolygonData>) {
-    for i in 0..map_polygon_data.grid_matrix.len() {
-        for j in 0..map_polygon_data.grid_matrix[i].len() {
-            if map_polygon_data.grid_matrix[i][j] == 0 {
+fn spawn_navmesh_debug_shapes(mut commands: Commands, world_data: Res<WorldSpatialData>) {
+    for i in 0..world_data.grid_matrix().len() {
+        for j in 0..world_data.grid_matrix()[i].len() {
+            if world_data.grid_matrix()[i][j] == 0 {
                 continue;
             }
 
@@ -144,7 +188,7 @@ fn toggle_navmesh_polygons_visibility(
 fn debug_enemy_pathfinding(
     mut gizmos: Gizmos,
     debug_state: Res<DebugState>,
-    map_polygon_data: Res<MapPolygonData>,
+    world_data: Res<WorldSpatialData>,
     q_player: Query<&GlobalTransform, With<PathfindingTarget>>,
     q_enemies: Query<&GlobalTransform, (With<PathfindingSource>, Without<PathfindingTarget>)>,
 ) {
@@ -159,7 +203,7 @@ fn debug_enemy_pathfinding(
         let start = enemy_transform.translation().truncate();
         let end = player_transform.translation().truncate();
 
-        let mut path = a_star(start, end, &map_polygon_data.grid_matrix, &None);
+        let mut path = a_star(start, end, world_data.grid_matrix(), &None);
 
         path.insert(0, start);
         path.push(end);
@@ -174,4 +218,8 @@ fn debug_enemy_pathfinding(
             gizmos.line_2d(path[i], path[i + 1], color);
         }
     }
+}
+
+fn change_level_on_start(mut ev_level_changed: EventWriter<LevelChanged>) {
+    ev_level_changed.send(LevelChanged);
 }

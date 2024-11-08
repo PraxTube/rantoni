@@ -5,7 +5,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{dude::Attack, GameAssets, GameState};
 
-use super::map::MapPolygonData;
+use super::{map::WorldSpatialData, LevelChanged};
 
 pub const HURTBOX_GROUP: Group = Group::GROUP_1;
 pub const HITBOX_GROUP: Group = Group::GROUP_2;
@@ -224,8 +224,8 @@ fn despawn_attack_arcs(
     }
 }
 
-fn spawn_map_collisions(mut commands: Commands, map_polygon_data: Res<MapPolygonData>) {
-    for poly in &map_polygon_data.collider_polygons {
+fn spawn_map_collisions(mut commands: Commands, world_data: Res<WorldSpatialData>) {
+    for poly in world_data.collider_polygons() {
         commands.spawn((
             Collider::convex_hull(poly).expect(
                 "polygon should be convertable to convex hull, something went really wrong",
@@ -244,7 +244,7 @@ impl Plugin for WorldCollisionPlugin {
             (
                 disable_attack_arc_hitboxes,
                 despawn_attack_arcs,
-                spawn_map_collisions.run_if(resource_added::<MapPolygonData>),
+                spawn_map_collisions.run_if(on_event::<LevelChanged>()),
             )
                 .run_if(not(in_state(GameState::AssetLoading))),
         );

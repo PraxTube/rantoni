@@ -83,6 +83,85 @@ fn compute_collier_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
     polygons
 }
 
+fn grid_from_level(level: ldtk::Level) -> Grid {
+    let width = (level.px_wid as f32 / TILE_SIZE) as usize;
+    let height = (level.px_hei as f32 / TILE_SIZE) as usize;
+
+    let mut grid = Grid::new(width + 1, height + 1);
+
+    for layer in level
+        .layer_instances
+        .clone()
+        .expect("you should never use 'separate levels' option")
+    {
+        assert_eq!(layer.layer_instance_type, ldtk::Type::IntGrid);
+        assert_eq!(layer.int_grid_csv.len(), height * width);
+
+        for inv_y in 0..height {
+            for x in 0..width {
+                if layer.int_grid_csv[inv_y * width + x] == 0 {
+                    continue;
+                }
+                grid.positions
+                    .push(IVec2::new(x as i32, (height - 1 - inv_y) as i32));
+            }
+        }
+    }
+    grid
+}
+
+fn level_neigbhours(world: &ldtk::World, level: &ldtk::Level) -> String {
+    let mut neighbours = [None; 4];
+    let mut dirs = Vec::new();
+
+    for level_neighbour in &level.neighbours {
+        // This neighbour is diagonal, meaning he is only connected to the most outer vertex, there
+        // isn't even a shared edge. We don't allow for this type of neighbouring levels.
+        if ["ne", "se", "sw", "nw"].contains(&&*level_neighbour.dir) {
+            continue;
+        }
+        let mut index = None;
+
+        for (i, level) in world.levels.iter().enumerate() {
+            if level.iid == level_neighbour.level_iid {
+                index = Some(i);
+                break;
+            }
+        }
+        assert!(index.is_some(), "the world must always contain the level neighbours, perhaps can other worlds also contain the neighbours for some reason? Read the docs of bevy_ecs_ldtk more carefully");
+
+        let i = match &*level_neighbour.dir {
+            "n" => 0,
+            "e" => 1,
+            "s" => 2,
+            "w" => 3,
+            _ => panic!(
+                "this type of direction is not supported, {}",
+                level_neighbour.dir
+            ),
+        };
+        neighbours[i] = index;
+
+        assert!(
+            !dirs.contains(&level_neighbour.dir),
+            "we don't allow more then 1 neighbour for each side of a level, this is because of technical reasons, I may adjust this in the future to allow more artistic freedom, but it would be nice if it would work out this way"
+        );
+        dirs.push(level_neighbour.dir.clone());
+    }
+
+    info!("{:?}", dirs);
+
+    assert!(!neighbours.is_empty());
+    neighbours
+        .iter()
+        .map(|u| match u {
+            Some(index) => format!("{}", index),
+            None => "-".to_string(),
+        })
+        .collect::<Vec<String>>()
+        .join(",")
+}
+
 fn compute_and_save_shapes(
     asset_server: Res<AssetServer>,
     ldtk_project_assets: Res<Assets<LdtkProject>>,
@@ -93,53 +172,22 @@ fn compute_and_save_shapes(
         .expect("ldtk project should be loaded at this point, maybe time was not enough, is the project really big?");
 
     let mut contents = Vec::new();
-
     for (i, world) in project.worlds().iter().enumerate() {
         assert_eq!(world.world_layout, Some(WorldLayout::Free));
         for (j, level) in world.levels.iter().enumerate() {
             assert!(level.px_wid > 0);
             assert!(level.px_hei > 0);
 
-            let width = (level.px_wid as f32 / TILE_SIZE) as usize;
-            let height = (level.px_hei as f32 / TILE_SIZE) as usize;
-
-            info!("{}, {}", height, width);
-
-            let mut grid = Grid::new(width + 1, height + 1);
-
-            for layer in level
-                .layer_instances
-                .clone()
-                .expect("you should never use 'separate levels' option")
-            {
-                assert_eq!(layer.layer_instance_type, ldtk::Type::IntGrid);
-                assert_eq!(layer.int_grid_csv.len(), height * width);
-
-                info!("{:?}", layer.int_grid_csv);
-
-                for inv_y in 0..height {
-                    for x in 0..width {
-                        if layer.int_grid_csv[inv_y * width + x] == 0 {
-                            continue;
-                        }
-                        grid.positions
-                            .push(IVec2::new(x as i32, (height - 1 - inv_y) as i32));
-                    }
-                }
-            }
-
-            info!("pos: {:?}", grid.positions);
-
-            let test_grid = map_grid_matrix(&grid);
-            assert_eq!(test_grid.len(), width);
-            assert_eq!(test_grid[0].len(), height);
+            let neighbour_indices = level_neigbhours(world, level);
+            let grid = grid_from_level(level.clone());
 
             contents.push(format!(
-                "{},{}:{}@{}",
+                "{},{}:{}@{}@{}",
                 i,
                 j,
                 serialize_grid_matrix(&map_grid_matrix(&grid)),
-                serialize_collider_polygons(&compute_collier_shapes(&grid))
+                serialize_collider_polygons(&compute_collier_shapes(&grid)),
+                neighbour_indices
             ));
         }
     }

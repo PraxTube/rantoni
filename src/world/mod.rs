@@ -2,7 +2,7 @@ pub mod collisions;
 
 mod map;
 
-pub use map::{a_star, MapPolygonData, PathfindingSource, PathfindingTarget};
+pub use map::{a_star, LevelChanged, PathfindingSource, PathfindingTarget, WorldSpatialData};
 
 use bevy::prelude::*;
 use bevy_rancic::prelude::*;

@@ -5,7 +5,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     dude::DudeState,
-    world::{a_star, MapPolygonData, PathfindingSource, PathfindingTarget},
+    world::{a_star, PathfindingSource, PathfindingTarget, WorldSpatialData},
 };
 
 use super::{state::EnemyStateSystemSet, Enemy, MOVE_SPEED};
@@ -43,7 +43,7 @@ fn rotate_vec(v: Vec2, rot_matrix: [[f32; 2]; 2]) -> Vec2 {
 }
 
 fn update_target_positions(
-    map_polygon_data: Res<MapPolygonData>,
+    map_polygon_data: Res<WorldSpatialData>,
     q_pf_target_transforms: Query<
         &GlobalTransform,
         (With<PathfindingTarget>, Without<PathfindingSource>),
@@ -65,7 +65,7 @@ fn update_target_positions(
         let path = a_star(
             pf_source_transform.translation().truncate(),
             target_transform.translation().truncate(),
-            &map_polygon_data.grid_matrix,
+            map_polygon_data.grid_matrix(),
             &pf_source.path,
         );
         pf_source.path = Some(path.clone());
@@ -121,7 +121,7 @@ impl Plugin for EnemyMovementPlugin {
         app.add_systems(
             Update,
             (
-                update_target_positions.run_if(resource_exists::<MapPolygonData>),
+                update_target_positions.run_if(resource_exists::<WorldSpatialData>),
                 update_move_directions,
                 move_enemies,
             )
