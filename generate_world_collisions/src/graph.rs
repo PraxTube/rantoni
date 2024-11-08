@@ -18,7 +18,7 @@ fn disjoint_vertices(grid: &Grid) -> Vec<Vec<IVec2>> {
 
     // Convert indices to vertices
     for i in 0..index_matrix.len() {
-        for j in 0..index_matrix.len() {
+        for j in 0..index_matrix[i].len() {
             let vertex_pairs = get_vertex_pairs(index_matrix[i][j], i, j, grid.is_walkable);
             for vertex_pair in vertex_pairs {
                 let v_pair = vertex_pair
@@ -196,7 +196,7 @@ fn construct_disjoint_graphs(
         let mut stack = vec![positions[0]];
         while let Some(n) = stack.pop() {
             // Out of bounds
-            if n.x < 0 || n.y < 0 || n.x >= grid.size.x || n.y >= grid.size.y {
+            if n.x < 0 || n.y < 0 || n.x >= grid.width as i32 || n.y >= grid.height as i32 {
                 continue;
             }
             let (x, y) = (n.x as usize, n.y as usize);
@@ -239,7 +239,7 @@ pub fn disjoint_graphs_walkable(grid: &Grid) -> Vec<IGraph> {
     assert!(grid.is_walkable);
     let mut positions = grid.positions.clone();
 
-    let mut graph = vec![vec![0; grid.size.y as usize]; grid.size.x as usize];
+    let mut graph = vec![vec![0; grid.height]; grid.width];
     for pos in &grid.positions {
         graph[pos.x as usize][pos.y as usize] = 1;
     }
@@ -252,21 +252,24 @@ pub fn disjoint_graphs_walkable(grid: &Grid) -> Vec<IGraph> {
 /// The returned `Vec` contains disjoint graphs with their positions on the 2D grid.
 pub fn disjoint_graphs_colliders(grid: &Grid) -> Vec<IGraph> {
     assert!(!grid.is_walkable);
-    let mut reversed_matrix = vec![vec![1; (grid.size.y - 1) as usize]; (grid.size.x - 1) as usize];
+    assert_ne!(grid.width, 0);
+    assert_ne!(grid.height, 0);
+
+    let mut reversed_matrix = vec![vec![1; grid.height - 1]; grid.width - 1];
     for pos in &grid.positions {
         reversed_matrix[pos.x as usize][pos.y as usize] = 0;
     }
 
     let mut positions = Vec::new();
-    for i in 0..grid.size.x - 1 {
-        for j in 0..grid.size.y - 1 {
+    for i in 0..grid.width - 1 {
+        for j in 0..grid.height - 1 {
             if reversed_matrix[i as usize][j as usize] == 1 {
-                positions.push(IVec2::new(i, j));
+                positions.push(IVec2::new(i as i32, j as i32));
             }
         }
     }
 
-    let mut graph = vec![vec![0; grid.size.y as usize]; grid.size.x as usize];
+    let mut graph = vec![vec![0; grid.height]; grid.width];
     for pos in &positions {
         graph[pos.x as usize][pos.y as usize] = 1;
     }

@@ -5,8 +5,9 @@ use crate::Polygon;
 pub fn serialize_grid_matrix(grid_matrix: &[Vec<u8>]) -> String {
     grid_matrix
         .iter()
-        .map(|row| {
-            row.iter()
+        .map(|column| {
+            column
+                .iter()
                 .map(|u| format!("{}", u))
                 .collect::<Vec<String>>()
                 .join(";")
@@ -38,12 +39,12 @@ pub fn serialize_collider_polygons(polygons: &[Polygon]) -> String {
 fn deserialize_grid_matrix(serialized_matrix: &str) -> Vec<Vec<u8>> {
     let mut grid_matrix = Vec::new();
     for serialized_row in serialized_matrix.split('|') {
-        let mut row = Vec::new();
+        let mut column = Vec::new();
         for serialized_int in serialized_row.split(';') {
             let x = serialized_int.parse::<u8>().expect("failed to parse u8");
-            row.push(x);
+            column.push(x);
         }
-        grid_matrix.push(row);
+        grid_matrix.push(column);
     }
     grid_matrix
 }

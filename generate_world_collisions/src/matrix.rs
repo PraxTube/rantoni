@@ -1,21 +1,17 @@
 use bevy::prelude::*;
 
-#[derive(Resource)]
 pub struct Grid {
-    pub size: IVec2,
+    pub width: usize,
+    pub height: usize,
     pub positions: Vec<IVec2>,
     pub is_walkable: bool,
 }
 
-impl Default for Grid {
-    fn default() -> Self {
+impl Grid {
+    pub fn new(width: usize, height: usize) -> Self {
         Self {
-            // TODO: We need grid size + 1, presumably because we need to test one direction to the
-            // right and top and diagonal for each grid position, so for the top right corner we
-            // need to check the top right corner + 1, which are always supposed to be 0 anyways,
-            // so we can just instantiate them as 0's, as they will always be 0 when the grid is at
-            // most size big.
-            size: IVec2::new(17, 17),
+            width,
+            height,
             positions: Vec::new(),
             is_walkable: true,
         }
@@ -162,7 +158,7 @@ fn index_to_vertices_y_zero_edge_collider(index: u8) -> Vec<IVec2> {
 /// Create `grid.size.x` x `grid.size.y` matrix with the given `Grid`.
 /// Treats the `Grid.positions` as `1`, everything else is `0`.
 pub fn grid_matrix(grid: &Grid) -> Vec<Vec<u8>> {
-    let mut matrix = vec![vec![0; grid.size.y as usize]; grid.size.x as usize];
+    let mut matrix = vec![vec![0; grid.height]; grid.width];
     for pos in &grid.positions {
         matrix[pos.x as usize][pos.y as usize] = 1;
     }
@@ -188,7 +184,10 @@ pub fn map_grid_matrix(grid: &Grid) -> Vec<Vec<u8>> {
 
 pub fn index_matrix(grid: &Grid) -> Vec<Vec<u8>> {
     let matrix = grid_matrix(grid);
-    let mut index_matrix = vec![vec![0; grid.size.y as usize]; grid.size.y as usize];
+    let mut index_matrix = vec![vec![0; grid.height]; grid.width];
+
+    assert_eq!(matrix.len(), index_matrix.len());
+    assert_eq!(matrix[0].len(), index_matrix[0].len());
 
     for i in 0..matrix.len() - 1 {
         for j in 0..matrix[i].len() - 1 {

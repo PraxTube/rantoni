@@ -12,8 +12,9 @@ use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::prelude::*;
 use generate_world_collisions::{
     decompose_poly, map_grid_matrix, merge_convex_polygons, serialize_collider_polygons,
-    serialize_grid_matrix, Grid, LDTK_FILE, MAP_POLYGON_DATA,
+    serialize_grid_matrix, Grid, LDTK_FILE, MAP_POLYGON_DATA, TILE_SIZE,
 };
+use ldtk::WorldLayout;
 
 fn main() {
     App::new()
@@ -42,10 +43,8 @@ fn main() {
                 ..default()
             },
         ))
-        .insert_resource(LevelSelection::index(0))
-        .init_resource::<Grid>()
+        .insert_resource(LevelSelection::indices(0, 0))
         .add_systems(Startup, setup)
-        .add_systems(Update, (add_cells,))
         .add_systems(
             Update,
             compute_and_save_shapes.run_if(once_after_delay(Duration::from_secs_f32(0.5))),
@@ -69,21 +68,14 @@ fn setup(
 
     commands.spawn(LdtkWorldBundle {
         ldtk_handle: asset_server.load(LDTK_FILE),
-        transform: Transform::from_translation(Vec3::NEG_Z * 10.0),
         ..Default::default()
     });
 }
 
-fn add_cells(mut grid: ResMut<Grid>, q_grid_coords: Query<&GridCoords, Added<IntGridCell>>) {
-    for grid_coords in &q_grid_coords {
-        grid.positions
-            .push(IVec2::new(grid_coords.x, grid_coords.y));
-    }
-}
-
 fn compute_collier_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
     let mut polygons = decompose_poly(&Grid {
-        size: grid.size,
+        width: grid.width,
+        height: grid.height,
         positions: grid.positions.clone(),
         is_walkable: false,
     });
@@ -91,12 +83,67 @@ fn compute_collier_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
     polygons
 }
 
-fn compute_and_save_shapes(grid: Res<Grid>, mut app_exit_events: EventWriter<AppExit>) {
-    let contents = format!(
-        "{}\n{}",
-        serialize_grid_matrix(&map_grid_matrix(&grid)),
-        serialize_collider_polygons(&compute_collier_shapes(&grid))
-    );
-    fs::write(MAP_POLYGON_DATA, contents).unwrap();
+fn compute_and_save_shapes(
+    asset_server: Res<AssetServer>,
+    ldtk_project_assets: Res<Assets<LdtkProject>>,
+    mut app_exit_events: EventWriter<AppExit>,
+) {
+    let project= ldtk_project_assets
+        .get(&asset_server.load(LDTK_FILE))
+        .expect("ldtk project should be loaded at this point, maybe time was not enough, is the project really big?");
+
+    let mut contents = Vec::new();
+
+    for (i, world) in project.worlds().iter().enumerate() {
+        assert_eq!(world.world_layout, Some(WorldLayout::Free));
+        for (j, level) in world.levels.iter().enumerate() {
+            assert!(level.px_wid > 0);
+            assert!(level.px_hei > 0);
+
+            let width = (level.px_wid as f32 / TILE_SIZE) as usize;
+            let height = (level.px_hei as f32 / TILE_SIZE) as usize;
+
+            info!("{}, {}", height, width);
+
+            let mut grid = Grid::new(width + 1, height + 1);
+
+            for layer in level
+                .layer_instances
+                .clone()
+                .expect("you should never use 'separate levels' option")
+            {
+                assert_eq!(layer.layer_instance_type, ldtk::Type::IntGrid);
+                assert_eq!(layer.int_grid_csv.len(), height * width);
+
+                info!("{:?}", layer.int_grid_csv);
+
+                for inv_y in 0..height {
+                    for x in 0..width {
+                        if layer.int_grid_csv[inv_y * width + x] == 0 {
+                            continue;
+                        }
+                        grid.positions
+                            .push(IVec2::new(x as i32, (height - 1 - inv_y) as i32));
+                    }
+                }
+            }
+
+            info!("pos: {:?}", grid.positions);
+
+            let test_grid = map_grid_matrix(&grid);
+            assert_eq!(test_grid.len(), width);
+            assert_eq!(test_grid[0].len(), height);
+
+            contents.push(format!(
+                "{},{}:{}@{}",
+                i,
+                j,
+                serialize_grid_matrix(&map_grid_matrix(&grid)),
+                serialize_collider_polygons(&compute_collier_shapes(&grid))
+            ));
+        }
+    }
+
+    fs::write(MAP_POLYGON_DATA, contents.join("\n")).unwrap();
     app_exit_events.send(AppExit::Success);
 }

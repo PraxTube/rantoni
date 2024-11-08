@@ -20,7 +20,7 @@ pub struct WorldMapPlugin;
 impl Plugin for WorldMapPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(LdtkPlugin)
-            .insert_resource(LevelSelection::index(0))
+            .insert_resource(LevelSelection::indices(1, 1))
             .add_systems(
                 OnEnter(GameState::Gaming),
                 (spawn_ldtk_world, insert_polygon_data),

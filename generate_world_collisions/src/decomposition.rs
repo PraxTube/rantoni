@@ -42,7 +42,8 @@ pub fn decompose_poly(grid: &Grid) -> Vec<Polygon> {
 
     for graph in disjoin_graphs {
         let grid = Grid {
-            size: grid.size,
+            width: grid.width,
+            height: grid.height,
             positions: graph,
             is_walkable: grid.is_walkable,
         };

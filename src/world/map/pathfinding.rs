@@ -172,6 +172,7 @@ pub fn a_star(
 
     let grid_width = grid_matrix.len();
     let grid_height = grid_matrix[0].len();
+
     // Parents, where we come from, used to reconstruct the path at the end.
     let mut parents = vec![vec![None; grid_height]; grid_width];
 
