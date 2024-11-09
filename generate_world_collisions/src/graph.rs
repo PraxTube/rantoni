@@ -263,7 +263,7 @@ pub fn disjoint_graphs_colliders(grid: &Grid) -> Vec<IGraph> {
     let mut positions = Vec::new();
     for i in 0..grid.width - 1 {
         for j in 0..grid.height - 1 {
-            if reversed_matrix[i as usize][j as usize] == 1 {
+            if reversed_matrix[i][j] == 1 {
                 positions.push(IVec2::new(i as i32, j as i32));
             }
         }

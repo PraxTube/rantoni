@@ -1,3 +1,9 @@
+#![allow(
+    clippy::too_many_arguments,
+    clippy::type_complexity,
+    clippy::needless_range_loop
+)]
+
 mod decomposition;
 mod geometry;
 mod graph;

@@ -1,4 +1,8 @@
-#![allow(clippy::too_many_arguments, clippy::type_complexity)]
+#![allow(
+    clippy::too_many_arguments,
+    clippy::type_complexity,
+    clippy::needless_range_loop
+)]
 
 mod assets;
 mod audio;

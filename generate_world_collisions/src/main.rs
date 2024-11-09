@@ -1,4 +1,8 @@
-#![allow(clippy::too_many_arguments, clippy::type_complexity)]
+#![allow(
+    clippy::too_many_arguments,
+    clippy::type_complexity,
+    clippy::needless_range_loop
+)]
 
 use std::fs;
 use std::time::Duration;
@@ -141,7 +145,7 @@ fn level_neigbhours(world: &ldtk::World, level: &ldtk::Level) -> String {
         };
 
         match index {
-            Some(index) =>  
+            Some(index) =>
                 neighbours[i] = Some((
                     index,
                     level.world_x - world.levels[index].world_x,
