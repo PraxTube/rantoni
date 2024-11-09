@@ -71,23 +71,31 @@ impl PathfindingSource {
 }
 
 impl WorldSpatialData {
-    pub fn current_level(&self) -> &LevelSpatialData {
+    fn current_spatial_level(&self) -> &LevelSpatialData {
         match self.levels_spatial_data.get(&self.current_level) {
             Some(level) => level,
             None => panic!("should never happen, world: {:?}", self),
         }
     }
 
+    pub fn world_index(&self) -> usize {
+        self.current_level.0
+    }
+
+    pub fn level_index(&self) -> usize {
+        self.current_level.1
+    }
+
     pub fn grid_matrix(&self) -> &Vec<Vec<u8>> {
-        &self.current_level().grid_matrix
+        &self.current_spatial_level().grid_matrix
     }
 
     pub fn collider_polygons(&self) -> &Vec<Vec<Vec2>> {
-        &self.current_level().collider_polygons
+        &self.current_spatial_level().collider_polygons
     }
 
     pub fn level_dimensions(&self) -> UVec2 {
-        let level = self.current_level();
+        let level = self.current_spatial_level();
         UVec2::new(
             level.grid_matrix.len() as u32,
             level.grid_matrix[0].len() as u32,
@@ -100,13 +108,13 @@ impl WorldSpatialData {
     ) -> (i32, i32) {
         assert_ne!(direction, LevelChangeDirection::None);
 
-        match self.current_level().neighbours[direction.to_usize()] {
+        match self.current_spatial_level().neighbours[direction.to_usize()] {
             Some(neighbour) => {
                 self.current_level = (self.current_level.0, neighbour.0);
                 (neighbour.1, neighbour.2)
             }
             None => {
-                panic!("trying to transition to neighbour that does not exist, your map is wrong!, current: {:?}, next: {:?}, dir: {}", self.current_level, self.current_level().neighbours, direction.to_usize())
+                panic!("trying to transition to neighbour that does not exist, your map is wrong!, current: {:?}, next: {:?}, dir: {}", self.current_level, self.current_spatial_level().neighbours, direction.to_usize())
             }
         }
     }

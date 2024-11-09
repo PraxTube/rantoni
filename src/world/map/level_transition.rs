@@ -92,7 +92,6 @@ fn transition_level(
 }
 
 fn change_level_on_start(mut ev_level_changed: EventWriter<LevelChanged>) {
-    info!("setting level on boot");
     ev_level_changed.send(LevelChanged::default());
 }
 

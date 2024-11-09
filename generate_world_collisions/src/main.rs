@@ -98,8 +98,15 @@ fn grid_from_level(level: ldtk::Level) -> Grid {
         .clone()
         .expect("you should never use 'separate levels' option")
     {
+        if layer.layer_instance_type != ldtk::Type::IntGrid {
+            continue;
+        }
+
         assert_eq!(layer.layer_instance_type, ldtk::Type::IntGrid);
         assert_eq!(layer.int_grid_csv.len(), height * width);
+        // TODO: Factor this out, probably some kind of config file that bridges identifiers from
+        // LDTK with Bevy
+        assert_eq!(layer.identifier, "Dummy".to_string());
 
         for inv_y in 0..height {
             for x in 0..width {
@@ -177,7 +184,7 @@ fn compute_and_save_shapes(
     ldtk_project_assets: Res<Assets<LdtkProject>>,
     mut app_exit_events: EventWriter<AppExit>,
 ) {
-    let project= ldtk_project_assets
+    let project = ldtk_project_assets
         .get(&asset_server.load(LDTK_FILE))
         .expect("ldtk project should be loaded at this point, maybe time was not enough, is the project really big?");
 
@@ -187,8 +194,6 @@ fn compute_and_save_shapes(
         for (j, level) in world.levels.iter().enumerate() {
             assert!(level.px_wid > 0);
             assert!(level.px_hei > 0);
-
-            info!("{}, {}", level.world_x, level.world_y);
 
             let neighbour_indices = level_neigbhours(world, level);
             let grid = grid_from_level(level.clone());
