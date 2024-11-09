@@ -33,7 +33,7 @@ bevy_ecs_ldtk = "0.10.0"
 # bevy_trickfilm = "0.8.0"
 bevy_trickfilm = { git = "https://github.com/PraxTube/bevy_trickfilm", branch = "testy" }
 bevy_trickfilm_derive = { git = "https://github.com/KirmesBude/bevy_trickfilm", branch = "feature/issue-27-animation-event" }
-bevy_rancic = { git = "https://github.com/PraxTube/bevy_rancic", branch = "master" }
+bevy_rancic = { git = "https://github.com/PraxTube/bevy_rancic", branch = "rantoni" }
 bevy_prototype_lyon = "0.12.0"
 
 generate_world_collisions = { path = "./generate_world_collisions" }

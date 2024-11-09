@@ -96,6 +96,14 @@ impl WorldSpatialData {
     pub fn collider_polygons(&self) -> &Vec<Vec<Vec2>> {
         &self.current_level().collider_polygons
     }
+
+    pub fn level_dimensions(&self) -> UVec2 {
+        let level = self.current_level();
+        UVec2::new(
+            level.grid_matrix.len() as u32,
+            level.grid_matrix[0].len() as u32,
+        )
+    }
 }
 
 fn spawn_ldtk_world(mut commands: Commands, assets: Res<GameAssets>) {
