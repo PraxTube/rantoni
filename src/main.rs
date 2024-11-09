@@ -30,6 +30,7 @@ pub enum GameState {
     #[default]
     AssetLoading,
     Gaming,
+    TransitionLevel,
     Ending,
 }
 

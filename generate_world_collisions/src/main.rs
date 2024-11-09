@@ -128,7 +128,6 @@ fn level_neigbhours(world: &ldtk::World, level: &ldtk::Level) -> String {
                 break;
             }
         }
-        assert!(index.is_some(), "the world must always contain the level neighbours, perhaps can other worlds also contain the neighbours for some reason? Read the docs of bevy_ecs_ldtk more carefully");
 
         let i = match &*level_neighbour.dir {
             "n" => 0,
@@ -140,7 +139,16 @@ fn level_neigbhours(world: &ldtk::World, level: &ldtk::Level) -> String {
                 level_neighbour.dir
             ),
         };
-        neighbours[i] = index;
+
+        match index {
+            Some(index) =>  
+                neighbours[i] = Some((
+                    index,
+                    level.world_x - world.levels[index].world_x,
+                    (-level.world_y - level.px_hei) - (-world.levels[index].world_y - world.levels[index].px_hei),
+                )),
+                None => panic!("the world must always contain the level neighbours, perhaps can other worlds also contain the neighbours for some reason? Read the docs of bevy_ecs_ldtk more carefully"),
+        }
 
         assert!(
             !dirs.contains(&level_neighbour.dir),
@@ -149,17 +157,15 @@ fn level_neigbhours(world: &ldtk::World, level: &ldtk::Level) -> String {
         dirs.push(level_neighbour.dir.clone());
     }
 
-    info!("{:?}", dirs);
-
     assert!(!neighbours.is_empty());
     neighbours
         .iter()
         .map(|u| match u {
-            Some(index) => format!("{}", index),
+            Some((index, x_offset, y_offset)) => format!("{},{},{}", index, x_offset, y_offset),
             None => "-".to_string(),
         })
         .collect::<Vec<String>>()
-        .join(",")
+        .join(";")
 }
 
 fn compute_and_save_shapes(
@@ -177,6 +183,8 @@ fn compute_and_save_shapes(
         for (j, level) in world.levels.iter().enumerate() {
             assert!(level.px_wid > 0);
             assert!(level.px_hei > 0);
+
+            info!("{}, {}", level.world_x, level.world_y);
 
             let neighbour_indices = level_neigbhours(world, level);
             let grid = grid_from_level(level.clone());

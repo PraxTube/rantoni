@@ -1,17 +1,18 @@
+mod level_transition;
 mod pathfinding;
 
-use bevy_rancic::prelude::{DebugState, ToggleDebugStateEvent};
+use level_transition::LevelChangeDirection;
+pub use level_transition::LevelChanged;
+
+use bevy_rancic::prelude::DebugState;
 pub use pathfinding::a_star;
 
-use std::{fs, str::from_utf8, time::Duration};
+use std::{fs, str::from_utf8};
 
-use bevy::{
-    color::palettes::css::*, prelude::*, time::common_conditions::on_timer, utils::HashMap,
-};
+use bevy::{color::palettes::css::*, prelude::*, utils::HashMap};
 use bevy_ecs_ldtk::prelude::*;
-use bevy_prototype_lyon::prelude::*;
 
-use generate_world_collisions::{deserialize_polygons, MAP_POLYGON_DATA, TILE_SIZE};
+use generate_world_collisions::{deserialize_polygons, MAP_POLYGON_DATA};
 
 use crate::{GameAssets, GameState};
 
@@ -22,21 +23,15 @@ pub struct WorldMapPlugin;
 impl Plugin for WorldMapPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(LdtkPlugin)
+            .add_plugins((level_transition::MapLevelTransition,))
             .insert_resource(LevelSelection::indices(0, 0))
-            .add_event::<LevelChanged>()
-            .add_systems(OnExit(GameState::AssetLoading), spawn_ldtk_world)
-            .add_systems(OnEnter(GameState::Gaming), insert_polygon_data)
             .add_systems(
-                Update,
-                (
-                    spawn_navmesh_debug_shapes.run_if(resource_added::<WorldSpatialData>),
-                    debug_enemy_pathfinding.run_if(resource_exists::<WorldSpatialData>),
-                    toggle_navmesh_polygons_visibility.run_if(on_event::<ToggleDebugStateEvent>()),
-                ),
+                OnExit(GameState::AssetLoading),
+                (spawn_ldtk_world, deserialize_and_insert_wrold_data),
             )
             .add_systems(
                 Update,
-                change_level_on_start.run_if(on_timer(Duration::from_secs_f32(2.0))),
+                (debug_enemy_pathfinding.run_if(resource_exists::<WorldSpatialData>),),
             );
     }
 }
@@ -52,9 +47,6 @@ pub struct PathfindingTarget {
     pub root_entity: Entity,
 }
 
-#[derive(Component)]
-struct DebugNavmeshPolygon;
-
 #[derive(Resource, Debug)]
 pub struct WorldSpatialData {
     pub levels_spatial_data: HashMap<(usize, usize), LevelSpatialData>,
@@ -65,11 +57,8 @@ pub struct WorldSpatialData {
 pub struct LevelSpatialData {
     pub grid_matrix: Vec<Vec<u8>>,
     pub collider_polygons: Vec<Vec<Vec2>>,
-    pub neighbours: [Option<usize>; 4],
+    pub neighbours: [Option<(usize, i32, i32)>; 4],
 }
-
-#[derive(Event)]
-pub struct LevelChanged;
 
 impl PathfindingSource {
     pub fn new(root_entity: Entity) -> Self {
@@ -104,6 +93,23 @@ impl WorldSpatialData {
             level.grid_matrix[0].len() as u32,
         )
     }
+
+    pub fn transition_level_and_get_offset(
+        &mut self,
+        direction: LevelChangeDirection,
+    ) -> (i32, i32) {
+        assert_ne!(direction, LevelChangeDirection::None);
+
+        match self.current_level().neighbours[direction.to_usize()] {
+            Some(neighbour) => {
+                self.current_level = (self.current_level.0, neighbour.0);
+                (neighbour.1, neighbour.2)
+            }
+            None => {
+                panic!("trying to transition to neighbour that does not exist, your map is wrong!, current: {:?}, next: {:?}, dir: {}", self.current_level, self.current_level().neighbours, direction.to_usize())
+            }
+        }
+    }
 }
 
 fn spawn_ldtk_world(mut commands: Commands, assets: Res<GameAssets>) {
@@ -114,7 +120,7 @@ fn spawn_ldtk_world(mut commands: Commands, assets: Res<GameAssets>) {
     });
 }
 
-fn insert_polygon_data(mut commands: Commands) {
+fn deserialize_and_insert_wrold_data(mut commands: Commands) {
     let serialized_buffer = fs::read(MAP_POLYGON_DATA).expect("failed to read map polygon data");
     let serialized_data =
         from_utf8(&serialized_buffer).expect("invalid UTF-8 sequence in map polygon data");
@@ -136,61 +142,6 @@ fn insert_polygon_data(mut commands: Commands) {
         levels_spatial_data,
         current_level: (0, 0),
     });
-}
-
-fn spawn_navmesh_debug_shapes(mut commands: Commands, world_data: Res<WorldSpatialData>) {
-    for i in 0..world_data.grid_matrix().len() {
-        for j in 0..world_data.grid_matrix()[i].len() {
-            if world_data.grid_matrix()[i][j] == 0 {
-                continue;
-            }
-
-            let color = if i % 2 == 0 {
-                if j % 2 == 0 {
-                    RED
-                } else {
-                    DARK_RED
-                }
-            } else if j % 2 == 0 {
-                DARK_RED
-            } else {
-                RED
-            };
-
-            commands.spawn((
-                DebugNavmeshPolygon,
-                ShapeBundle {
-                    path: GeometryBuilder::build_as(&shapes::Rectangle {
-                        extents: Vec2::new(TILE_SIZE, TILE_SIZE),
-                        origin: RectangleOrigin::Center,
-                    }),
-                    spatial: SpatialBundle {
-                        transform: Transform::from_xyz(
-                            i as f32 * TILE_SIZE,
-                            j as f32 * TILE_SIZE,
-                            Z_LEVEL_BACKGROUND + 10.0,
-                        ),
-                        visibility: Visibility::Hidden,
-                        ..default()
-                    },
-                    ..default()
-                },
-                Fill::color(color.with_alpha(0.5)),
-            ));
-        }
-    }
-}
-
-fn toggle_navmesh_polygons_visibility(
-    mut q_navmesh_visibilities: Query<&mut Visibility, With<DebugNavmeshPolygon>>,
-) {
-    for mut visibility in &mut q_navmesh_visibilities {
-        let new_visibility = match *visibility {
-            Visibility::Inherited | Visibility::Visible => Visibility::Hidden,
-            Visibility::Hidden => Visibility::Inherited,
-        };
-        *visibility = new_visibility;
-    }
 }
 
 fn debug_enemy_pathfinding(
@@ -226,8 +177,4 @@ fn debug_enemy_pathfinding(
             gizmos.line_2d(path[i], path[i + 1], color);
         }
     }
-}
-
-fn change_level_on_start(mut ev_level_changed: EventWriter<LevelChanged>) {
-    ev_level_changed.send(LevelChanged);
 }

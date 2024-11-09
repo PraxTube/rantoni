@@ -18,3 +18,6 @@ impl Plugin for WorldPlugin {
         ));
     }
 }
+
+#[derive(Component)]
+pub struct WorldEntity;

@@ -7,7 +7,7 @@ use crate::{
     dude::DudeAnimations,
     world::{
         collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType, ENEMY_GROUP, WORLD_GROUP},
-        PathfindingSource,
+        PathfindingSource, WorldEntity,
     },
     GameAssets, GameState,
 };
@@ -18,6 +18,8 @@ fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec
     let entity = commands
         .spawn((
             Enemy::default(),
+            WorldEntity,
+            // TODO: Bundle into some kind of convenience bundle so you don't forget them
             RigidBody::Dynamic,
             LockedAxes::ROTATION_LOCKED,
             Velocity::zero(),

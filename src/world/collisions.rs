@@ -35,6 +35,9 @@ pub struct Hurtbox {
     pub collision_groups: CollisionGroups,
 }
 
+#[derive(Component)]
+struct WorldCollision;
+
 #[derive(Clone, Copy, PartialEq)]
 pub enum HurtboxType {
     Normal,
@@ -227,11 +230,21 @@ fn despawn_attack_arcs(
 fn spawn_map_collisions(mut commands: Commands, world_data: Res<WorldSpatialData>) {
     for poly in world_data.collider_polygons() {
         commands.spawn((
+            WorldCollision,
             Collider::convex_hull(poly).expect(
                 "polygon should be convertable to convex hull, something went really wrong",
             ),
             ColliderDebugColor(LIME.into()),
         ));
+    }
+}
+
+fn despawn_map_collisions(
+    mut commands: Commands,
+    q_world_collisions: Query<Entity, With<WorldCollision>>,
+) {
+    for entity in &q_world_collisions {
+        commands.entity(entity).despawn_recursive();
     }
 }
 
@@ -247,6 +260,7 @@ impl Plugin for WorldCollisionPlugin {
                 spawn_map_collisions.run_if(on_event::<LevelChanged>()),
             )
                 .run_if(not(in_state(GameState::AssetLoading))),
-        );
+        )
+        .add_systems(OnEnter(GameState::TransitionLevel), despawn_map_collisions);
     }
 }

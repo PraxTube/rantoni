@@ -31,6 +31,7 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
             YSort(0.0),
             SpriteBundle {
                 texture: assets.dude_textures[0].clone(),
+                transform: Transform::from_xyz(100.0, 100.0, 0.0),
                 ..default()
             },
             TextureAtlas::from(assets.dude_layout.clone()),
@@ -96,6 +97,6 @@ pub struct PlayerSpawnPlugin;
 
 impl Plugin for PlayerSpawnPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Gaming), spawn_player);
+        app.add_systems(OnExit(GameState::AssetLoading), spawn_player);
     }
 }

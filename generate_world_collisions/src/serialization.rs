@@ -66,21 +66,29 @@ fn deserialize_collider(serialized_colliders: &str) -> Vec<Polygon> {
     polygons
 }
 
-fn deserialize_neighbours(serialized_neighbours: &str) -> [Option<usize>; 4] {
-    assert_eq!(serialized_neighbours.split(',').count(), 4);
+fn deserialize_neighbours(serialized_neighbours: &str) -> [Option<(usize, i32, i32)>; 4] {
+    assert_eq!(serialized_neighbours.split(';').count(), 4);
     let mut neighbours = [None; 4];
 
-    for (i, serialized_neighbour) in serialized_neighbours.split(',').enumerate() {
-        assert_eq!(serialized_neighbour.chars().count(), 1);
+    for (i, serialized_neighbour) in serialized_neighbours.split(';').enumerate() {
         if serialized_neighbour == "-" {
             continue;
         }
 
-        neighbours[i] = Some(
-            serialized_neighbour
+        let serialized_parts = serialized_neighbour.split(',').collect::<Vec<&str>>();
+        assert_eq!(serialized_parts.len(), 3);
+
+        neighbours[i] = Some((
+            serialized_parts[0]
                 .parse::<usize>()
                 .expect("should be usize and always valid"),
-        );
+            serialized_parts[1]
+                .parse::<i32>()
+                .expect("should be i32 and always valid"),
+            serialized_parts[2]
+                .parse::<i32>()
+                .expect("should be if2 and always valid"),
+        ));
     }
     neighbours
 }
@@ -94,7 +102,7 @@ pub fn deserialize_polygons(
     (usize, usize),
     Vec<Vec<u8>>,
     Vec<Polygon>,
-    [Option<usize>; 4],
+    [Option<(usize, i32, i32)>; 4],
 )> {
     let serialized_levels = serialized_polygons.lines().collect::<Vec<&str>>();
 
