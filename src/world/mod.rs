@@ -4,8 +4,8 @@ mod camera;
 mod map;
 
 pub use map::{
-    a_star, DespawnLevelSystemSet, LevelChanged, PathfindingSource, PathfindingTarget,
-    WorldSpatialData,
+    a_star, CachedEnemy, CachedLevelData, DespawnLevelSystemSet, LevelChanged, PathfindingSource,
+    PathfindingTarget, WorldSpatialData,
 };
 
 use bevy::prelude::*;

@@ -51,6 +51,7 @@ pub struct PathfindingTarget {
 pub struct WorldSpatialData {
     levels_spatial_data: HashMap<(usize, usize), LevelSpatialData>,
     current_level: (usize, usize),
+    previous_level: Option<(usize, usize)>,
     level_transition_offset: IVec2,
     level_transition_direction: LevelChangeDirection,
 }
@@ -63,15 +64,14 @@ pub struct LevelSpatialData {
     cached_data: Option<CachedLevelData>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Default)]
 pub struct CachedLevelData {
-    enemies: Vec<CachedEnemy>,
+    pub enemies: Vec<CachedEnemy>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CachedEnemy {
-    pos: Vec2,
-    move_dir: Vec2,
+    pub pos: Vec2,
 }
 
 impl PathfindingSource {
@@ -87,6 +87,17 @@ impl PathfindingSource {
 impl WorldSpatialData {
     fn current_spatial_level(&self) -> &LevelSpatialData {
         match self.levels_spatial_data.get(&self.current_level) {
+            Some(level) => level,
+            None => panic!("should never happen, world: {:?}", self),
+        }
+    }
+
+    fn previous_spatial_level(&self) -> &LevelSpatialData {
+        match self.levels_spatial_data.get(
+            &self
+                .previous_level
+                .expect("should never call this when none"),
+        ) {
             Some(level) => level,
             None => panic!("should never happen, world: {:?}", self),
         }
@@ -108,6 +119,34 @@ impl WorldSpatialData {
         &self.current_spatial_level().collider_polygons
     }
 
+    pub fn cached_level_data(&self) -> Option<CachedLevelData> {
+        self.current_spatial_level().cached_data.clone()
+    }
+
+    pub fn cached_previous_level_data(&self) -> Option<CachedLevelData> {
+        self.previous_level?;
+        self.previous_spatial_level().cached_data.clone()
+    }
+
+    pub fn update_cached_level_data(&mut self, new_cached_data: CachedLevelData) {
+        if self.previous_level.is_none() {
+            return;
+        }
+
+        match self
+            .levels_spatial_data
+            .get_mut(&self.previous_level.expect("should never call this on none"))
+        {
+            Some(level) => level.cached_data = Some(new_cached_data),
+            None => panic!("should never happen, world: {:?}", self),
+        }
+
+        for l in self.levels_spatial_data.values() {
+            // TODO: You need to update the cache of the PREVIOUS level, not the new one
+            info!("{:?}", l.cached_data);
+        }
+    }
+
     pub fn level_dimensions(&self) -> UVec2 {
         let level = self.current_spatial_level();
         UVec2::new(
@@ -121,6 +160,7 @@ impl WorldSpatialData {
 
         match self.current_spatial_level().neighbours[direction.to_usize()] {
             Some(neighbour) => {
+                self.previous_level = Some(self.current_level);
                 self.current_level = (self.current_level.0, neighbour.0);
                 self.level_transition_offset = IVec2::new(neighbour.1, neighbour.2);
                 self.level_transition_direction = direction;
@@ -162,6 +202,7 @@ fn deserialize_and_insert_wrold_data(mut commands: Commands) {
     commands.insert_resource(WorldSpatialData {
         levels_spatial_data,
         current_level: (0, 0),
+        previous_level: None,
         level_transition_offset: IVec2::default(),
         level_transition_direction: LevelChangeDirection::North,
     });

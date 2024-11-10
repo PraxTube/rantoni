@@ -9,7 +9,8 @@ use crate::{
     dude::DudeAnimations,
     world::{
         collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType, ENEMY_GROUP, WORLD_GROUP},
-        DespawnLevelSystemSet, LevelChanged, PathfindingSource, WorldEntity, WorldSpatialData,
+        CachedEnemy, CachedLevelData, DespawnLevelSystemSet, LevelChanged, PathfindingSource,
+        WorldEntity, WorldSpatialData,
     },
     GameAssets, GameState,
 };
@@ -91,11 +92,11 @@ fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec
     ]);
 }
 
-fn spawn_dummy_enemies(
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    ldtk_project_assets: Res<Assets<LdtkProject>>,
-    world_data: Res<WorldSpatialData>,
+fn spawn_enemies_from_ldtk(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    ldtk_project_assets: &Res<Assets<LdtkProject>>,
+    world_data: &Res<WorldSpatialData>,
 ) {
     let project = ldtk_project_assets
         .get(&assets.map)
@@ -119,9 +120,47 @@ fn spawn_dummy_enemies(
                 entity_instance.px.x as f32,
                 world_data.level_dimensions().y as f32 * TILE_SIZE - entity_instance.px.y as f32,
             );
-            spawn_dummy_enemy(&mut commands, &assets, pos);
+            spawn_dummy_enemy(commands, assets, pos);
         }
     }
+}
+
+fn spawn_enemies_from_cached_data(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    cached_data: &CachedLevelData,
+) {
+    for cached_enemy in &cached_data.enemies {
+        spawn_dummy_enemy(commands, assets, cached_enemy.pos);
+    }
+}
+
+fn spawn_dummy_enemies(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+    ldtk_project_assets: Res<Assets<LdtkProject>>,
+    world_data: Res<WorldSpatialData>,
+) {
+    match world_data.cached_level_data() {
+        Some(cached_data) => spawn_enemies_from_cached_data(&mut commands, &assets, &cached_data),
+        None => spawn_enemies_from_ldtk(&mut commands, &assets, &ldtk_project_assets, &world_data),
+    };
+}
+
+fn cached_enemies(
+    mut world_data: ResMut<WorldSpatialData>,
+    q_enemies: Query<&Transform, With<Enemy>>,
+) {
+    let mut cached_enemies = Vec::new();
+    for transform in &q_enemies {
+        cached_enemies.push(CachedEnemy {
+            pos: transform.translation.truncate(),
+        });
+    }
+
+    let mut cached_data = world_data.cached_previous_level_data().unwrap_or_default();
+    cached_data.enemies = cached_enemies;
+    world_data.update_cached_level_data(cached_data);
 }
 
 pub struct EnemySpawnPlugin;
@@ -133,6 +172,7 @@ impl Plugin for EnemySpawnPlugin {
             spawn_dummy_enemies
                 .run_if(in_state(GameState::TransitionLevel).and_then(on_event::<LevelChanged>()))
                 .after(DespawnLevelSystemSet),
-        );
+        )
+        .add_systems(OnEnter(GameState::TransitionLevel), cached_enemies);
     }
 }
