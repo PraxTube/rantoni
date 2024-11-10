@@ -5,7 +5,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{dude::Attack, GameAssets, GameState};
 
-use super::{map::WorldSpatialData, LevelChanged};
+use super::{map::WorldSpatialData, DespawnLevelSystemSet, LevelChanged};
 
 pub const HURTBOX_GROUP: Group = Group::GROUP_1;
 pub const HITBOX_GROUP: Group = Group::GROUP_2;
@@ -254,13 +254,16 @@ impl Plugin for WorldCollisionPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (
-                disable_attack_arc_hitboxes,
-                despawn_attack_arcs,
-                spawn_map_collisions.run_if(on_event::<LevelChanged>()),
-            )
+            (disable_attack_arc_hitboxes, despawn_attack_arcs)
                 .run_if(not(in_state(GameState::AssetLoading))),
         )
-        .add_systems(OnEnter(GameState::TransitionLevel), despawn_map_collisions);
+        .add_systems(
+            Update,
+            (
+                despawn_map_collisions.in_set(DespawnLevelSystemSet),
+                spawn_map_collisions.after(DespawnLevelSystemSet),
+            )
+                .run_if(in_state(GameState::TransitionLevel).and_then(on_event::<LevelChanged>())),
+        );
     }
 }

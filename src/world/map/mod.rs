@@ -2,7 +2,7 @@ mod level_transition;
 mod pathfinding;
 
 use level_transition::LevelChangeDirection;
-pub use level_transition::LevelChanged;
+pub use level_transition::{DespawnLevelSystemSet, LevelChanged};
 
 use bevy_rancic::prelude::DebugState;
 pub use pathfinding::a_star;
@@ -49,15 +49,29 @@ pub struct PathfindingTarget {
 
 #[derive(Resource, Debug)]
 pub struct WorldSpatialData {
-    pub levels_spatial_data: HashMap<(usize, usize), LevelSpatialData>,
+    levels_spatial_data: HashMap<(usize, usize), LevelSpatialData>,
     current_level: (usize, usize),
+    level_transition_offset: IVec2,
+    level_transition_direction: LevelChangeDirection,
 }
 
 #[derive(Debug)]
 pub struct LevelSpatialData {
-    pub grid_matrix: Vec<Vec<u8>>,
-    pub collider_polygons: Vec<Vec<Vec2>>,
-    pub neighbours: [Option<(usize, i32, i32)>; 4],
+    grid_matrix: Vec<Vec<u8>>,
+    collider_polygons: Vec<Vec<Vec2>>,
+    neighbours: [Option<(usize, i32, i32)>; 4],
+    cached_data: Option<CachedLevelData>,
+}
+
+#[derive(Debug)]
+pub struct CachedLevelData {
+    enemies: Vec<CachedEnemy>,
+}
+
+#[derive(Debug)]
+pub struct CachedEnemy {
+    pos: Vec2,
+    move_dir: Vec2,
 }
 
 impl PathfindingSource {
@@ -102,19 +116,17 @@ impl WorldSpatialData {
         )
     }
 
-    pub fn transition_level_and_get_offset(
-        &mut self,
-        direction: LevelChangeDirection,
-    ) -> (i32, i32) {
+    pub fn transition_level(&mut self, direction: LevelChangeDirection) {
         assert_ne!(direction, LevelChangeDirection::None);
 
         match self.current_spatial_level().neighbours[direction.to_usize()] {
             Some(neighbour) => {
                 self.current_level = (self.current_level.0, neighbour.0);
-                (neighbour.1, neighbour.2)
+                self.level_transition_offset = IVec2::new(neighbour.1, neighbour.2);
+                self.level_transition_direction = direction;
             }
             None => {
-                panic!("trying to transition to neighbour that does not exist, your map is wrong!, current: {:?}, next: {:?}, dir: {}", self.current_level, self.current_spatial_level().neighbours, direction.to_usize())
+                panic!("trying to transition to neighbour that does not exist, your map is wrong!, current: {:?}, next: {:?}, dir: {:?}", self.current_level, self.current_spatial_level().neighbours, direction)
             }
         }
     }
@@ -142,6 +154,7 @@ fn deserialize_and_insert_wrold_data(mut commands: Commands) {
                 grid_matrix: level_data.1,
                 collider_polygons: level_data.2,
                 neighbours: level_data.3,
+                cached_data: None,
             },
         );
     }
@@ -149,6 +162,8 @@ fn deserialize_and_insert_wrold_data(mut commands: Commands) {
     commands.insert_resource(WorldSpatialData {
         levels_spatial_data,
         current_level: (0, 0),
+        level_transition_offset: IVec2::default(),
+        level_transition_direction: LevelChangeDirection::North,
     });
 }
 

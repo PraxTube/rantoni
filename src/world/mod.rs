@@ -3,7 +3,10 @@ pub mod collisions;
 mod camera;
 mod map;
 
-pub use map::{a_star, LevelChanged, PathfindingSource, PathfindingTarget, WorldSpatialData};
+pub use map::{
+    a_star, DespawnLevelSystemSet, LevelChanged, PathfindingSource, PathfindingTarget,
+    WorldSpatialData,
+};
 
 use bevy::prelude::*;
 

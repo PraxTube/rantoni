@@ -9,7 +9,7 @@ use crate::{
     dude::DudeAnimations,
     world::{
         collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType, ENEMY_GROUP, WORLD_GROUP},
-        LevelChanged, PathfindingSource, WorldEntity, WorldSpatialData,
+        DespawnLevelSystemSet, LevelChanged, PathfindingSource, WorldEntity, WorldSpatialData,
     },
     GameAssets, GameState,
 };
@@ -119,7 +119,6 @@ fn spawn_dummy_enemies(
                 entity_instance.px.x as f32,
                 world_data.level_dimensions().y as f32 * TILE_SIZE - entity_instance.px.y as f32,
             );
-            info!("{}", pos);
             spawn_dummy_enemy(&mut commands, &assets, pos);
         }
     }
@@ -131,8 +130,9 @@ impl Plugin for EnemySpawnPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (spawn_dummy_enemies.run_if(on_event::<LevelChanged>()),)
-                .run_if(not(in_state(GameState::AssetLoading))),
+            spawn_dummy_enemies
+                .run_if(in_state(GameState::TransitionLevel).and_then(on_event::<LevelChanged>()))
+                .after(DespawnLevelSystemSet),
         );
     }
 }
