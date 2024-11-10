@@ -1,11 +1,14 @@
 use std::time::Duration;
 
-use bevy::prelude::*;
+use bevy::{color::palettes::css::BLACK, prelude::*};
 use bevy_tweening::{lens::TransformScaleLens, Animator, EaseFunction, Tween, TweenCompleted};
 
 use crate::GameState;
 
+use super::FadeScreen;
+
 const SPLASH_SCREEN_TWEEN_ID: u64 = 12341234;
+const FADE_OUT_DURATION: f32 = 3.0;
 
 #[derive(Component)]
 struct SplashScreen;
@@ -70,12 +73,25 @@ fn despawn_splash_screen(
     }
 }
 
+fn fade_out_intro_screen(mut ev_spawn_fade_screen: EventWriter<FadeScreen>) {
+    ev_spawn_fade_screen.send(FadeScreen::new(
+        FADE_OUT_DURATION,
+        BLACK.with_alpha(1.0).into(),
+        BLACK.with_alpha(0.0).into(),
+        EaseFunction::CubicIn,
+        0,
+    ));
+}
+
 pub struct SplashScreenPlugin;
 
 impl Plugin for SplashScreenPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::AssetLoading), spawn_splash_screen)
-            .add_systems(OnExit(GameState::AssetLoading), fade_out_splash_screen)
+            .add_systems(
+                OnExit(GameState::AssetLoading),
+                (fade_out_splash_screen, fade_out_intro_screen),
+            )
             .add_systems(Update, (despawn_splash_screen,));
     }
 }

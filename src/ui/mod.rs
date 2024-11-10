@@ -2,6 +2,8 @@ mod audio_bar;
 mod screen_fade;
 mod splash_screen;
 
+pub use screen_fade::FadeScreen;
+
 use bevy::prelude::*;
 
 pub struct UiPlugin;
