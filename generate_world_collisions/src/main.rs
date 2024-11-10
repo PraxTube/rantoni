@@ -16,7 +16,7 @@ use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::prelude::*;
 use generate_world_collisions::{
     decompose_poly, map_grid_matrix, merge_convex_polygons, serialize_collider_polygons,
-    serialize_grid_matrix, Grid, LDTK_FILE, MAP_POLYGON_DATA, TILE_SIZE,
+    serialize_grid_matrix, Grid, LDTK_FILE, MAP_POLYGON_DATA, TILE_SIZE, WALKABLE_LAYER,
 };
 use ldtk::WorldLayout;
 
@@ -98,15 +98,14 @@ fn grid_from_level(level: ldtk::Level) -> Grid {
         .clone()
         .expect("you should never use 'separate levels' option")
     {
+        assert_eq!(layer.grid_size as f32, TILE_SIZE);
         if layer.layer_instance_type != ldtk::Type::IntGrid {
             continue;
         }
 
         assert_eq!(layer.layer_instance_type, ldtk::Type::IntGrid);
         assert_eq!(layer.int_grid_csv.len(), height * width);
-        // TODO: Factor this out, probably some kind of config file that bridges identifiers from
-        // LDTK with Bevy
-        assert_eq!(layer.identifier, "Dummy".to_string());
+        assert_eq!(layer.identifier, WALKABLE_LAYER.to_string());
 
         for inv_y in 0..height {
             for x in 0..width {

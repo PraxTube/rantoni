@@ -101,10 +101,6 @@ fn change_hurtbox_collisions(
             },
         };
 
-        // TODO: Is this expensive? Are we allocating new stuff whenever we do this or is it more
-        // similar to when you set an integer? If it's the former, then you should probably check
-        // if the variable is already the corresponding thing and not do anything if it already
-        // matches.
         if hurtbox.hurtbox_type != hurtbox_type {
             *collision_groups = COLLISION_GROUPS_NONE;
             *collider_color = COLLIDER_COLOR_BLACK;

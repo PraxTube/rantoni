@@ -3,7 +3,7 @@ use bevy_ecs_ldtk::prelude::*;
 use bevy_rancic::prelude::{YSort, YSortChild};
 use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
-use generate_world_collisions::TILE_SIZE;
+use generate_world_collisions::{ENEMY_LAYER_IDENTIFIER, TILE_SIZE};
 
 use crate::{
     dude::DudeAnimations,
@@ -109,9 +109,7 @@ fn spawn_enemies_from_ldtk(
         .expect("layer instances should never be null, it's okay to be empty, but not null, probably issue with 'separate levels' option");
 
     for layer_instance in layer_instances {
-        // TODO: Factor this out, probably some kind of config file that bridges identifiers from
-        // LDTK with Bevy
-        if layer_instance.identifier != "Enemies" {
+        if layer_instance.identifier != ENEMY_LAYER_IDENTIFIER {
             continue;
         }
 

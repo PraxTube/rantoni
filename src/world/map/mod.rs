@@ -140,11 +140,6 @@ impl WorldSpatialData {
             Some(level) => level.cached_data = Some(new_cached_data),
             None => panic!("should never happen, world: {:?}", self),
         }
-
-        for l in self.levels_spatial_data.values() {
-            // TODO: You need to update the cache of the PREVIOUS level, not the new one
-            info!("{:?}", l.cached_data);
-        }
     }
 
     pub fn level_dimensions(&self) -> UVec2 {
@@ -211,25 +206,25 @@ fn deserialize_and_insert_wrold_data(mut commands: Commands) {
 fn debug_enemy_pathfinding(
     mut gizmos: Gizmos,
     debug_state: Res<DebugState>,
-    world_data: Res<WorldSpatialData>,
-    q_player: Query<&GlobalTransform, With<PathfindingTarget>>,
-    q_enemies: Query<&GlobalTransform, (With<PathfindingSource>, Without<PathfindingTarget>)>,
+    q_targets: Query<&GlobalTransform, With<PathfindingTarget>>,
+    q_sources: Query<(&GlobalTransform, &PathfindingSource), Without<PathfindingTarget>>,
 ) {
     if !debug_state.0 {
         return;
     }
-    let Ok(player_transform) = q_player.get_single() else {
-        return;
-    };
 
-    for enemy_transform in &q_enemies {
-        let start = enemy_transform.translation().truncate();
-        let end = player_transform.translation().truncate();
-
-        let mut path = a_star(start, end, world_data.grid_matrix(), &None);
-
-        path.insert(0, start);
-        path.push(end);
+    for (source_transform, pf_source) in &q_sources {
+        let Some(target) = pf_source.target else {
+            continue;
+        };
+        let Some(mut path) = pf_source.path.clone() else {
+            continue;
+        };
+        let Ok(goal_transform) = q_targets.get(target) else {
+            continue;
+        };
+        path.insert(0, source_transform.translation().truncate());
+        path.push(goal_transform.translation().truncate());
 
         for i in 0..path.len() - 1 {
             let color = Srgba::new(
