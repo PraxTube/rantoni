@@ -6,7 +6,9 @@ use bevy_trickfilm::prelude::*;
 use crate::{
     dude::DudeAnimations,
     world::{
-        collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType, PLAYER_GROUP, WORLD_GROUP},
+        collisions::{
+            spawn_hurtbox_collision, Hurtbox, HurtboxType, ENEMY_GROUP, PLAYER_GROUP, WORLD_GROUP,
+        },
         PathfindingTarget,
     },
     GameAssets, GameState,
@@ -47,7 +49,7 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
             // TODO: Disable player - enemy collision when the player is sliding
             // Though only start doing this once you have some world collisions (like walls) in the
             // game, otherwise you can't really properly test this.
-            CollisionGroups::new(WORLD_GROUP | PLAYER_GROUP, WORLD_GROUP),
+            CollisionGroups::new(WORLD_GROUP | PLAYER_GROUP, WORLD_GROUP | ENEMY_GROUP),
             TransformBundle::from_transform(Transform::from_translation(Vec3::new(
                 0.0, -10.0, 0.0,
             ))),

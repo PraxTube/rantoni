@@ -61,7 +61,7 @@ fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec
         .spawn((
             PathfindingSource::new(entity),
             Collider::ball(10.0),
-            CollisionGroups::new(WORLD_GROUP | ENEMY_GROUP, WORLD_GROUP),
+            CollisionGroups::new(ENEMY_GROUP, WORLD_GROUP),
             TransformBundle::from_transform(Transform::from_translation(Vec3::new(
                 0.0, -10.0, 0.0,
             ))),
