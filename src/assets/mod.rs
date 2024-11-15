@@ -87,7 +87,7 @@ pub struct GameAssets {
     #[asset(path = "dude/shadow.png")]
     pub dude_shadow: Handle<Image>,
 
-    #[asset(texture_atlas_layout(tile_size_x = 100, tile_size_y = 100, columns = 20, rows = 8))]
+    #[asset(texture_atlas_layout(tile_size_x = 100, tile_size_y = 100, columns = 19, rows = 8))]
     pub dude_layout: Handle<TextureAtlasLayout>,
     #[asset(
         paths(

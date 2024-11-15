@@ -424,42 +424,42 @@
 		duration: 0.3,
 	),
 	"idle-o0": (
-		keyframes: KeyframesRange((start: 0, end: 20)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 0, end: 19)),
+		duration: 1.0555556,
 	),
 	"idle-o1": (
-		keyframes: KeyframesRange((start: 20, end: 40)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 19, end: 38)),
+		duration: 1.0555556,
 	),
 	"idle-o2": (
-		keyframes: KeyframesRange((start: 40, end: 60)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 38, end: 57)),
+		duration: 1.0555556,
 	),
 	"idle-o3": (
-		keyframes: KeyframesRange((start: 60, end: 80)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 57, end: 76)),
+		duration: 1.0555556,
 	),
 	"idle-o4": (
-		keyframes: KeyframesRange((start: 80, end: 100)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 76, end: 95)),
+		duration: 1.0555556,
 	),
 	"idle-o5": (
-		keyframes: KeyframesRange((start: 100, end: 120)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 95, end: 114)),
+		duration: 1.0555556,
 	),
 	"idle-o6": (
-		keyframes: KeyframesRange((start: 120, end: 140)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 114, end: 133)),
+		duration: 1.0555556,
 	),
 	"idle-o7": (
-		keyframes: KeyframesRange((start: 140, end: 160)),
-		duration: 0.6666667,
+		keyframes: KeyframesRange((start: 133, end: 152)),
+		duration: 1.0555556,
 	),
 	"jab-o0": (
-		keyframes: KeyframesRange((start: 0, end: 9)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 0, end: 5)),
+		duration: 0.2777778,
 		events: {
-			4: {
+			2: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "jab-o0",
 				)
@@ -467,10 +467,10 @@
 		},
 	),
 	"jab-o1": (
-		keyframes: KeyframesRange((start: 20, end: 29)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 19, end: 24)),
+		duration: 0.2777778,
 		events: {
-			4: {
+			2: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "jab-o1",
 				)
@@ -478,10 +478,10 @@
 		},
 	),
 	"jab-o2": (
-		keyframes: KeyframesRange((start: 40, end: 49)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 38, end: 43)),
+		duration: 0.2777778,
 		events: {
-			4: {
+			2: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "jab-o2",
 				)
@@ -489,10 +489,10 @@
 		},
 	),
 	"jab-o3": (
-		keyframes: KeyframesRange((start: 60, end: 69)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 57, end: 62)),
+		duration: 0.2777778,
 		events: {
-			4: {
+			2: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "jab-o3",
 				)
@@ -500,10 +500,10 @@
 		},
 	),
 	"jab-o4": (
-		keyframes: KeyframesRange((start: 80, end: 89)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 76, end: 81)),
+		duration: 0.2777778,
 		events: {
-			4: {
+			2: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "jab-o4",
 				)
@@ -511,10 +511,10 @@
 		},
 	),
 	"jab-o5": (
-		keyframes: KeyframesRange((start: 100, end: 109)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 95, end: 100)),
+		duration: 0.2777778,
 		events: {
-			4: {
+			2: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "jab-o5",
 				)
@@ -522,10 +522,10 @@
 		},
 	),
 	"jab-o6": (
-		keyframes: KeyframesRange((start: 120, end: 129)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 114, end: 119)),
+		duration: 0.2777778,
 		events: {
-			4: {
+			2: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "jab-o6",
 				)
@@ -533,10 +533,10 @@
 		},
 	),
 	"jab-o7": (
-		keyframes: KeyframesRange((start: 140, end: 149)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 133, end: 138)),
+		duration: 0.2777778,
 		events: {
-			4: {
+			2: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "jab-o7",
 				)
@@ -544,36 +544,188 @@
 		},
 	),
 	"jab_recover-o0": (
-		keyframes: KeyframesRange((start: 0, end: 8)),
-		duration: 0.26666668,
+		keyframes: KeyframesRange((start: 0, end: 5)),
+		duration: 0.2777778,
 	),
 	"jab_recover-o1": (
-		keyframes: KeyframesRange((start: 20, end: 28)),
-		duration: 0.26666668,
+		keyframes: KeyframesRange((start: 19, end: 24)),
+		duration: 0.2777778,
 	),
 	"jab_recover-o2": (
-		keyframes: KeyframesRange((start: 40, end: 48)),
-		duration: 0.26666668,
+		keyframes: KeyframesRange((start: 38, end: 43)),
+		duration: 0.2777778,
 	),
 	"jab_recover-o3": (
-		keyframes: KeyframesRange((start: 60, end: 68)),
-		duration: 0.26666668,
+		keyframes: KeyframesRange((start: 57, end: 62)),
+		duration: 0.2777778,
 	),
 	"jab_recover-o4": (
-		keyframes: KeyframesRange((start: 80, end: 88)),
-		duration: 0.26666668,
+		keyframes: KeyframesRange((start: 76, end: 81)),
+		duration: 0.2777778,
 	),
 	"jab_recover-o5": (
-		keyframes: KeyframesRange((start: 100, end: 108)),
-		duration: 0.26666668,
+		keyframes: KeyframesRange((start: 95, end: 100)),
+		duration: 0.2777778,
 	),
 	"jab_recover-o6": (
-		keyframes: KeyframesRange((start: 120, end: 128)),
-		duration: 0.26666668,
+		keyframes: KeyframesRange((start: 114, end: 119)),
+		duration: 0.2777778,
 	),
 	"jab_recover-o7": (
-		keyframes: KeyframesRange((start: 140, end: 148)),
-		duration: 0.26666668,
+		keyframes: KeyframesRange((start: 133, end: 138)),
+		duration: 0.2777778,
+	),
+	"punch-o0": (
+		keyframes: KeyframesRange((start: 0, end: 7)),
+		duration: 0.3888889,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "punch-o0",
+				)
+			},
+		},
+	),
+	"punch-o1": (
+		keyframes: KeyframesRange((start: 19, end: 26)),
+		duration: 0.3888889,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "punch-o1",
+				)
+			},
+		},
+	),
+	"punch-o2": (
+		keyframes: KeyframesRange((start: 38, end: 45)),
+		duration: 0.3888889,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "punch-o2",
+				)
+			},
+		},
+	),
+	"punch-o3": (
+		keyframes: KeyframesRange((start: 57, end: 64)),
+		duration: 0.3888889,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "punch-o3",
+				)
+			},
+		},
+	),
+	"punch-o4": (
+		keyframes: KeyframesRange((start: 76, end: 83)),
+		duration: 0.3888889,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "punch-o4",
+				)
+			},
+		},
+	),
+	"punch-o5": (
+		keyframes: KeyframesRange((start: 95, end: 102)),
+		duration: 0.3888889,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "punch-o5",
+				)
+			},
+		},
+	),
+	"punch-o6": (
+		keyframes: KeyframesRange((start: 114, end: 121)),
+		duration: 0.3888889,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "punch-o6",
+				)
+			},
+		},
+	),
+	"punch-o7": (
+		keyframes: KeyframesRange((start: 133, end: 140)),
+		duration: 0.3888889,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "punch-o7",
+				)
+			},
+		},
+	),
+	"punch_recover-o0": (
+		keyframes: KeyframesRange((start: 0, end: 6)),
+		duration: 0.33333334,
+	),
+	"punch_recover-o1": (
+		keyframes: KeyframesRange((start: 19, end: 25)),
+		duration: 0.33333334,
+	),
+	"punch_recover-o2": (
+		keyframes: KeyframesRange((start: 38, end: 44)),
+		duration: 0.33333334,
+	),
+	"punch_recover-o3": (
+		keyframes: KeyframesRange((start: 57, end: 63)),
+		duration: 0.33333334,
+	),
+	"punch_recover-o4": (
+		keyframes: KeyframesRange((start: 76, end: 82)),
+		duration: 0.33333334,
+	),
+	"punch_recover-o5": (
+		keyframes: KeyframesRange((start: 95, end: 101)),
+		duration: 0.33333334,
+	),
+	"punch_recover-o6": (
+		keyframes: KeyframesRange((start: 114, end: 120)),
+		duration: 0.33333334,
+	),
+	"punch_recover-o7": (
+		keyframes: KeyframesRange((start: 133, end: 139)),
+		duration: 0.33333334,
+	),
+	"run-o0": (
+		keyframes: KeyframesRange((start: 0, end: 12)),
+		duration: 0.6666667,
+	),
+	"run-o1": (
+		keyframes: KeyframesRange((start: 19, end: 31)),
+		duration: 0.6666667,
+	),
+	"run-o2": (
+		keyframes: KeyframesRange((start: 38, end: 50)),
+		duration: 0.6666667,
+	),
+	"run-o3": (
+		keyframes: KeyframesRange((start: 57, end: 69)),
+		duration: 0.6666667,
+	),
+	"run-o4": (
+		keyframes: KeyframesRange((start: 76, end: 88)),
+		duration: 0.6666667,
+	),
+	"run-o5": (
+		keyframes: KeyframesRange((start: 95, end: 107)),
+		duration: 0.6666667,
+	),
+	"run-o6": (
+		keyframes: KeyframesRange((start: 114, end: 126)),
+		duration: 0.6666667,
+	),
+	"run-o7": (
+		keyframes: KeyframesRange((start: 133, end: 145)),
+		duration: 0.6666667,
 	),
 	"jump-o0": (
 		keyframes: KeyframesRange((start: 0, end: 15)),
@@ -918,158 +1070,6 @@
 	"parry_success_recover-o7": (
 		keyframes: KeyframesRange((start: 140, end: 150)),
 		duration: 0.33333334,
-	),
-	"punch-o0": (
-		keyframes: KeyframesRange((start: 0, end: 9)),
-		duration: 0.3,
-		events: {
-			4: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "punch-o0",
-				)
-			},
-		},
-	),
-	"punch-o1": (
-		keyframes: KeyframesRange((start: 20, end: 29)),
-		duration: 0.3,
-		events: {
-			4: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "punch-o1",
-				)
-			},
-		},
-	),
-	"punch-o2": (
-		keyframes: KeyframesRange((start: 40, end: 49)),
-		duration: 0.3,
-		events: {
-			4: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "punch-o2",
-				)
-			},
-		},
-	),
-	"punch-o3": (
-		keyframes: KeyframesRange((start: 60, end: 69)),
-		duration: 0.3,
-		events: {
-			4: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "punch-o3",
-				)
-			},
-		},
-	),
-	"punch-o4": (
-		keyframes: KeyframesRange((start: 80, end: 89)),
-		duration: 0.3,
-		events: {
-			4: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "punch-o4",
-				)
-			},
-		},
-	),
-	"punch-o5": (
-		keyframes: KeyframesRange((start: 100, end: 109)),
-		duration: 0.3,
-		events: {
-			4: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "punch-o5",
-				)
-			},
-		},
-	),
-	"punch-o6": (
-		keyframes: KeyframesRange((start: 120, end: 129)),
-		duration: 0.3,
-		events: {
-			4: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "punch-o6",
-				)
-			},
-		},
-	),
-	"punch-o7": (
-		keyframes: KeyframesRange((start: 140, end: 149)),
-		duration: 0.3,
-		events: {
-			4: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "punch-o7",
-				)
-			},
-		},
-	),
-	"punch_recover-o0": (
-		keyframes: KeyframesRange((start: 0, end: 14)),
-		duration: 0.46666667,
-	),
-	"punch_recover-o1": (
-		keyframes: KeyframesRange((start: 20, end: 34)),
-		duration: 0.46666667,
-	),
-	"punch_recover-o2": (
-		keyframes: KeyframesRange((start: 40, end: 54)),
-		duration: 0.46666667,
-	),
-	"punch_recover-o3": (
-		keyframes: KeyframesRange((start: 60, end: 74)),
-		duration: 0.46666667,
-	),
-	"punch_recover-o4": (
-		keyframes: KeyframesRange((start: 80, end: 94)),
-		duration: 0.46666667,
-	),
-	"punch_recover-o5": (
-		keyframes: KeyframesRange((start: 100, end: 114)),
-		duration: 0.46666667,
-	),
-	"punch_recover-o6": (
-		keyframes: KeyframesRange((start: 120, end: 134)),
-		duration: 0.46666667,
-	),
-	"punch_recover-o7": (
-		keyframes: KeyframesRange((start: 140, end: 154)),
-		duration: 0.46666667,
-	),
-	"run-o0": (
-		keyframes: KeyframesRange((start: 0, end: 15)),
-		duration: 0.5,
-	),
-	"run-o1": (
-		keyframes: KeyframesRange((start: 20, end: 35)),
-		duration: 0.5,
-	),
-	"run-o2": (
-		keyframes: KeyframesRange((start: 40, end: 55)),
-		duration: 0.5,
-	),
-	"run-o3": (
-		keyframes: KeyframesRange((start: 60, end: 75)),
-		duration: 0.5,
-	),
-	"run-o4": (
-		keyframes: KeyframesRange((start: 80, end: 95)),
-		duration: 0.5,
-	),
-	"run-o5": (
-		keyframes: KeyframesRange((start: 100, end: 115)),
-		duration: 0.5,
-	),
-	"run-o6": (
-		keyframes: KeyframesRange((start: 120, end: 135)),
-		duration: 0.5,
-	),
-	"run-o7": (
-		keyframes: KeyframesRange((start: 140, end: 155)),
-		duration: 0.5,
 	),
 	"slide-o0": (
 		keyframes: KeyframesRange((start: 0, end: 12)),
