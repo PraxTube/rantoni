@@ -17,6 +17,9 @@ pub struct AttackHandler {
     chained_attack: AttackForm,
     chainable: bool,
     chain_buffer_timer: Timer,
+    // TODO: Only temporary, a proper animation curve implementation would be better.
+    // Also only used for normal attacks (not stuff like dropkick etc).
+    can_move: bool,
 }
 
 impl Default for AttackHandler {
@@ -27,6 +30,7 @@ impl Default for AttackHandler {
             chained_attack: AttackForm::default(),
             chainable: false,
             chain_buffer_timer: Timer::from_seconds(0.3, TimerMode::Once),
+            can_move: true,
         }
     }
 }
@@ -63,6 +67,14 @@ impl AttackHandler {
     pub fn set_chainable(&mut self, chainable: bool) {
         self.chainable = chainable;
         self.chain_buffer_timer.pause();
+    }
+
+    pub fn can_move(&self) -> bool {
+        self.can_move
+    }
+
+    pub fn set_can_move(&mut self, can_move: bool) {
+        self.can_move = can_move;
     }
 
     pub fn start_attack_chain_timer(&mut self) {

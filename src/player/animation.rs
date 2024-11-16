@@ -2,6 +2,7 @@ use bevy::{prelude::*, sprite::Anchor};
 use bevy_trickfilm::prelude::*;
 
 use crate::{
+    assets::events::SpawnHitboxEvent,
     dude::{dude_state_animation, Attack, DudeState, JumpingState},
     GameAssets,
 };
@@ -72,6 +73,19 @@ fn animate_sprite_jumping(mut q_players: Query<(&mut Sprite, &Player)>) {
     }
 }
 
+fn disable_can_move_during_attack(
+    mut q_players: Query<&mut Player>,
+    mut ev_spawn_hitbox: EventReader<SpawnHitboxEvent>,
+) {
+    for ev in ev_spawn_hitbox.read() {
+        let Ok(mut player) = q_players.get_mut(*ev.target) else {
+            continue;
+        };
+
+        player.state_machine.disable_can_move_during_attack();
+    }
+}
+
 pub struct PlayerAnimationPlugin;
 
 impl Plugin for PlayerAnimationPlugin {
@@ -82,6 +96,7 @@ impl Plugin for PlayerAnimationPlugin {
                 update_current_direction,
                 update_player_animation,
                 animate_sprite_jumping,
+                disable_can_move_during_attack,
             )
                 .chain()
                 .after(PlayerStateSystemSet)

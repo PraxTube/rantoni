@@ -184,8 +184,8 @@
 		duration: 0.56666666,
 	),
 	"axe_kick-o0": (
-		keyframes: KeyframesRange((start: 0, end: 9)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 0, end: 11)),
+		duration: 0.6111111,
 		events: {
 			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
@@ -195,8 +195,8 @@
 		},
 	),
 	"axe_kick-o1": (
-		keyframes: KeyframesRange((start: 19, end: 28)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 19, end: 30)),
+		duration: 0.6111111,
 		events: {
 			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
@@ -206,8 +206,8 @@
 		},
 	),
 	"axe_kick-o2": (
-		keyframes: KeyframesRange((start: 38, end: 47)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 38, end: 49)),
+		duration: 0.6111111,
 		events: {
 			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
@@ -217,8 +217,8 @@
 		},
 	),
 	"axe_kick-o3": (
-		keyframes: KeyframesRange((start: 57, end: 66)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 57, end: 68)),
+		duration: 0.6111111,
 		events: {
 			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
@@ -228,8 +228,8 @@
 		},
 	),
 	"axe_kick-o4": (
-		keyframes: KeyframesRange((start: 76, end: 85)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 76, end: 87)),
+		duration: 0.6111111,
 		events: {
 			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
@@ -239,8 +239,8 @@
 		},
 	),
 	"axe_kick-o5": (
-		keyframes: KeyframesRange((start: 95, end: 104)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 95, end: 106)),
+		duration: 0.6111111,
 		events: {
 			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
@@ -250,8 +250,8 @@
 		},
 	),
 	"axe_kick-o6": (
-		keyframes: KeyframesRange((start: 114, end: 123)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 114, end: 125)),
+		duration: 0.6111111,
 		events: {
 			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
@@ -261,8 +261,8 @@
 		},
 	),
 	"axe_kick-o7": (
-		keyframes: KeyframesRange((start: 133, end: 142)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 133, end: 144)),
+		duration: 0.6111111,
 		events: {
 			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (

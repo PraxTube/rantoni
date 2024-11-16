@@ -72,6 +72,7 @@ Attempted new state: {:?}",
         self.set_just_changed(true);
         self.previous_state = self.state;
         self.state = state;
+        self.attack_handler.set_can_move(true);
     }
 
     pub fn new_state(&self) -> Option<DudeState> {
@@ -304,5 +305,15 @@ Attempted new state: {:?}",
                 Vec2::ZERO
             }
         }
+    }
+
+    /// This will be `true` at the start of the animation and will turn `false` once the hitbox
+    /// gets activated.
+    pub fn can_move_during_attack(&self) -> bool {
+        self.attack_handler.can_move()
+    }
+
+    pub fn disable_can_move_during_attack(&mut self) {
+        self.attack_handler.set_can_move(false);
     }
 }
