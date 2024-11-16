@@ -46,8 +46,8 @@ fn move_player_attacking(mut q_players: Query<(&AnimationPlayer2D, &mut Velocity
             Attack::Light1 => velocity.linvel = player.current_direction * 50.0,
             Attack::Light2 => velocity.linvel = player.current_direction * 150.0,
             Attack::Light3 => velocity.linvel = player.current_direction * 200.0,
-            Attack::Heavy1 => {}
-            Attack::Heavy2 => {}
+            Attack::Heavy1 => velocity.linvel = player.current_direction * 200.0,
+            Attack::Heavy2 => velocity.linvel = player.current_direction * 50.0,
             Attack::Heavy3 => {}
             Attack::Slide => {
                 let Some(duration) = animator.duration() else {
