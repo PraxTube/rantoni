@@ -31,25 +31,38 @@ fn move_player(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &mu
 }
 
 fn move_player_attacking(mut q_players: Query<(&AnimationPlayer2D, &mut Velocity, &Player)>) {
+    // TODO: Refactor this, intuitively I expeted to find these values and stuff in
+    // `dude/attack.rs`, with each attack having some kind of information about the movement, it
+    // would be a little tricky to pull that off as the direction isn't always the same, but still
+    // this isn't _super_ nice, although I don't know how much that matters as we will have
+    // different attacks for each character anyways, but still will need to find a way to at least
+    // have all of those informations in one place.
     for (animator, mut velocity, player) in &mut q_players {
-        if player.state_machine.attack_eq(Attack::Light1) {
-            velocity.linvel = player.current_direction * 50.0;
-        } else if player.state_machine.attack_eq(Attack::Light2) {
-            velocity.linvel = player.current_direction * 250.0;
-        } else if player.state_machine.attack_eq(Attack::Slide) {
-            let Some(duration) = animator.duration() else {
-                continue;
-            };
+        if player.state_machine.state() != DudeState::Attacking {
+            continue;
+        }
 
-            let x = animator.elapsed() / duration;
-            let multiplier = (1.0 - x.powi(2)).max(0.0);
-            velocity.linvel = player.state_machine.attack_direction() * 400.0 * multiplier;
-        } else if player.state_machine.attack_eq(Attack::Dropkick)
-            || player.state_machine.attack_eq(Attack::Kneekick)
-        {
-            velocity.linvel = player
-                .state_machine
-                .jumping_linvel(player.state_machine.attack_direction());
+        match player.state_machine.attack() {
+            Attack::Light1 => velocity.linvel = player.current_direction * 50.0,
+            Attack::Light2 => velocity.linvel = player.current_direction * 150.0,
+            Attack::Light3 => velocity.linvel = player.current_direction * 200.0,
+            Attack::Heavy1 => {}
+            Attack::Heavy2 => {}
+            Attack::Heavy3 => {}
+            Attack::Slide => {
+                let Some(duration) = animator.duration() else {
+                    continue;
+                };
+
+                let x = animator.elapsed() / duration;
+                let multiplier = (1.0 - x.powi(2)).max(0.0);
+                velocity.linvel = player.state_machine.attack_direction() * 400.0 * multiplier;
+            }
+            Attack::Dropkick | Attack::Kneekick => {
+                velocity.linvel = player
+                    .state_machine
+                    .jumping_linvel(player.state_machine.attack_direction());
+            }
         }
     }
 }

@@ -304,10 +304,10 @@
 		duration: 0.56666666,
 	),
 	"front_kick-o0": (
-		keyframes: KeyframesRange((start: 0, end: 7)),
-		duration: 0.23333333,
+		keyframes: KeyframesRange((start: 0, end: 10)),
+		duration: 0.5555556,
 		events: {
-			5: {
+			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "front_kick-o0",
 				)
@@ -315,10 +315,10 @@
 		},
 	),
 	"front_kick-o1": (
-		keyframes: KeyframesRange((start: 20, end: 27)),
-		duration: 0.23333333,
+		keyframes: KeyframesRange((start: 19, end: 29)),
+		duration: 0.5555556,
 		events: {
-			5: {
+			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "front_kick-o1",
 				)
@@ -326,10 +326,10 @@
 		},
 	),
 	"front_kick-o2": (
-		keyframes: KeyframesRange((start: 40, end: 47)),
-		duration: 0.23333333,
+		keyframes: KeyframesRange((start: 38, end: 48)),
+		duration: 0.5555556,
 		events: {
-			5: {
+			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "front_kick-o2",
 				)
@@ -337,10 +337,10 @@
 		},
 	),
 	"front_kick-o3": (
-		keyframes: KeyframesRange((start: 60, end: 67)),
-		duration: 0.23333333,
+		keyframes: KeyframesRange((start: 57, end: 67)),
+		duration: 0.5555556,
 		events: {
-			5: {
+			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "front_kick-o3",
 				)
@@ -348,10 +348,10 @@
 		},
 	),
 	"front_kick-o4": (
-		keyframes: KeyframesRange((start: 80, end: 87)),
-		duration: 0.23333333,
+		keyframes: KeyframesRange((start: 76, end: 86)),
+		duration: 0.5555556,
 		events: {
-			5: {
+			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "front_kick-o4",
 				)
@@ -359,10 +359,10 @@
 		},
 	),
 	"front_kick-o5": (
-		keyframes: KeyframesRange((start: 100, end: 107)),
-		duration: 0.23333333,
+		keyframes: KeyframesRange((start: 95, end: 105)),
+		duration: 0.5555556,
 		events: {
-			5: {
+			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "front_kick-o5",
 				)
@@ -370,10 +370,10 @@
 		},
 	),
 	"front_kick-o6": (
-		keyframes: KeyframesRange((start: 120, end: 127)),
-		duration: 0.23333333,
+		keyframes: KeyframesRange((start: 114, end: 124)),
+		duration: 0.5555556,
 		events: {
-			5: {
+			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "front_kick-o6",
 				)
@@ -381,10 +381,10 @@
 		},
 	),
 	"front_kick-o7": (
-		keyframes: KeyframesRange((start: 140, end: 147)),
-		duration: 0.23333333,
+		keyframes: KeyframesRange((start: 133, end: 143)),
+		duration: 0.5555556,
 		events: {
-			5: {
+			6: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "front_kick-o7",
 				)
@@ -392,36 +392,36 @@
 		},
 	),
 	"front_kick_recover-o0": (
-		keyframes: KeyframesRange((start: 0, end: 9)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 0, end: 5)),
+		duration: 0.2777778,
 	),
 	"front_kick_recover-o1": (
-		keyframes: KeyframesRange((start: 20, end: 29)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 19, end: 24)),
+		duration: 0.2777778,
 	),
 	"front_kick_recover-o2": (
-		keyframes: KeyframesRange((start: 40, end: 49)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 38, end: 43)),
+		duration: 0.2777778,
 	),
 	"front_kick_recover-o3": (
-		keyframes: KeyframesRange((start: 60, end: 69)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 57, end: 62)),
+		duration: 0.2777778,
 	),
 	"front_kick_recover-o4": (
-		keyframes: KeyframesRange((start: 80, end: 89)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 76, end: 81)),
+		duration: 0.2777778,
 	),
 	"front_kick_recover-o5": (
-		keyframes: KeyframesRange((start: 100, end: 109)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 95, end: 100)),
+		duration: 0.2777778,
 	),
 	"front_kick_recover-o6": (
-		keyframes: KeyframesRange((start: 120, end: 129)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 114, end: 119)),
+		duration: 0.2777778,
 	),
 	"front_kick_recover-o7": (
-		keyframes: KeyframesRange((start: 140, end: 149)),
-		duration: 0.3,
+		keyframes: KeyframesRange((start: 133, end: 138)),
+		duration: 0.2777778,
 	),
 	"idle-o0": (
 		keyframes: KeyframesRange((start: 0, end: 19)),
