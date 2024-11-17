@@ -20,7 +20,7 @@ impl Default for AttackHandler {
     fn default() -> Self {
         Self {
             attack: Attack::default(),
-            timer: Timer::from_seconds(1000.0, TimerMode::Once),
+            timer: Timer::from_seconds(1.0, TimerMode::Once),
             attack_direction: Vec2::default(),
         }
     }

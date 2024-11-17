@@ -31,7 +31,6 @@ pub enum DudeAnimations {
     Parry,
     ParryFail,
     ParrySuccess,
-    ParrySuccessRecover,
     Slide,
     SlideRecover,
     Jumping,
@@ -174,7 +173,6 @@ pub fn dude_state_animation(
                 ParryState::Start => DudeAnimations::Parry,
                 ParryState::Fail => DudeAnimations::ParryFail,
                 ParryState::Success => DudeAnimations::ParrySuccess,
-                ParryState::Recover => DudeAnimations::ParrySuccessRecover,
             };
             get_animation_data(assets, dude_animation, direction, false)
         }

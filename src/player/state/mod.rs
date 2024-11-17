@@ -198,6 +198,7 @@ fn transition_idle_state(
             DudeState::Attacking => match player.state_machine.attack() {
                 Attack::Hammerfist | Attack::Dropkick => {
                     if player.state_machine.jumping_timer_finished() {
+                        info!("he");
                         player
                             .state_machine
                             .transition_chain_attack(player_input.move_direction);
@@ -234,10 +235,7 @@ fn transition_idle_state(
                     ParryState::Start => player
                         .state_machine
                         .set_state(DudeState::Parrying(ParryState::Fail)),
-                    ParryState::Success => player
-                        .state_machine
-                        .set_state(DudeState::Parrying(ParryState::Recover)),
-                    ParryState::Recover | ParryState::Fail => {
+                    ParryState::Success | ParryState::Fail => {
                         player.state_machine.set_state(DudeState::Idling)
                     }
                 }

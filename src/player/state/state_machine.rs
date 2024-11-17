@@ -27,7 +27,6 @@ impl PlayerStateMachine {
             || (self.state == DudeState::Recovering
                 && (self.attack() != Attack::Dropkick && self.attack() != Attack::Hammerfist))
             || self.state == DudeState::Parrying(ParryState::Success)
-            || self.state == DudeState::Parrying(ParryState::Recover)
             || self.state == DudeState::Staggering && self.stagger.state().is_recovering()
     }
 

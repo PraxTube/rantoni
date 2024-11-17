@@ -34,7 +34,6 @@ pub enum ParryState {
     Start,
     Fail,
     Success,
-    Recover,
 }
 
 #[derive(Default, Clone, Copy, PartialEq, Debug)]
