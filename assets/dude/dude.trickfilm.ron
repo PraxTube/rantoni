@@ -1,188 +1,4 @@
 {
-	"dropkick-o0": (
-		keyframes: KeyframesRange((start: 0, end: 12)),
-		duration: 0.4,
-		events: {
-			5: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "dropkick-o0",
-				)
-			},
-		},
-	),
-	"dropkick-o1": (
-		keyframes: KeyframesRange((start: 20, end: 32)),
-		duration: 0.4,
-		events: {
-			5: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "dropkick-o1",
-				)
-			},
-		},
-	),
-	"dropkick-o2": (
-		keyframes: KeyframesRange((start: 40, end: 52)),
-		duration: 0.4,
-		events: {
-			5: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "dropkick-o2",
-				)
-			},
-		},
-	),
-	"dropkick-o3": (
-		keyframes: KeyframesRange((start: 60, end: 72)),
-		duration: 0.4,
-		events: {
-			5: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "dropkick-o3",
-				)
-			},
-		},
-	),
-	"dropkick-o4": (
-		keyframes: KeyframesRange((start: 80, end: 92)),
-		duration: 0.4,
-		events: {
-			5: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "dropkick-o4",
-				)
-			},
-		},
-	),
-	"dropkick-o5": (
-		keyframes: KeyframesRange((start: 100, end: 112)),
-		duration: 0.4,
-		events: {
-			5: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "dropkick-o5",
-				)
-			},
-		},
-	),
-	"dropkick-o6": (
-		keyframes: KeyframesRange((start: 120, end: 132)),
-		duration: 0.4,
-		events: {
-			5: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "dropkick-o6",
-				)
-			},
-		},
-	),
-	"dropkick-o7": (
-		keyframes: KeyframesRange((start: 140, end: 152)),
-		duration: 0.4,
-		events: {
-			5: {
-				"rantoni::assets::events::SpawnHitboxEvent": (
-					msg: "dropkick-o7",
-				)
-			},
-		},
-	),
-	"dropkick_recover-o0": (
-		keyframes: KeyframesRange((start: 0, end: 12)),
-		duration: 0.4,
-	),
-	"dropkick_recover-o1": (
-		keyframes: KeyframesRange((start: 20, end: 32)),
-		duration: 0.4,
-	),
-	"dropkick_recover-o2": (
-		keyframes: KeyframesRange((start: 40, end: 52)),
-		duration: 0.4,
-	),
-	"dropkick_recover-o3": (
-		keyframes: KeyframesRange((start: 60, end: 72)),
-		duration: 0.4,
-	),
-	"dropkick_recover-o4": (
-		keyframes: KeyframesRange((start: 80, end: 92)),
-		duration: 0.4,
-	),
-	"dropkick_recover-o5": (
-		keyframes: KeyframesRange((start: 100, end: 112)),
-		duration: 0.4,
-	),
-	"dropkick_recover-o6": (
-		keyframes: KeyframesRange((start: 120, end: 132)),
-		duration: 0.4,
-	),
-	"dropkick_recover-o7": (
-		keyframes: KeyframesRange((start: 140, end: 152)),
-		duration: 0.4,
-	),
-	"fall-o0": (
-		keyframes: KeyframesRange((start: 0, end: 3)),
-		duration: 0.1,
-	),
-	"fall-o1": (
-		keyframes: KeyframesRange((start: 20, end: 23)),
-		duration: 0.1,
-	),
-	"fall-o2": (
-		keyframes: KeyframesRange((start: 40, end: 43)),
-		duration: 0.1,
-	),
-	"fall-o3": (
-		keyframes: KeyframesRange((start: 60, end: 63)),
-		duration: 0.1,
-	),
-	"fall-o4": (
-		keyframes: KeyframesRange((start: 80, end: 83)),
-		duration: 0.1,
-	),
-	"fall-o5": (
-		keyframes: KeyframesRange((start: 100, end: 103)),
-		duration: 0.1,
-	),
-	"fall-o6": (
-		keyframes: KeyframesRange((start: 120, end: 123)),
-		duration: 0.1,
-	),
-	"fall-o7": (
-		keyframes: KeyframesRange((start: 140, end: 143)),
-		duration: 0.1,
-	),
-	"fall_recover-o0": (
-		keyframes: KeyframesRange((start: 0, end: 17)),
-		duration: 0.56666666,
-	),
-	"fall_recover-o1": (
-		keyframes: KeyframesRange((start: 20, end: 37)),
-		duration: 0.56666666,
-	),
-	"fall_recover-o2": (
-		keyframes: KeyframesRange((start: 40, end: 57)),
-		duration: 0.56666666,
-	),
-	"fall_recover-o3": (
-		keyframes: KeyframesRange((start: 60, end: 77)),
-		duration: 0.56666666,
-	),
-	"fall_recover-o4": (
-		keyframes: KeyframesRange((start: 80, end: 97)),
-		duration: 0.56666666,
-	),
-	"fall_recover-o5": (
-		keyframes: KeyframesRange((start: 100, end: 117)),
-		duration: 0.56666666,
-	),
-	"fall_recover-o6": (
-		keyframes: KeyframesRange((start: 120, end: 137)),
-		duration: 0.56666666,
-	),
-	"fall_recover-o7": (
-		keyframes: KeyframesRange((start: 140, end: 157)),
-		duration: 0.56666666,
-	),
 	"axe_kick-o0": (
 		keyframes: KeyframesRange((start: 0, end: 11)),
 		duration: 0.6111111,
@@ -302,6 +118,190 @@
 	"axe_kick_recover-o7": (
 		keyframes: KeyframesRange((start: 133, end: 140)),
 		duration: 0.3888889,
+	),
+	"dropkick-o0": (
+		keyframes: KeyframesRange((start: 0, end: 11)),
+		duration: 0.6111111,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o0",
+				)
+			},
+		},
+	),
+	"dropkick-o1": (
+		keyframes: KeyframesRange((start: 19, end: 30)),
+		duration: 0.6111111,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o1",
+				)
+			},
+		},
+	),
+	"dropkick-o2": (
+		keyframes: KeyframesRange((start: 38, end: 49)),
+		duration: 0.6111111,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o2",
+				)
+			},
+		},
+	),
+	"dropkick-o3": (
+		keyframes: KeyframesRange((start: 57, end: 68)),
+		duration: 0.6111111,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o3",
+				)
+			},
+		},
+	),
+	"dropkick-o4": (
+		keyframes: KeyframesRange((start: 76, end: 87)),
+		duration: 0.6111111,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o4",
+				)
+			},
+		},
+	),
+	"dropkick-o5": (
+		keyframes: KeyframesRange((start: 95, end: 106)),
+		duration: 0.6111111,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o5",
+				)
+			},
+		},
+	),
+	"dropkick-o6": (
+		keyframes: KeyframesRange((start: 114, end: 125)),
+		duration: 0.6111111,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o6",
+				)
+			},
+		},
+	),
+	"dropkick-o7": (
+		keyframes: KeyframesRange((start: 133, end: 144)),
+		duration: 0.6111111,
+		events: {
+			3: {
+				"rantoni::assets::events::SpawnHitboxEvent": (
+					msg: "dropkick-o7",
+				)
+			},
+		},
+	),
+	"dropkick_recover-o0": (
+		keyframes: KeyframesRange((start: 0, end: 9)),
+		duration: 0.5,
+	),
+	"dropkick_recover-o1": (
+		keyframes: KeyframesRange((start: 19, end: 28)),
+		duration: 0.5,
+	),
+	"dropkick_recover-o2": (
+		keyframes: KeyframesRange((start: 38, end: 47)),
+		duration: 0.5,
+	),
+	"dropkick_recover-o3": (
+		keyframes: KeyframesRange((start: 57, end: 66)),
+		duration: 0.5,
+	),
+	"dropkick_recover-o4": (
+		keyframes: KeyframesRange((start: 76, end: 85)),
+		duration: 0.5,
+	),
+	"dropkick_recover-o5": (
+		keyframes: KeyframesRange((start: 95, end: 104)),
+		duration: 0.5,
+	),
+	"dropkick_recover-o6": (
+		keyframes: KeyframesRange((start: 114, end: 123)),
+		duration: 0.5,
+	),
+	"dropkick_recover-o7": (
+		keyframes: KeyframesRange((start: 133, end: 142)),
+		duration: 0.5,
+	),
+	"fall-o0": (
+		keyframes: KeyframesRange((start: 0, end: 2)),
+		duration: 0.11111111,
+	),
+	"fall-o1": (
+		keyframes: KeyframesRange((start: 19, end: 21)),
+		duration: 0.11111111,
+	),
+	"fall-o2": (
+		keyframes: KeyframesRange((start: 38, end: 40)),
+		duration: 0.11111111,
+	),
+	"fall-o3": (
+		keyframes: KeyframesRange((start: 57, end: 59)),
+		duration: 0.11111111,
+	),
+	"fall-o4": (
+		keyframes: KeyframesRange((start: 76, end: 78)),
+		duration: 0.11111111,
+	),
+	"fall-o5": (
+		keyframes: KeyframesRange((start: 95, end: 97)),
+		duration: 0.11111111,
+	),
+	"fall-o6": (
+		keyframes: KeyframesRange((start: 114, end: 116)),
+		duration: 0.11111111,
+	),
+	"fall-o7": (
+		keyframes: KeyframesRange((start: 133, end: 135)),
+		duration: 0.11111111,
+	),
+	"fall_recover-o0": (
+		keyframes: KeyframesRange((start: 0, end: 10)),
+		duration: 0.5555556,
+	),
+	"fall_recover-o1": (
+		keyframes: KeyframesRange((start: 19, end: 29)),
+		duration: 0.5555556,
+	),
+	"fall_recover-o2": (
+		keyframes: KeyframesRange((start: 38, end: 48)),
+		duration: 0.5555556,
+	),
+	"fall_recover-o3": (
+		keyframes: KeyframesRange((start: 57, end: 67)),
+		duration: 0.5555556,
+	),
+	"fall_recover-o4": (
+		keyframes: KeyframesRange((start: 76, end: 86)),
+		duration: 0.5555556,
+	),
+	"fall_recover-o5": (
+		keyframes: KeyframesRange((start: 95, end: 105)),
+		duration: 0.5555556,
+	),
+	"fall_recover-o6": (
+		keyframes: KeyframesRange((start: 114, end: 124)),
+		duration: 0.5555556,
+	),
+	"fall_recover-o7": (
+		keyframes: KeyframesRange((start: 133, end: 143)),
+		duration: 0.5555556,
 	),
 	"front_kick-o0": (
 		keyframes: KeyframesRange((start: 0, end: 10)),
@@ -574,6 +574,102 @@
 	"jab_recover-o7": (
 		keyframes: KeyframesRange((start: 133, end: 138)),
 		duration: 0.2777778,
+	),
+	"jump-o0": (
+		keyframes: KeyframesRange((start: 0, end: 9)),
+		duration: 0.5,
+	),
+	"jump-o1": (
+		keyframes: KeyframesRange((start: 19, end: 28)),
+		duration: 0.5,
+	),
+	"jump-o2": (
+		keyframes: KeyframesRange((start: 38, end: 47)),
+		duration: 0.5,
+	),
+	"jump-o3": (
+		keyframes: KeyframesRange((start: 57, end: 66)),
+		duration: 0.5,
+	),
+	"jump-o4": (
+		keyframes: KeyframesRange((start: 76, end: 85)),
+		duration: 0.5,
+	),
+	"jump-o5": (
+		keyframes: KeyframesRange((start: 95, end: 104)),
+		duration: 0.5,
+	),
+	"jump-o6": (
+		keyframes: KeyframesRange((start: 114, end: 123)),
+		duration: 0.5,
+	),
+	"jump-o7": (
+		keyframes: KeyframesRange((start: 133, end: 142)),
+		duration: 0.5,
+	),
+	"jump_recover_idle-o0": (
+		keyframes: KeyframesRange((start: 0, end: 8)),
+		duration: 0.44444445,
+	),
+	"jump_recover_idle-o1": (
+		keyframes: KeyframesRange((start: 19, end: 27)),
+		duration: 0.44444445,
+	),
+	"jump_recover_idle-o2": (
+		keyframes: KeyframesRange((start: 38, end: 46)),
+		duration: 0.44444445,
+	),
+	"jump_recover_idle-o3": (
+		keyframes: KeyframesRange((start: 57, end: 65)),
+		duration: 0.44444445,
+	),
+	"jump_recover_idle-o4": (
+		keyframes: KeyframesRange((start: 76, end: 84)),
+		duration: 0.44444445,
+	),
+	"jump_recover_idle-o5": (
+		keyframes: KeyframesRange((start: 95, end: 103)),
+		duration: 0.44444445,
+	),
+	"jump_recover_idle-o6": (
+		keyframes: KeyframesRange((start: 114, end: 122)),
+		duration: 0.44444445,
+	),
+	"jump_recover_idle-o7": (
+		keyframes: KeyframesRange((start: 133, end: 141)),
+		duration: 0.44444445,
+	),
+	"jump_recover_moving-o0": (
+		keyframes: KeyframesRange((start: 0, end: 6)),
+		duration: 0.33333334,
+	),
+	"jump_recover_moving-o1": (
+		keyframes: KeyframesRange((start: 19, end: 25)),
+		duration: 0.33333334,
+	),
+	"jump_recover_moving-o2": (
+		keyframes: KeyframesRange((start: 38, end: 44)),
+		duration: 0.33333334,
+	),
+	"jump_recover_moving-o3": (
+		keyframes: KeyframesRange((start: 57, end: 63)),
+		duration: 0.33333334,
+	),
+	"jump_recover_moving-o4": (
+		keyframes: KeyframesRange((start: 76, end: 82)),
+		duration: 0.33333334,
+	),
+	"jump_recover_moving-o5": (
+		keyframes: KeyframesRange((start: 95, end: 101)),
+		duration: 0.33333334,
+	),
+	"jump_recover_moving-o6": (
+		keyframes: KeyframesRange((start: 114, end: 120)),
+		duration: 0.33333334,
+	),
+	"jump_recover_moving-o7": (
+		keyframes: KeyframesRange((start: 133, end: 139)),
+		duration: 0.33333334,
 	),
 	"left_hook-o0": (
 		keyframes: KeyframesRange((start: 0, end: 6)),
@@ -967,102 +1063,7 @@
 		keyframes: KeyframesRange((start: 133, end: 140)),
 		duration: 0.3888889,
 	),
-	"jump-o0": (
-		keyframes: KeyframesRange((start: 0, end: 15)),
-		duration: 0.5,
-	),
-	"jump-o1": (
-		keyframes: KeyframesRange((start: 20, end: 35)),
-		duration: 0.5,
-	),
-	"jump-o2": (
-		keyframes: KeyframesRange((start: 40, end: 55)),
-		duration: 0.5,
-	),
-	"jump-o3": (
-		keyframes: KeyframesRange((start: 60, end: 75)),
-		duration: 0.5,
-	),
-	"jump-o4": (
-		keyframes: KeyframesRange((start: 80, end: 95)),
-		duration: 0.5,
-	),
-	"jump-o5": (
-		keyframes: KeyframesRange((start: 100, end: 115)),
-		duration: 0.5,
-	),
-	"jump-o6": (
-		keyframes: KeyframesRange((start: 120, end: 135)),
-		duration: 0.5,
-	),
-	"jump-o7": (
-		keyframes: KeyframesRange((start: 140, end: 155)),
-		duration: 0.5,
-	),
-	"jump_recover_idle-o0": (
-		keyframes: KeyframesRange((start: 0, end: 13)),
-		duration: 0.43333334,
-	),
-	"jump_recover_idle-o1": (
-		keyframes: KeyframesRange((start: 20, end: 33)),
-		duration: 0.43333334,
-	),
-	"jump_recover_idle-o2": (
-		keyframes: KeyframesRange((start: 40, end: 53)),
-		duration: 0.43333334,
-	),
-	"jump_recover_idle-o3": (
-		keyframes: KeyframesRange((start: 60, end: 73)),
-		duration: 0.43333334,
-	),
-	"jump_recover_idle-o4": (
-		keyframes: KeyframesRange((start: 80, end: 93)),
-		duration: 0.43333334,
-	),
-	"jump_recover_idle-o5": (
-		keyframes: KeyframesRange((start: 100, end: 113)),
-		duration: 0.43333334,
-	),
-	"jump_recover_idle-o6": (
-		keyframes: KeyframesRange((start: 120, end: 133)),
-		duration: 0.43333334,
-	),
-	"jump_recover_idle-o7": (
-		keyframes: KeyframesRange((start: 140, end: 153)),
-		duration: 0.43333334,
-	),
-	"jump_recover_moving-o0": (
-		keyframes: KeyframesRange((start: 0, end: 10)),
-		duration: 0.33333334,
-	),
-	"jump_recover_moving-o1": (
-		keyframes: KeyframesRange((start: 20, end: 30)),
-		duration: 0.33333334,
-	),
-	"jump_recover_moving-o2": (
-		keyframes: KeyframesRange((start: 40, end: 50)),
-		duration: 0.33333334,
-	),
-	"jump_recover_moving-o3": (
-		keyframes: KeyframesRange((start: 60, end: 70)),
-		duration: 0.33333334,
-	),
-	"jump_recover_moving-o4": (
-		keyframes: KeyframesRange((start: 80, end: 90)),
-		duration: 0.33333334,
-	),
-	"jump_recover_moving-o5": (
-		keyframes: KeyframesRange((start: 100, end: 110)),
-		duration: 0.33333334,
-	),
-	"jump_recover_moving-o6": (
-		keyframes: KeyframesRange((start: 120, end: 130)),
-		duration: 0.33333334,
-	),
-	"jump_recover_moving-o7": (
-		keyframes: KeyframesRange((start: 140, end: 150)),
-		duration: 0.33333334,
-	),
+    // END
 	"kneekick-o0": (
 		keyframes: KeyframesRange((start: 0, end: 11)),
 		duration: 0.36666667,

@@ -162,7 +162,7 @@ pub fn dude_state_animation(
                 // We only care about one of the 8 directions, but because of how the whole pipeline is
                 // set up we just keep the other 7 useless animations, it's a minor issue but
                 // absolutely not worth the optimization.
-                Vec2::NEG_Y
+                Vec2::Y
             } else {
                 direction
             };
