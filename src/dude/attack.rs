@@ -49,14 +49,14 @@ impl Attack {
             ),
             Attack::Light3 => (
                 Vec2::default(),
-                Collider::cuboid(12.0, 12.0),
-                30.0,
+                Collider::cuboid(12.0, 20.0),
+                20.0,
                 Vec2::ZERO,
             ),
             Attack::Heavy1 => (
                 Vec2::default(),
-                Collider::cuboid(8.0, 14.0),
-                20.0,
+                Collider::cuboid(12.0, 12.0),
+                30.0,
                 Vec2::ZERO,
             ),
             Attack::Heavy2 => (
@@ -67,7 +67,7 @@ impl Attack {
             ),
             Attack::Heavy3 => (
                 Vec2::default(),
-                Collider::cuboid(12.0, 20.0),
+                Collider::cuboid(8.0, 14.0),
                 20.0,
                 Vec2::ZERO,
             ),
@@ -117,16 +117,16 @@ impl Attack {
                 true,
             ),
             Attack::Light3 => (
+                assets.attack_half_circle.clone(),
+                assets.attack_half_circle_layout.clone(),
+                assets.attack_half_circle_animation.clone(),
+                true,
+            ),
+            Attack::Heavy1 => (
                 assets.attack_flat_line.clone(),
                 assets.attack_flat_line_layout.clone(),
                 assets.attack_flat_line_animation.clone(),
                 true,
-            ),
-            Attack::Heavy1 => (
-                assets.attack_vertical_line.clone(),
-                assets.attack_vertical_line_layout.clone(),
-                assets.attack_vertical_line_animation.clone(),
-                false,
             ),
             Attack::Heavy2 => (
                 assets.attack_arc.clone(),
@@ -135,10 +135,10 @@ impl Attack {
                 true,
             ),
             Attack::Heavy3 => (
-                assets.attack_half_circle.clone(),
-                assets.attack_half_circle_layout.clone(),
-                assets.attack_half_circle_animation.clone(),
-                true,
+                assets.attack_vertical_line.clone(),
+                assets.attack_vertical_line_layout.clone(),
+                assets.attack_vertical_line_animation.clone(),
+                false,
             ),
             // TODO: Slide effect animations
             Attack::Slide => (

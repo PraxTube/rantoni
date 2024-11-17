@@ -81,15 +81,15 @@ impl Stagger {
                 self.new_state(
                     StaggerState::Normal,
                     direction,
-                    0.2 * duration_multiplier,
-                    0.0 * intensity_multiplier,
+                    0.25 * duration_multiplier,
+                    700.0 * intensity_multiplier,
                 );
             }
             Attack::Heavy1 => {
                 self.new_state(
-                    StaggerState::Fall,
+                    StaggerState::Normal,
                     direction,
-                    0.3 * duration_multiplier,
+                    0.2 * duration_multiplier,
                     0.0 * intensity_multiplier,
                 );
             }
@@ -103,10 +103,10 @@ impl Stagger {
             }
             Attack::Heavy3 => {
                 self.new_state(
-                    StaggerState::Normal,
+                    StaggerState::Fall,
                     direction,
-                    0.25 * duration_multiplier,
-                    700.0 * intensity_multiplier,
+                    0.3 * duration_multiplier,
+                    0.0 * intensity_multiplier,
                 );
             }
             Attack::Slide => {
