@@ -41,8 +41,8 @@ pub enum DudeAnimations {
     FallRecover,
     Dropkick,
     DropkickRecover,
-    Kneekick,
-    KneekickRecover,
+    Hammerfist,
+    HammerfistRecover,
 }
 
 impl DudeAnimations {
@@ -128,7 +128,7 @@ pub fn dude_state_animation(
                 Attack::Heavy3 => DudeAnimations::Heavy3,
                 Attack::Slide => DudeAnimations::Slide,
                 Attack::Dropkick => DudeAnimations::Dropkick,
-                Attack::Kneekick => DudeAnimations::Kneekick,
+                Attack::Hammerfist => DudeAnimations::Hammerfist,
             };
             get_animation_data(assets, dude_animation, direction, false)
         }
@@ -142,7 +142,7 @@ pub fn dude_state_animation(
                 Attack::Heavy3 => DudeAnimations::Heavy3Recover,
                 Attack::Slide => DudeAnimations::SlideRecover,
                 Attack::Dropkick => DudeAnimations::DropkickRecover,
-                Attack::Kneekick => DudeAnimations::KneekickRecover,
+                Attack::Hammerfist => DudeAnimations::HammerfistRecover,
             };
             get_animation_data(assets, dude_animation, direction, false)
         }

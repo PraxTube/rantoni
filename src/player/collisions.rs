@@ -85,7 +85,7 @@ fn change_hurtbox_collisions(
             DudeState::Attacking => match player.state_machine.attack() {
                 Attack::Slide => HurtboxType::Fallen,
                 Attack::Dropkick => HurtboxType::Jumping,
-                Attack::Kneekick => HurtboxType::Jumping,
+                Attack::Hammerfist => HurtboxType::Jumping,
                 _ => HurtboxType::Normal,
             },
             DudeState::Recovering => HurtboxType::Normal,

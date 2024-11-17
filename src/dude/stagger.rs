@@ -125,7 +125,7 @@ impl Stagger {
                     1000.0 * intensity_multiplier,
                 );
             }
-            Attack::Kneekick => {
+            Attack::Hammerfist => {
                 self.new_state(
                     StaggerState::Normal,
                     direction,

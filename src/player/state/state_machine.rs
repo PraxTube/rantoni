@@ -25,7 +25,7 @@ impl PlayerStateMachine {
         self.state == DudeState::Idling
             || self.state == DudeState::Running
             || (self.state == DudeState::Recovering
-                && (self.attack() != Attack::Dropkick && self.attack() != Attack::Kneekick))
+                && (self.attack() != Attack::Dropkick && self.attack() != Attack::Hammerfist))
             || self.state == DudeState::Parrying(ParryState::Success)
             || self.state == DudeState::Parrying(ParryState::Recover)
             || self.state == DudeState::Staggering && self.stagger.state().is_recovering()
@@ -36,7 +36,7 @@ impl PlayerStateMachine {
             || (self.state == DudeState::Attacking
                 && self.attack() != Attack::Slide
                 && self.attack() != Attack::Dropkick
-                && self.attack() != Attack::Kneekick)
+                && self.attack() != Attack::Hammerfist)
     }
 
     pub fn previous_state(&self) -> DudeState {
@@ -200,14 +200,14 @@ Attempted new state: {:?}",
             Attack::Heavy3 => None,
             Attack::Slide => None,
             Attack::Dropkick => None,
-            Attack::Kneekick => None,
+            Attack::Hammerfist => None,
         }
     }
 
     pub fn transition_chain_attack(&mut self, move_direction: Vec2) {
         let terminal_state = if move_direction == Vec2::ZERO
             || self.attack() == Attack::Dropkick
-            || self.attack() == Attack::Kneekick
+            || self.attack() == Attack::Hammerfist
         {
             DudeState::Recovering
         } else {

@@ -54,7 +54,7 @@ fn move_player_attacking(mut q_players: Query<(&AnimationPlayer2D, &mut Velocity
             Attack::Light3 => velocity.linvel = player.current_direction * 200.0 * can_move,
             Attack::Heavy1 => velocity.linvel = player.current_direction * 200.0 * can_move,
             Attack::Heavy2 => velocity.linvel = player.current_direction * 50.0 * can_move,
-            Attack::Heavy3 => velocity.linvel = player.current_direction * 200.0 * can_move,
+            Attack::Heavy3 => velocity.linvel = player.current_direction * 250.0 * can_move,
             Attack::Slide => {
                 let Some(duration) = animator.duration() else {
                     continue;
@@ -64,7 +64,7 @@ fn move_player_attacking(mut q_players: Query<(&AnimationPlayer2D, &mut Velocity
                 let multiplier = (1.0 - x.powi(2)).max(0.0);
                 velocity.linvel = player.state_machine.attack_direction() * 400.0 * multiplier;
             }
-            Attack::Dropkick | Attack::Kneekick => {
+            Attack::Dropkick | Attack::Hammerfist => {
                 velocity.linvel = player
                     .state_machine
                     .jumping_linvel(player.state_machine.attack_direction());

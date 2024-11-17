@@ -15,7 +15,7 @@ pub enum Attack {
     Heavy3,
     Slide,
     Dropkick,
-    Kneekick,
+    Hammerfist,
 }
 
 #[derive(Debug, Default, PartialEq, Clone, Copy)]
@@ -83,7 +83,7 @@ impl Attack {
                 20.0,
                 Vec2::new(0.0, -6.0),
             ),
-            Attack::Kneekick => (
+            Attack::Hammerfist => (
                 Vec2::default(),
                 Collider::cuboid(8.0, 6.0),
                 16.0,
@@ -154,8 +154,8 @@ impl Attack {
                 assets.attack_arc_animation.clone(),
                 true,
             ),
-            // TODO: kneekick effect animations
-            Attack::Kneekick => (
+            // TODO: hammerfist effect animations
+            Attack::Hammerfist => (
                 assets.attack_arc.clone(),
                 assets.attack_arc_layout.clone(),
                 assets.attack_arc_animation.clone(),
