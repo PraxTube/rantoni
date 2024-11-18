@@ -109,14 +109,6 @@ impl Stagger {
                     0.0 * intensity_multiplier,
                 );
             }
-            Attack::Slide => {
-                self.new_state(
-                    StaggerState::Fall,
-                    direction,
-                    0.5 * duration_multiplier,
-                    0.0,
-                );
-            }
             Attack::Dropkick => {
                 self.new_state(
                     StaggerState::Normal,

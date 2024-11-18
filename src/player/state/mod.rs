@@ -1,4 +1,5 @@
 mod attack;
+mod dashing;
 mod jumping;
 mod state_machine;
 
@@ -11,9 +12,6 @@ use bevy_trickfilm::prelude::*;
 use crate::dude::{Attack, AttackForm, DudeState, JumpingState, ParryState};
 use crate::player::{input::PlayerInput, Player};
 
-const SLIDING_TO_JUMP_TRANSITION_MAX_TIME_PERCENTAGE: f32 = 0.7;
-const JUMP_TO_SLIDING_TRANSITION_MIN_TIME_PERCENTAGE: f32 = 0.6;
-
 pub struct PlayerStatePlugin;
 
 impl Plugin for PlayerStatePlugin {
@@ -21,6 +19,7 @@ impl Plugin for PlayerStatePlugin {
         app.add_plugins((
             attack::PlayerAttackStatePlugin,
             jumping::PlayerJumpingStatePlugin,
+            dashing::PlayerDashingPlugin,
         ))
         .add_systems(PreUpdate, reset_just_changed)
         .add_systems(
@@ -28,7 +27,7 @@ impl Plugin for PlayerStatePlugin {
             (
                 transition_stagger_state,
                 transition_parry_state,
-                transition_slide_state,
+                transition_dash_state,
                 transition_jump_state,
                 transition_attacking_state,
                 transition_idle_state,
@@ -88,26 +87,16 @@ fn transition_parry_state(player_input: Res<PlayerInput>, mut q_players: Query<&
     }
 }
 
-fn transition_slide_state(
-    player_input: Res<PlayerInput>,
-    mut q_players: Query<(&AnimationPlayer2D, &mut Player)>,
-) {
-    for (animator, mut player) in &mut q_players {
+fn transition_dash_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
+    for mut player in &mut q_players {
         if player.state_machine.just_changed() {
             continue;
         }
-        if !player_input.slide {
-            continue;
-        }
-        let x = animator.elapsed() / animator.duration().unwrap_or(1000.0);
-        if !(player.state_machine.can_attack()
-            || (player.state_machine.state() == DudeState::Jumping(JumpingState::Start)
-                && x >= JUMP_TO_SLIDING_TRANSITION_MIN_TIME_PERCENTAGE))
-        {
+        if !player_input.dash {
             continue;
         }
 
-        player.state_machine.set_sliding_attack();
+        player.state_machine.set_state(DudeState::Dashing);
     }
 }
 
@@ -115,18 +104,11 @@ fn transition_jump_state(
     player_input: Res<PlayerInput>,
     mut q_players: Query<(&AnimationPlayer2D, &mut Player)>,
 ) {
-    for (animator, mut player) in &mut q_players {
+    for (_animator, mut player) in &mut q_players {
         if player.state_machine.just_changed() {
             continue;
         }
         if !player_input.jump {
-            continue;
-        }
-        let x = animator.elapsed() / animator.duration().unwrap_or(1000.0);
-        if !(player.state_machine.can_run()
-            || (player.state_machine.attack_eq(Attack::Slide)
-                && x <= SLIDING_TO_JUMP_TRANSITION_MAX_TIME_PERCENTAGE))
-        {
             continue;
         }
         if let DudeState::Jumping(_) = player.state_machine.state() {
@@ -225,6 +207,11 @@ fn transition_idle_state(
                     }
                 } else if player.state_machine.stagger_just_finished() {
                     player.state_machine.set_stagger_state_recover();
+                }
+            }
+            DudeState::Dashing => {
+                if player.state_machine.dashing_just_finished() {
+                    player.state_machine.set_state(DudeState::Idling);
                 }
             }
             DudeState::Parrying(parry_state) => {

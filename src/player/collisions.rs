@@ -5,7 +5,12 @@ use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 use crate::{
     dude::{Attack, DudeState, JumpingState, ParryState, StaggerState},
     enemy::{Enemy, EnemyCollisionSystemSet},
-    world::collisions::{Hitbox, HitboxType, Hurtbox, HurtboxType},
+    world::{
+        collisions::{
+            Hitbox, HitboxType, Hurtbox, HurtboxType, ENEMY_GROUP, PLAYER_GROUP, WORLD_GROUP,
+        },
+        PathfindingTarget,
+    },
     GameState,
 };
 
@@ -83,7 +88,6 @@ fn change_hurtbox_collisions(
             DudeState::Idling => HurtboxType::Normal,
             DudeState::Running => HurtboxType::Normal,
             DudeState::Attacking => match player.state_machine.attack() {
-                Attack::Slide => HurtboxType::Fallen,
                 Attack::Dropkick => HurtboxType::Jumping,
                 Attack::Hammerfist => HurtboxType::Jumping,
                 _ => HurtboxType::Normal,
@@ -94,6 +98,7 @@ fn change_hurtbox_collisions(
                 StaggerState::FallRecover => HurtboxType::Fallen,
                 _ => HurtboxType::Normal,
             },
+            DudeState::Dashing => HurtboxType::None,
             DudeState::Parrying(_) => HurtboxType::Normal,
             DudeState::Jumping(jumping_state) => match jumping_state {
                 JumpingState::Start => HurtboxType::Jumping,
@@ -111,13 +116,36 @@ fn change_hurtbox_collisions(
     }
 }
 
+fn change_collider_collisions(
+    q_players: Query<&Player>,
+    mut q_colliders: Query<(&mut CollisionGroups, &PathfindingTarget)>,
+) {
+    for (mut collision_groups, pf_target) in &mut q_colliders {
+        let Ok(player) = q_players.get(pf_target.root_entity) else {
+            continue;
+        };
+
+        let (memberships, filters) = match player.state_machine.state() {
+            DudeState::Dashing => (WORLD_GROUP | PLAYER_GROUP, WORLD_GROUP),
+            _ => (WORLD_GROUP | PLAYER_GROUP, WORLD_GROUP | ENEMY_GROUP),
+        };
+
+        collision_groups.memberships = memberships;
+        collision_groups.filters = filters;
+    }
+}
+
 pub struct PlayerCollisionsPlugin;
 
 impl Plugin for PlayerCollisionsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (change_hurtbox_collisions, enemy_hitbox_collisions)
+            (
+                change_hurtbox_collisions,
+                enemy_hitbox_collisions,
+                change_collider_collisions,
+            )
                 .chain()
                 .before(PlayerStateSystemSet)
                 .before(EnemyCollisionSystemSet)

@@ -13,7 +13,6 @@ pub enum Attack {
     Heavy1,
     Heavy2,
     Heavy3,
-    Slide,
     Dropkick,
     Hammerfist,
 }
@@ -70,12 +69,6 @@ impl Attack {
                 Collider::cuboid(8.0, 14.0),
                 20.0,
                 Vec2::ZERO,
-            ),
-            Attack::Slide => (
-                Vec2::default(),
-                Collider::cuboid(15.0, 8.0),
-                20.0,
-                Vec2::new(0.0, -16.0),
             ),
             Attack::Dropkick => (
                 Vec2::default(),
@@ -139,13 +132,6 @@ impl Attack {
                 assets.attack_vertical_line_layout.clone(),
                 assets.attack_vertical_line_animation.clone(),
                 false,
-            ),
-            // TODO: Slide effect animations
-            Attack::Slide => (
-                assets.attack_arc.clone(),
-                assets.attack_arc_layout.clone(),
-                assets.attack_arc_animation.clone(),
-                true,
             ),
             // TODO: Dropkick effect animations
             Attack::Dropkick => (

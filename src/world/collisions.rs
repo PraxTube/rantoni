@@ -40,6 +40,7 @@ struct WorldCollision;
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum HurtboxType {
+    None,
     Normal,
     Jumping,
     Fallen,

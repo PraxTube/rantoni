@@ -6,13 +6,14 @@ use crate::dude::{
     Attack, AttackForm, DudeAnimations, DudeState, JumpingState, ParryState, Stagger, StaggerState,
 };
 
-use super::{jumping::Jumping, AttackHandler};
+use super::{dashing::DashingTimer, jumping::Jumping, AttackHandler};
 
 #[derive(Component, Default)]
 pub struct PlayerStateMachine {
     just_changed: bool,
     state: DudeState,
     previous_state: DudeState,
+    dashing_timer: DashingTimer,
     stagger: Stagger,
     jumping: Jumping,
     new_state: Option<DudeState>,
@@ -33,7 +34,6 @@ impl PlayerStateMachine {
     pub fn can_attack(&self) -> bool {
         self.can_run()
             || (self.state == DudeState::Attacking
-                && self.attack() != Attack::Slide
                 && self.attack() != Attack::Dropkick
                 && self.attack() != Attack::Hammerfist)
     }
@@ -118,17 +118,6 @@ Attempted new state: {:?}",
         self.attack_handler.set_chainable(true);
     }
 
-    pub fn set_sliding_attack(&mut self) {
-        if self.just_changed {
-            error!("Trying to set sliding state even though state was already changed this frame. Should never happen, you probably forgot a flag check");
-            return;
-        }
-        self.set_state(DudeState::Attacking);
-        self.attack_handler.set_attack(Attack::Slide);
-        self.attack_handler.set_chainable(false);
-        self.attack_handler.set_chained_attack(AttackForm::None);
-    }
-
     pub fn attack_direction(&self) -> Vec2 {
         self.attack_handler.attack_direction()
     }
@@ -197,7 +186,6 @@ Attempted new state: {:?}",
                 AttackForm::Heavy => Some(Attack::Heavy3),
             },
             Attack::Heavy3 => None,
-            Attack::Slide => None,
             Attack::Dropkick => None,
             Attack::Hammerfist => None,
         }
@@ -245,8 +233,16 @@ Attempted new state: {:?}",
         }
     }
 
+    pub fn tick_dashing_timer(&mut self, delta: Duration) {
+        self.dashing_timer.0.tick(delta);
+    }
+
     pub fn tick_stagger_timer(&mut self, delta: Duration) {
         self.stagger.tick_timer(delta);
+    }
+
+    pub fn dashing_just_finished(&self) -> bool {
+        self.dashing_timer.0.just_finished()
     }
 
     pub fn stagger_just_finished(&self) -> bool {

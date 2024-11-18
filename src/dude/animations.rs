@@ -31,8 +31,7 @@ pub enum DudeAnimations {
     Parry,
     ParryFail,
     ParrySuccess,
-    Slide,
-    SlideRecover,
+    Dash,
     Jumping,
     JumpingRecoverIdle,
     JumpingRecoverMoving,
@@ -125,7 +124,6 @@ pub fn dude_state_animation(
                 Attack::Heavy1 => DudeAnimations::Heavy1,
                 Attack::Heavy2 => DudeAnimations::Heavy2,
                 Attack::Heavy3 => DudeAnimations::Heavy3,
-                Attack::Slide => DudeAnimations::Slide,
                 Attack::Dropkick => DudeAnimations::Dropkick,
                 Attack::Hammerfist => DudeAnimations::Hammerfist,
             };
@@ -139,7 +137,6 @@ pub fn dude_state_animation(
                 Attack::Heavy1 => DudeAnimations::Heavy1Recover,
                 Attack::Heavy2 => DudeAnimations::Heavy2Recover,
                 Attack::Heavy3 => DudeAnimations::Heavy3Recover,
-                Attack::Slide => DudeAnimations::SlideRecover,
                 Attack::Dropkick => DudeAnimations::DropkickRecover,
                 Attack::Hammerfist => DudeAnimations::HammerfistRecover,
             };
@@ -190,5 +187,14 @@ pub fn dude_state_animation(
                 false,
             ),
         },
+        DudeState::Dashing => {
+            error!("this should never happen! You are not allowed to call this function when in dashing state!");
+            get_animation_data(assets, DudeAnimations::Idle, direction, false)
+        }
     }
+}
+
+pub fn dude_dashing_sprites(assets: &Res<GameAssets>, direction: Vec2) -> (Handle<Image>, usize) {
+    let (texture, _, _, _) = get_animation_data(assets, DudeAnimations::Dash, direction, false);
+    (texture, direction_index_offset(direction))
 }

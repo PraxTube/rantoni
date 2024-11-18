@@ -84,7 +84,8 @@ fn update_target_positions(
                 .truncate()
                 .distance_squared(path[0])
                 // TODO: figure out a good value here, also don't use magic numbers, make const or
-                // something
+                // something.
+                // Okay well shit`https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/`
                 < 1.0
             {
                 path[1]

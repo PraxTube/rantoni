@@ -2,7 +2,7 @@ mod animations;
 mod attack;
 mod stagger;
 
-pub use animations::{dude_state_animation, DudeAnimations};
+pub use animations::{dude_dashing_sprites, dude_state_animation, DudeAnimations};
 pub use attack::{Attack, AttackForm};
 pub use stagger::{Stagger, StaggerState};
 
@@ -24,6 +24,7 @@ pub enum DudeState {
     Attacking,
     Recovering,
     Staggering,
+    Dashing,
     Parrying(ParryState),
     Jumping(JumpingState),
 }

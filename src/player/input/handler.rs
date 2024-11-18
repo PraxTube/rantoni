@@ -51,7 +51,7 @@ fn handle_keyboard_inputs(
     input.heavy_attack =
         keys.just_pressed(KeyCode::KeyN) || mouse_buttons.just_pressed(MouseButton::Right);
     input.parry = keys.just_pressed(KeyCode::KeyP);
-    input.slide = keys.just_pressed(KeyCode::ShiftLeft) || keys.just_pressed(KeyCode::KeyZ);
+    input.dash = keys.just_pressed(KeyCode::ShiftLeft) || keys.just_pressed(KeyCode::KeyZ);
     input.jump = keys.just_pressed(KeyCode::Space);
 
     let mut move_direction = Vec2::ZERO;
@@ -121,7 +121,7 @@ fn handle_gamepad_inputs(
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::North));
     input.parry =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::LeftTrigger));
-    input.slide =
+    input.dash =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::LeftTrigger2));
     input.jump =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::South));

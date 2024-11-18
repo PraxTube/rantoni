@@ -18,6 +18,10 @@ const MAX_BOUND_PADDING: f32 = 1.5;
 const MIN_BOUND_PADDING: f32 = 0.5;
 const MAX_BOUND_PADDING_PLAYER: f32 = 2.0;
 const MIN_BOUND_PADDING_PLAYER: f32 = 1.5;
+/// Small padding used when leaving the level, the bigger this value the more the player has to go
+/// outside of the level to trigger a transition.
+/// Required because the player might temporarily dash outside the leaving zone (CCD).
+const OUTSIDE_OF_BOUNDS_PADDING: f32 = 0.25;
 
 const FADE_DURATION: f32 = 0.25;
 const FADE_TO_BLACK_EVENT: u64 = 38;
@@ -46,16 +50,16 @@ impl LevelChangeDirection {
 }
 
 fn outside_of_bounds(pos: Vec2, bounds: UVec2) -> LevelChangeDirection {
-    if pos.y >= (bounds.y as f32 - MAX_BOUND_PADDING) * TILE_SIZE {
+    if pos.y >= (bounds.y as f32 - MAX_BOUND_PADDING + OUTSIDE_OF_BOUNDS_PADDING) * TILE_SIZE {
         return LevelChangeDirection::North;
     }
-    if pos.x >= (bounds.x as f32 - MAX_BOUND_PADDING) * TILE_SIZE {
+    if pos.x >= (bounds.x as f32 - MAX_BOUND_PADDING + OUTSIDE_OF_BOUNDS_PADDING) * TILE_SIZE {
         return LevelChangeDirection::East;
     }
-    if pos.y <= MIN_BOUND_PADDING * TILE_SIZE {
+    if pos.y <= (MIN_BOUND_PADDING - OUTSIDE_OF_BOUNDS_PADDING) * TILE_SIZE {
         return LevelChangeDirection::South;
     }
-    if pos.x <= MIN_BOUND_PADDING * TILE_SIZE {
+    if pos.x <= (MIN_BOUND_PADDING - OUTSIDE_OF_BOUNDS_PADDING) * TILE_SIZE {
         return LevelChangeDirection::West;
     }
     LevelChangeDirection::None

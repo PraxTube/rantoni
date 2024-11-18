@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use bevy_trickfilm::prelude::*;
 
 use crate::dude::{Attack, DudeState, JumpingState};
 use crate::GameState;
@@ -30,14 +29,14 @@ fn move_player(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &mu
     velocity.linvel = direction * speed;
 }
 
-fn move_player_attacking(mut q_players: Query<(&AnimationPlayer2D, &mut Velocity, &Player)>) {
+fn move_player_attacking(mut q_players: Query<(&mut Velocity, &Player)>) {
     // TODO: Refactor this, intuitively I expeted to find these values and stuff in
     // `dude/attack.rs`, with each attack having some kind of information about the movement, it
     // would be a little tricky to pull that off as the direction isn't always the same, but still
     // this isn't _super_ nice, although I don't know how much that matters as we will have
     // different attacks for each character anyways, but still will need to find a way to at least
     // have all of those informations in one place.
-    for (animator, mut velocity, player) in &mut q_players {
+    for (mut velocity, player) in &mut q_players {
         if player.state_machine.state() != DudeState::Attacking {
             continue;
         }
@@ -55,20 +54,19 @@ fn move_player_attacking(mut q_players: Query<(&AnimationPlayer2D, &mut Velocity
             Attack::Heavy1 => velocity.linvel = player.current_direction * 200.0 * can_move,
             Attack::Heavy2 => velocity.linvel = player.current_direction * 50.0 * can_move,
             Attack::Heavy3 => velocity.linvel = player.current_direction * 250.0 * can_move,
-            Attack::Slide => {
-                let Some(duration) = animator.duration() else {
-                    continue;
-                };
-
-                let x = animator.elapsed() / duration;
-                let multiplier = (1.0 - x.powi(2)).max(0.0);
-                velocity.linvel = player.state_machine.attack_direction() * 400.0 * multiplier;
-            }
             Attack::Dropkick | Attack::Hammerfist => {
                 velocity.linvel = player
                     .state_machine
                     .jumping_linvel(player.state_machine.attack_direction());
             }
+        }
+    }
+}
+
+fn move_player_dashing(mut q_players: Query<(&mut Velocity, &Player)>) {
+    for (mut velocity, player) in &mut q_players {
+        if player.state_machine.state() == DudeState::Dashing {
+            velocity.linvel = player.state_machine.attack_direction() * 500.0;
         }
     }
 }
@@ -113,6 +111,7 @@ impl Plugin for PlayerMovementPlugin {
                 move_player_attacking,
                 move_player_jumping,
                 move_player_staggering,
+                move_player_dashing,
             )
                 .chain()
                 .run_if(in_state(GameState::Gaming)),

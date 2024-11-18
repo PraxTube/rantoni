@@ -29,6 +29,16 @@ fn update_player_animation(
         return;
     };
 
+    // If you refactor this to work for player(s)
+    // then you obviously need to change return -> continue
+    if player.state_machine.state() == DudeState::Dashing {
+        // TODO: Do you want to allow this? It feels pretty nice, though hades doesn't allow you to
+        // change your dash direction mid-air, but I feel like it's kinda nice.
+        let direction = player.current_direction;
+        player.state_machine.set_attack_direction(direction);
+        return;
+    }
+
     let (texture, animation, repeat, animation_state) = dude_state_animation(
         &assets,
         player.state_machine.state(),
@@ -57,6 +67,18 @@ fn update_player_animation(
     }
 
     *player_texture = texture;
+}
+
+fn toggle_dashing_players_visibility(mut q_players: Query<(&mut Sprite, &Player)>) {
+    for (mut sprite, player) in &mut q_players {
+        let alpha = if player.state_machine.state() == DudeState::Dashing {
+            0.0
+        } else {
+            1.0
+        };
+
+        sprite.color.set_alpha(alpha);
+    }
 }
 
 fn animate_sprite_jumping(mut q_players: Query<(&mut Sprite, &Player)>) {
@@ -95,6 +117,7 @@ impl Plugin for PlayerAnimationPlugin {
             (
                 update_current_direction,
                 update_player_animation,
+                toggle_dashing_players_visibility,
                 animate_sprite_jumping,
                 disable_can_move_during_attack,
             )
