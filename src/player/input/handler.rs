@@ -50,9 +50,10 @@ fn handle_keyboard_inputs(
         keys.just_pressed(KeyCode::KeyL) || mouse_buttons.just_pressed(MouseButton::Left);
     input.heavy_attack =
         keys.just_pressed(KeyCode::KeyN) || mouse_buttons.just_pressed(MouseButton::Right);
-    input.parry = keys.just_pressed(KeyCode::KeyP);
+    input.parry = keys.just_pressed(KeyCode::KeyP) || keys.just_pressed(KeyCode::KeyE);
     input.dash = keys.just_pressed(KeyCode::ShiftLeft) || keys.just_pressed(KeyCode::KeyZ);
-    input.jump = keys.just_pressed(KeyCode::Space);
+    input.special_light = keys.just_pressed(KeyCode::KeyQ);
+    input.special_heavy = keys.just_pressed(KeyCode::Space);
 
     let mut move_direction = Vec2::ZERO;
     if keys.pressed(KeyCode::KeyJ) || keys.pressed(KeyCode::KeyS) {
@@ -123,7 +124,9 @@ fn handle_gamepad_inputs(
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::LeftTrigger));
     input.dash =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::LeftTrigger2));
-    input.jump =
+    input.special_light =
+        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::East));
+    input.special_heavy =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::South));
     input.toggle_fullscreen =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::DPadDown));

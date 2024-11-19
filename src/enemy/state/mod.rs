@@ -92,10 +92,7 @@ fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy)>)
         }
 
         match enemy.state_machine.state() {
-            DudeState::Idling
-            | DudeState::Parrying(_)
-            | DudeState::Jumping(_)
-            | DudeState::Dashing => {}
+            DudeState::Idling | DudeState::Parrying(_) | DudeState::Dashing => {}
             DudeState::Running => {
                 if enemy.target.is_none() {
                     enemy.state_machine.set_state(DudeState::Idling);

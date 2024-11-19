@@ -26,7 +26,6 @@ pub enum DudeState {
     Staggering,
     Dashing,
     Parrying(ParryState),
-    Jumping(JumpingState),
 }
 
 #[derive(Default, Clone, Copy, PartialEq, Debug)]
@@ -35,12 +34,4 @@ pub enum ParryState {
     Start,
     Fail,
     Success,
-}
-
-#[derive(Default, Clone, Copy, PartialEq, Debug)]
-pub enum JumpingState {
-    #[default]
-    Start,
-    RecoverIdle,
-    RecoverMoving,
 }

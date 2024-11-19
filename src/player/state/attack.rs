@@ -121,6 +121,7 @@ fn move_attack_arcs_jumping(
 ) {
     for (player_children, sprite) in &q_players {
         let anchor = match sprite.anchor {
+            // Only jumping attacks have this Custom anchor, that is how we filter for them.
             Anchor::Custom(v) => Vec2::new(v.x, -v.y) * PLAYER_SPRITE_SIZE as f32,
             _ => continue,
         };

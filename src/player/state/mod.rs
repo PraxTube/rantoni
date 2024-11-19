@@ -9,7 +9,7 @@ pub use state_machine::PlayerStateMachine;
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::dude::{Attack, AttackForm, DudeState, JumpingState, ParryState};
+use crate::dude::{Attack, AttackForm, DudeState, ParryState};
 use crate::player::{input::PlayerInput, Player};
 
 pub struct PlayerStatePlugin;
@@ -28,8 +28,8 @@ impl Plugin for PlayerStatePlugin {
                 transition_stagger_state,
                 transition_parry_state,
                 transition_dash_state,
-                transition_jump_state,
                 transition_attacking_state,
+                transition_jump_attacking_state,
                 transition_idle_state,
                 transition_run_state,
                 reset_new_state,
@@ -95,29 +95,11 @@ fn transition_dash_state(player_input: Res<PlayerInput>, mut q_players: Query<&m
         if !player_input.dash {
             continue;
         }
+        if player.state_machine.state() == DudeState::Staggering {
+            continue;
+        }
 
         player.state_machine.set_state(DudeState::Dashing);
-    }
-}
-
-fn transition_jump_state(
-    player_input: Res<PlayerInput>,
-    mut q_players: Query<(&AnimationPlayer2D, &mut Player)>,
-) {
-    for (_animator, mut player) in &mut q_players {
-        if player.state_machine.just_changed() {
-            continue;
-        }
-        if !player_input.jump {
-            continue;
-        }
-        if let DudeState::Jumping(_) = player.state_machine.state() {
-            continue;
-        }
-
-        player
-            .state_machine
-            .set_state(DudeState::Jumping(JumpingState::Start));
     }
 }
 
@@ -133,15 +115,33 @@ fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Que
             continue;
         };
 
-        if player.state_machine.state() == DudeState::Jumping(JumpingState::Start) {
-            match attack_form {
-                AttackForm::None => {}
-                AttackForm::Light => player.state_machine.set_attack(Attack::Hammerfist),
-                AttackForm::Heavy => player.state_machine.set_attack(Attack::Dropkick),
-            };
-        } else {
-            player.state_machine.transition_attack(attack_form);
+        player.state_machine.transition_attack(attack_form);
+    }
+}
+
+fn transition_jump_attacking_state(
+    player_input: Res<PlayerInput>,
+    mut q_players: Query<&mut Player>,
+) {
+    for mut player in &mut q_players {
+        // TODO: You would have to actually figure out which controls belong to which player in local
+        // multiplayer
+        if player.state_machine.just_changed() {
+            continue;
         }
+        if !player.state_machine.can_attack() {
+            continue;
+        }
+
+        let attack = if player_input.special_heavy {
+            Attack::Dropkick
+        } else if player_input.special_light {
+            Attack::Hammerfist
+        } else {
+            continue;
+        };
+
+        player.state_machine.set_attack(attack);
     }
 }
 
@@ -177,24 +177,14 @@ fn transition_idle_state(
 
         match player.state_machine.state() {
             DudeState::Idling | DudeState::Running => {}
-            DudeState::Attacking => match player.state_machine.attack() {
-                Attack::Hammerfist | Attack::Dropkick => {
-                    if player.state_machine.jumping_timer_finished() {
-                        info!("he");
-                        player
-                            .state_machine
-                            .transition_chain_attack(player_input.move_direction);
-                    }
+            DudeState::Attacking => {
+                if !animator.just_finished() {
+                    continue;
                 }
-                _ => {
-                    if !animator.just_finished() {
-                        continue;
-                    }
-                    player
-                        .state_machine
-                        .transition_chain_attack(player_input.move_direction);
-                }
-            },
+                player
+                    .state_machine
+                    .transition_chain_attack(player_input.move_direction);
+            }
             DudeState::Recovering => {
                 if animator.just_finished() {
                     player.state_machine.set_state(DudeState::Idling);
@@ -226,23 +216,6 @@ fn transition_idle_state(
                         player.state_machine.set_state(DudeState::Idling)
                     }
                 }
-            }
-            DudeState::Jumping(jumping_state) => {
-                if !animator.just_finished() {
-                    continue;
-                }
-                let new_state = match jumping_state {
-                    JumpingState::Start => {
-                        if player_input.move_direction == Vec2::ZERO {
-                            DudeState::Jumping(JumpingState::RecoverIdle)
-                        } else {
-                            DudeState::Jumping(JumpingState::RecoverMoving)
-                        }
-                    }
-                    JumpingState::RecoverIdle => DudeState::Idling,
-                    JumpingState::RecoverMoving => DudeState::Running,
-                };
-                player.state_machine.set_state(new_state);
             }
         };
     }

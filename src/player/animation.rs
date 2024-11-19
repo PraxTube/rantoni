@@ -3,7 +3,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{
     assets::events::SpawnHitboxEvent,
-    dude::{dude_state_animation, Attack, DudeState, JumpingState},
+    dude::{dude_state_animation, Attack, DudeState},
     GameAssets,
 };
 
@@ -83,8 +83,7 @@ fn toggle_dashing_players_visibility(mut q_players: Query<(&mut Sprite, &Player)
 
 fn animate_sprite_jumping(mut q_players: Query<(&mut Sprite, &Player)>) {
     for (mut sprite, player) in &mut q_players {
-        if player.state_machine.state() == DudeState::Jumping(JumpingState::Start)
-            || player.state_machine.attack_eq(Attack::Dropkick)
+        if player.state_machine.attack_eq(Attack::Dropkick)
             || player.state_machine.attack_eq(Attack::Hammerfist)
         {
             let offset = player.state_machine.sprite_y_offset();

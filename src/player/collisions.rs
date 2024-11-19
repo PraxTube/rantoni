@@ -3,7 +3,7 @@ use bevy_rancic::prelude::*;
 use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 
 use crate::{
-    dude::{Attack, DudeState, JumpingState, ParryState, StaggerState},
+    dude::{Attack, DudeState, ParryState, StaggerState},
     enemy::{Enemy, EnemyCollisionSystemSet},
     world::{
         collisions::{
@@ -53,6 +53,9 @@ fn enemy_hitbox_collisions(
         let Ok(mut player) = q_players.get_mut(player_hurtbox.root_entity) else {
             continue;
         };
+        if player.state_machine.state() == DudeState::Dashing {
+            continue;
+        }
 
         let Ok(enemy) = q_enemies.get(enemy_hitbox.root_entity) else {
             continue;
@@ -100,10 +103,6 @@ fn change_hurtbox_collisions(
             },
             DudeState::Dashing => HurtboxType::None,
             DudeState::Parrying(_) => HurtboxType::Normal,
-            DudeState::Jumping(jumping_state) => match jumping_state {
-                JumpingState::Start => HurtboxType::Jumping,
-                _ => HurtboxType::Normal,
-            },
         };
 
         if hurtbox.hurtbox_type != hurtbox_type {

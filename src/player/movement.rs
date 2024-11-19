@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::dude::{Attack, DudeState, JumpingState};
+use crate::dude::{Attack, DudeState};
 use crate::GameState;
 
 use super::input::PlayerInput;
@@ -47,19 +47,16 @@ fn move_player_attacking(mut q_players: Query<(&mut Velocity, &Player)>) {
             0.0
         };
 
-        match player.state_machine.attack() {
-            Attack::Light1 => velocity.linvel = player.current_direction * 100.0 * can_move,
-            Attack::Light2 => velocity.linvel = player.current_direction * 250.0 * can_move,
-            Attack::Light3 => velocity.linvel = player.current_direction * 200.0 * can_move,
-            Attack::Heavy1 => velocity.linvel = player.current_direction * 200.0 * can_move,
-            Attack::Heavy2 => velocity.linvel = player.current_direction * 50.0 * can_move,
-            Attack::Heavy3 => velocity.linvel = player.current_direction * 250.0 * can_move,
-            Attack::Dropkick | Attack::Hammerfist => {
-                velocity.linvel = player
-                    .state_machine
-                    .jumping_linvel(player.state_machine.attack_direction());
-            }
-        }
+        let speed = match player.state_machine.attack() {
+            Attack::Light1 => can_move * 100.0,
+            Attack::Light2 => can_move * 250.0,
+            Attack::Light3 => can_move * 200.0,
+            Attack::Heavy1 => can_move * 200.0,
+            Attack::Heavy2 => can_move * 50.0,
+            Attack::Heavy3 => can_move * 250.0,
+            Attack::Dropkick | Attack::Hammerfist => player.state_machine.jump_attack_speed(),
+        };
+        velocity.linvel = player.state_machine.attack_direction() * speed;
     }
 }
 
@@ -67,22 +64,6 @@ fn move_player_dashing(mut q_players: Query<(&mut Velocity, &Player)>) {
     for (mut velocity, player) in &mut q_players {
         if player.state_machine.state() == DudeState::Dashing {
             velocity.linvel = player.state_machine.attack_direction() * 500.0;
-        }
-    }
-}
-
-fn move_player_jumping(
-    player_input: Res<PlayerInput>,
-    mut q_players: Query<(&mut Velocity, &Player)>,
-) {
-    for (mut velocity, player) in &mut q_players {
-        if let DudeState::Jumping(jumping_state) = player.state_machine.state() {
-            let direction = match jumping_state {
-                JumpingState::Start => player.state_machine.attack_direction(),
-                JumpingState::RecoverIdle => Vec2::ZERO,
-                JumpingState::RecoverMoving => player_input.move_direction,
-            };
-            velocity.linvel = player.state_machine.jumping_linvel(direction);
         }
     }
 }
@@ -109,7 +90,6 @@ impl Plugin for PlayerMovementPlugin {
             (
                 move_player,
                 move_player_attacking,
-                move_player_jumping,
                 move_player_staggering,
                 move_player_dashing,
             )

@@ -3,7 +3,7 @@ use std::time::Duration;
 use bevy::prelude::*;
 
 use crate::dude::{
-    Attack, AttackForm, DudeAnimations, DudeState, JumpingState, ParryState, Stagger, StaggerState,
+    Attack, AttackForm, DudeAnimations, DudeState, ParryState, Stagger, StaggerState,
 };
 
 use super::{dashing::DashingTimer, jumping::Jumping, AttackHandler};
@@ -275,10 +275,6 @@ Attempted new state: {:?}",
         self.jumping.tick_timer(delta);
     }
 
-    pub fn jumping_timer_finished(&self) -> bool {
-        self.jumping.finished()
-    }
-
     pub fn jumping_duration(&self) -> f32 {
         self.jumping.duration()
     }
@@ -291,13 +287,12 @@ Attempted new state: {:?}",
         self.jumping.reset_timer();
     }
 
-    pub fn jumping_linvel(&self, direction: Vec2) -> Vec2 {
+    pub fn jump_attack_speed(&self) -> f32 {
         match self.state {
-            DudeState::Jumping(jumping_state) => self.jumping.linvel(jumping_state, direction),
-            DudeState::Attacking => self.jumping.linvel(JumpingState::Start, direction),
+            DudeState::Attacking => self.jumping.speed(),
             _ => {
                 error!("should never happen");
-                Vec2::ZERO
+                0.0
             }
         }
     }

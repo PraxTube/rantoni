@@ -65,8 +65,8 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
     let hurtbox_jumping = spawn_hurtbox_collision(
         &mut commands,
         Hurtbox::new(entity, HurtboxType::Jumping, PLAYER_GROUP),
-        Vec2::new(0.0, 20.0),
-        Collider::cuboid(10.0, 14.0),
+        Vec2::new(0.0, 18.0),
+        Collider::cuboid(8.0, 10.0),
     );
     let hurtbox_fallen = spawn_hurtbox_collision(
         &mut commands,

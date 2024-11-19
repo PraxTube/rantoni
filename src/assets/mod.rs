@@ -5,6 +5,7 @@ use bevy_asset_loader::prelude::*;
 use bevy_ecs_ldtk::prelude::LdtkProject;
 use bevy_trickfilm::prelude::*;
 
+// TODO: Write test that makes sure size equals this?
 pub const PLAYER_SPRITE_SIZE: u32 = 100;
 
 pub struct AssetPlugin;
@@ -69,9 +70,6 @@ pub struct GameAssets {
             "dude/dude_parry_fail.png",
             "dude/dude_parry_success.png",
             "dude/dude_dash.png",
-            "dude/dude_jump.png",
-            "dude/dude_jump_recover_idle.png",
-            "dude/dude_jump_recover_moving.png",
             "dude/dude_fall.png",
             "dude/dude_fall_recover.png",
             "dude/dude_dropkick.png",
@@ -265,30 +263,6 @@ pub struct GameAssets {
             "dude/dude.trickfilm.ron#dash-o5",
             "dude/dude.trickfilm.ron#dash-o6",
             "dude/dude.trickfilm.ron#dash-o7",
-            "dude/dude.trickfilm.ron#jump-o0",
-            "dude/dude.trickfilm.ron#jump-o1",
-            "dude/dude.trickfilm.ron#jump-o2",
-            "dude/dude.trickfilm.ron#jump-o3",
-            "dude/dude.trickfilm.ron#jump-o4",
-            "dude/dude.trickfilm.ron#jump-o5",
-            "dude/dude.trickfilm.ron#jump-o6",
-            "dude/dude.trickfilm.ron#jump-o7",
-            "dude/dude.trickfilm.ron#jump_recover_idle-o0",
-            "dude/dude.trickfilm.ron#jump_recover_idle-o1",
-            "dude/dude.trickfilm.ron#jump_recover_idle-o2",
-            "dude/dude.trickfilm.ron#jump_recover_idle-o3",
-            "dude/dude.trickfilm.ron#jump_recover_idle-o4",
-            "dude/dude.trickfilm.ron#jump_recover_idle-o5",
-            "dude/dude.trickfilm.ron#jump_recover_idle-o6",
-            "dude/dude.trickfilm.ron#jump_recover_idle-o7",
-            "dude/dude.trickfilm.ron#jump_recover_moving-o0",
-            "dude/dude.trickfilm.ron#jump_recover_moving-o1",
-            "dude/dude.trickfilm.ron#jump_recover_moving-o2",
-            "dude/dude.trickfilm.ron#jump_recover_moving-o3",
-            "dude/dude.trickfilm.ron#jump_recover_moving-o4",
-            "dude/dude.trickfilm.ron#jump_recover_moving-o5",
-            "dude/dude.trickfilm.ron#jump_recover_moving-o6",
-            "dude/dude.trickfilm.ron#jump_recover_moving-o7",
             "dude/dude.trickfilm.ron#fall-o0",
             "dude/dude.trickfilm.ron#fall-o1",
             "dude/dude.trickfilm.ron#fall-o2",
