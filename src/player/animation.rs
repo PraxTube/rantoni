@@ -9,16 +9,19 @@ use crate::{
 
 use super::{input::PlayerInput, state::PlayerStateSystemSet, Player};
 
-fn update_current_direction(player_input: Res<PlayerInput>, mut q_player: Query<&mut Player>) {
-    let Ok(mut player) = q_player.get_single_mut() else {
-        return;
-    };
+fn update_current_directions(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
+    for mut player in &mut q_players {
+        if player_input.move_direction == Vec2::ZERO {
+            continue;
+        }
+        if player.state_machine.state() == DudeState::Attacking
+            || player.state_machine.state() == DudeState::Recovering
+        {
+            continue;
+        }
 
-    if player_input.move_direction == Vec2::ZERO {
-        return;
+        player.current_direction = player_input.move_direction;
     }
-
-    player.current_direction = player_input.move_direction;
 }
 
 fn update_player_animation(
@@ -29,22 +32,24 @@ fn update_player_animation(
         return;
     };
 
-    // If you refactor this to work for player(s)
-    // then you obviously need to change return -> continue
     if player.state_machine.state() == DudeState::Dashing {
-        // TODO: Do you want to allow this? It feels pretty nice, though hades doesn't allow you to
-        // change your dash direction mid-air, but I feel like it's kinda nice.
-        let direction = player.current_direction;
-        player.state_machine.set_attack_direction(direction);
         return;
     }
+
+    let direction = match player.state_machine.state() {
+        DudeState::Idling | DudeState::Running | DudeState::Staggering | DudeState::Parrying(_) => {
+            player.current_direction
+        }
+        DudeState::Attacking | DudeState::Recovering => player.state_machine.attack_direction(),
+        DudeState::Dashing => panic!("should never happen! Dashing should not use this function"),
+    };
 
     let (texture, animation, repeat, animation_state) = dude_state_animation(
         &assets,
         player.state_machine.state(),
         player.state_machine.attack(),
         player.state_machine.stagger_state(),
-        player.current_direction,
+        direction,
     );
 
     if &animation == animator.animation_clip() {
@@ -59,13 +64,7 @@ fn update_player_animation(
         animator.play(animation).repeat();
     } else {
         animator.play(animation);
-        // TODO: Handle this better, maybe you want to put this outside the if else statement?
-        // I think this is actually why the stagger direction can change mid-attack, see
-        // https://github.com/PraxTube/rantoni/issues/2
-        let direction = player.current_direction;
-        player.state_machine.set_attack_direction(direction);
     }
-
     *player_texture = texture;
 }
 
@@ -114,7 +113,7 @@ impl Plugin for PlayerAnimationPlugin {
         app.add_systems(
             Update,
             (
-                update_current_direction,
+                update_current_directions,
                 update_player_animation,
                 toggle_dashing_players_visibility,
                 animate_sprite_jumping,

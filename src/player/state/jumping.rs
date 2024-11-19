@@ -34,7 +34,7 @@ impl Jumping {
     }
 
     pub fn speed(&self) -> f32 {
-        (1.0 - self.x().powi(5)).max(0.7) * 350.0
+        (1.0 - self.x().powi(5)).max(0.7) * 300.0
     }
 
     pub fn tick_timer(&mut self, delta: Duration) {

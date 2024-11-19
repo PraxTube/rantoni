@@ -14,7 +14,10 @@ fn reset_velocity(mut q_player: Query<&mut Velocity, With<Player>>) {
     velocity.linvel = Vec2::ZERO;
 }
 
-fn move_player(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &mut Velocity)>) {
+fn move_running_players(
+    player_input: Res<PlayerInput>,
+    mut q_player: Query<(&Player, &mut Velocity)>,
+) {
     let (player, mut velocity) = match q_player.get_single_mut() {
         Ok(p) => p,
         Err(_) => return,
@@ -88,7 +91,7 @@ impl Plugin for PlayerMovementPlugin {
         app.add_systems(PreUpdate, reset_velocity).add_systems(
             Update,
             (
-                move_player,
+                move_running_players,
                 move_player_attacking,
                 move_player_staggering,
                 move_player_dashing,

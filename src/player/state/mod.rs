@@ -103,8 +103,26 @@ fn transition_dash_state(player_input: Res<PlayerInput>, mut q_players: Query<&m
     }
 }
 
+fn update_player_attack_direction(player_input: &PlayerInput, player: &mut Player) {
+    let attack_direction = if player_input.aim_direction != Vec2::ZERO {
+        player_input.aim_direction
+    } else {
+        player.current_direction
+    };
+
+    player.state_machine.set_attack_direction(attack_direction);
+    player.current_direction = attack_direction;
+}
+
 fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
     for mut player in &mut q_players {
+        if player.state_machine.just_changed() {
+            continue;
+        }
+        if !player.state_machine.can_attack() {
+            continue;
+        }
+
         // TODO: You would have to actually figure out which controls belong to which player in local
         // multiplayer
         let attack_form = if player_input.light_attack {
@@ -115,6 +133,7 @@ fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Que
             continue;
         };
 
+        update_player_attack_direction(&player_input, &mut player);
         player.state_machine.transition_attack(attack_form);
     }
 }
@@ -141,6 +160,7 @@ fn transition_jump_attacking_state(
             continue;
         };
 
+        update_player_attack_direction(&player_input, &mut player);
         player.state_machine.set_attack(attack);
     }
 }

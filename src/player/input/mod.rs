@@ -38,6 +38,7 @@ pub struct PlayerInput {
     pub escape: bool,
 
     pub move_direction: Vec2,
+    pub aim_direction: Vec2,
     pub light_attack: bool,
     pub heavy_attack: bool,
     pub parry: bool,
@@ -55,6 +56,9 @@ impl BitOrAssign for PlayerInput {
     fn bitor_assign(&mut self, rhs: Self) {
         if self.move_direction == Vec2::ZERO {
             self.move_direction = rhs.move_direction;
+        }
+        if self.aim_direction == Vec2::ZERO {
+            self.aim_direction = rhs.aim_direction;
         }
         if self.mouse_world_coords == Vec2::ZERO {
             self.mouse_world_coords = rhs.mouse_world_coords;

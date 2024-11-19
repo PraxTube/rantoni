@@ -57,9 +57,12 @@ fn player_hitbox_collisions(
         };
 
         if let HitboxType::Player(attack) = player_hitbox.hitbox_type {
-            enemy
-                .state_machine
-                .set_stagger_state(attack, player.current_direction, 1.0, 1.0);
+            enemy.state_machine.set_stagger_state(
+                attack,
+                player.state_machine.attack_direction(),
+                1.0,
+                1.0,
+            );
         }
     }
 }

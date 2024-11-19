@@ -6,6 +6,8 @@ use crate::{
     GameAssets, GameState,
 };
 
+use super::PlayerStateSystemSet;
+
 const DASH_TIME: f32 = 0.25;
 
 #[derive(Component)]
@@ -89,6 +91,17 @@ fn despawn_dash_sprites(mut commands: Commands, q_dash_sprites: Query<(Entity, &
     }
 }
 
+fn update_player_dash_directions(mut q_players: Query<&mut Player>) {
+    for mut player in &mut q_players {
+        if player.state_machine.state() == DudeState::Dashing {
+            // TODO: Do you want to allow this? It feels pretty nice, though hades doesn't allow you to
+            // change your dash direction mid-air, but I feel like it's kinda nice.
+            let direction = player.current_direction;
+            player.state_machine.set_attack_direction(direction);
+        }
+    }
+}
+
 pub struct PlayerDashingPlugin;
 
 impl Plugin for PlayerDashingPlugin {
@@ -100,7 +113,9 @@ impl Plugin for PlayerDashingPlugin {
                 spawn_dash_sprites,
                 fade_dash_sprites,
                 despawn_dash_sprites,
+                update_player_dash_directions,
             )
+                .before(PlayerStateSystemSet)
                 .run_if(not(in_state(GameState::AssetLoading))),
         );
     }

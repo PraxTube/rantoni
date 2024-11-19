@@ -123,6 +123,12 @@ Attempted new state: {:?}",
     }
 
     pub fn set_attack_direction(&mut self, direction: Vec2) {
+        if direction == Vec2::ZERO {
+            error!(
+                "Trying to set attack direciton of player to Vec2::ZERO, doesn't make any sense"
+            );
+            return;
+        }
         self.attack_handler.set_attack_direction(direction);
     }
 
@@ -213,13 +219,6 @@ Attempted new state: {:?}",
     }
 
     pub fn transition_attack(&mut self, attack_form: AttackForm) {
-        if self.just_changed() {
-            return;
-        }
-        if !self.can_attack() {
-            return;
-        }
-
         if self.state() == DudeState::Attacking {
             assert_ne!(attack_form, AttackForm::None);
             self.set_chained_attack(attack_form);

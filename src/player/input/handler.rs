@@ -4,12 +4,13 @@ use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, Window};
 use bevy_rancic::prelude::*;
 
+use crate::player::Player;
 use crate::GameState;
 
 use super::gamepad::PlayerGamepad;
 use super::{InputDevice, PlayerInput};
 
-pub fn fetch_mouse_world_coords(
+fn fetch_mouse_world_coords(
     mut player_input: ResMut<PlayerInput>,
     q_window: Query<&Window, With<PrimaryWindow>>,
     q_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
@@ -29,6 +30,24 @@ pub fn fetch_mouse_world_coords(
         .map(|ray| ray.origin.truncate())
     {
         player_input.mouse_world_coords = world_position;
+    }
+}
+
+fn update_aim_direction(
+    mut player_input: ResMut<PlayerInput>,
+    q_players: Query<&Transform, With<Player>>,
+    input_device: Res<InputDevice>,
+) {
+    if *input_device != InputDevice::MouseKeyboard {
+        return;
+    }
+
+    for transform in &q_players {
+        let dir = player_input.mouse_world_coords - transform.translation.truncate();
+
+        if dir != Vec2::ZERO {
+            player_input.aim_direction = dir.normalize_or_zero();
+        }
     }
 }
 
@@ -159,6 +178,7 @@ fn handle_gamepad_inputs(
         Vec2::new(x, y).normalize_or_zero()
     };
     input.move_direction = left_stick_direction;
+    input.aim_direction = left_stick_direction;
 
     if input != PlayerInput::default() {
         *input_device = InputDevice::Gamepad;
@@ -174,6 +194,7 @@ impl Plugin for InputControllerPlugin {
             PreUpdate,
             (
                 fetch_mouse_world_coords,
+                update_aim_direction,
                 handle_keyboard_inputs,
                 handle_gamepad_inputs,
             )
