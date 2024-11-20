@@ -58,7 +58,7 @@ impl Attack {
             },
             Attack::Light3 => match attack_form {
                 AttackForm::None => None,
-                AttackForm::Light => None,
+                AttackForm::Light => AttackForm::Light.to_default_attack(),
                 AttackForm::Heavy => Some(Attack::Heavy2),
                 AttackForm::SpecialLight => Some(Attack::Hammerfist),
                 AttackForm::SpecialHeavy => Some(Attack::Dropkick),
@@ -72,15 +72,15 @@ impl Attack {
             },
             Attack::Heavy2 => match attack_form {
                 AttackForm::None => None,
-                AttackForm::Light => None,
+                AttackForm::Light => AttackForm::Light.to_default_attack(),
                 AttackForm::Heavy => Some(Attack::Heavy3),
                 AttackForm::SpecialLight => Some(Attack::Hammerfist),
                 AttackForm::SpecialHeavy => Some(Attack::Dropkick),
             },
             Attack::Heavy3 => match attack_form {
                 AttackForm::None => None,
-                AttackForm::Light => None,
-                AttackForm::Heavy => None,
+                AttackForm::Light => AttackForm::Light.to_default_attack(),
+                AttackForm::Heavy => AttackForm::Heavy.to_default_attack(),
                 AttackForm::SpecialLight => Some(Attack::Hammerfist),
                 AttackForm::SpecialHeavy => Some(Attack::Dropkick),
             },

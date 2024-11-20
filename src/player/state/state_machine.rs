@@ -129,7 +129,11 @@ Attempted new state: {:?}",
             );
             return;
         }
-        self.attack_handler.set_attack_direction(direction);
+        if self.state() == DudeState::Attacking {
+            self.attack_handler.set_cached_attack_direction(direction);
+        } else {
+            self.attack_handler.set_attack_direction(direction);
+        }
     }
 
     pub fn chained_attack(&self) -> AttackForm {
@@ -181,7 +185,10 @@ Attempted new state: {:?}",
         }
 
         match self.combo_attack(self.chained_attack()) {
-            Some(attack) => self.set_attack(attack),
+            Some(attack) => {
+                self.set_attack(attack);
+                self.attack_handler.exhaust_cached_attack_direction();
+            }
             None => self.set_state(terminal_state),
         }
         self.set_chained_attack(AttackForm::None);

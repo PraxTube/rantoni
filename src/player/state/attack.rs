@@ -14,6 +14,7 @@ use crate::{
 pub struct AttackHandler {
     attack: Attack,
     attack_direction: Vec2,
+    cached_attack_direction: Option<Vec2>,
     chained_attack: AttackForm,
     chainable: bool,
     chain_buffer_timer: Timer,
@@ -27,6 +28,7 @@ impl Default for AttackHandler {
         Self {
             attack: Attack::default(),
             attack_direction: Vec2::default(),
+            cached_attack_direction: None,
             chained_attack: AttackForm::default(),
             chainable: false,
             chain_buffer_timer: Timer::from_seconds(0.3, TimerMode::Once),
@@ -50,6 +52,16 @@ impl AttackHandler {
 
     pub fn set_attack_direction(&mut self, direction: Vec2) {
         self.attack_direction = direction;
+    }
+
+    pub fn set_cached_attack_direction(&mut self, direction: Vec2) {
+        self.cached_attack_direction = Some(direction);
+    }
+
+    pub fn exhaust_cached_attack_direction(&mut self) {
+        if let Some(attack_direction) = self.cached_attack_direction.take() {
+            self.attack_direction = attack_direction;
+        }
     }
 
     pub fn chained_attack(&self) -> AttackForm {
