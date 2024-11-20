@@ -23,9 +23,72 @@ pub enum AttackForm {
     None,
     Light,
     Heavy,
+    SpecialLight,
+    SpecialHeavy,
+}
+
+impl AttackForm {
+    pub fn to_default_attack(self) -> Option<Attack> {
+        match self {
+            AttackForm::None => None,
+            AttackForm::Light => Some(Attack::Light1),
+            AttackForm::Heavy => Some(Attack::Heavy1),
+            AttackForm::SpecialLight => Some(Attack::Hammerfist),
+            AttackForm::SpecialHeavy => Some(Attack::Dropkick),
+        }
+    }
 }
 
 impl Attack {
+    pub fn to_combo_attack(self, attack_form: AttackForm) -> Option<Attack> {
+        match self {
+            Attack::Light1 => match attack_form {
+                AttackForm::None => None,
+                AttackForm::Light => Some(Attack::Light2),
+                AttackForm::Heavy => Some(Attack::Heavy1),
+                AttackForm::SpecialLight => Some(Attack::Hammerfist),
+                AttackForm::SpecialHeavy => Some(Attack::Dropkick),
+            },
+            Attack::Light2 => match attack_form {
+                AttackForm::None => None,
+                AttackForm::Light => Some(Attack::Light3),
+                AttackForm::Heavy => Some(Attack::Heavy3),
+                AttackForm::SpecialLight => Some(Attack::Hammerfist),
+                AttackForm::SpecialHeavy => Some(Attack::Dropkick),
+            },
+            Attack::Light3 => match attack_form {
+                AttackForm::None => None,
+                AttackForm::Light => None,
+                AttackForm::Heavy => Some(Attack::Heavy2),
+                AttackForm::SpecialLight => Some(Attack::Hammerfist),
+                AttackForm::SpecialHeavy => Some(Attack::Dropkick),
+            },
+            Attack::Heavy1 => match attack_form {
+                AttackForm::None => None,
+                AttackForm::Light => Some(Attack::Light2),
+                AttackForm::Heavy => Some(Attack::Heavy2),
+                AttackForm::SpecialLight => Some(Attack::Hammerfist),
+                AttackForm::SpecialHeavy => Some(Attack::Dropkick),
+            },
+            Attack::Heavy2 => match attack_form {
+                AttackForm::None => None,
+                AttackForm::Light => None,
+                AttackForm::Heavy => Some(Attack::Heavy3),
+                AttackForm::SpecialLight => Some(Attack::Hammerfist),
+                AttackForm::SpecialHeavy => Some(Attack::Dropkick),
+            },
+            Attack::Heavy3 => match attack_form {
+                AttackForm::None => None,
+                AttackForm::Light => None,
+                AttackForm::Heavy => None,
+                AttackForm::SpecialLight => Some(Attack::Hammerfist),
+                AttackForm::SpecialHeavy => Some(Attack::Dropkick),
+            },
+            Attack::Dropkick => None,
+            Attack::Hammerfist => None,
+        }
+    }
+
     /// Return the
     ///     - Hitbox offset
     ///     - Collider of hitbox

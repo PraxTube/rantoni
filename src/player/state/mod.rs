@@ -9,7 +9,7 @@ pub use state_machine::PlayerStateMachine;
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::dude::{Attack, AttackForm, DudeState, ParryState};
+use crate::dude::{AttackForm, DudeState, ParryState};
 use crate::player::{input::PlayerInput, Player};
 
 pub struct PlayerStatePlugin;
@@ -29,7 +29,6 @@ impl Plugin for PlayerStatePlugin {
                 transition_parry_state,
                 transition_dash_state,
                 transition_attacking_state,
-                transition_jump_attacking_state,
                 transition_idle_state,
                 transition_run_state,
                 reset_new_state,
@@ -103,17 +102,6 @@ fn transition_dash_state(player_input: Res<PlayerInput>, mut q_players: Query<&m
     }
 }
 
-fn update_player_attack_direction(player_input: &PlayerInput, player: &mut Player) {
-    let attack_direction = if player_input.aim_direction != Vec2::ZERO {
-        player_input.aim_direction
-    } else {
-        player.current_direction
-    };
-
-    player.state_machine.set_attack_direction(attack_direction);
-    player.current_direction = attack_direction;
-}
-
 fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
     for mut player in &mut q_players {
         if player.state_machine.just_changed() {
@@ -129,39 +117,23 @@ fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Que
             AttackForm::Light
         } else if player_input.heavy_attack {
             AttackForm::Heavy
-        } else {
-            continue;
-        };
-
-        update_player_attack_direction(&player_input, &mut player);
-        player.state_machine.transition_attack(attack_form);
-    }
-}
-
-fn transition_jump_attacking_state(
-    player_input: Res<PlayerInput>,
-    mut q_players: Query<&mut Player>,
-) {
-    for mut player in &mut q_players {
-        // TODO: You would have to actually figure out which controls belong to which player in local
-        // multiplayer
-        if player.state_machine.just_changed() {
-            continue;
-        }
-        if !player.state_machine.can_attack() {
-            continue;
-        }
-
-        let attack = if player_input.special_heavy {
-            Attack::Dropkick
         } else if player_input.special_light {
-            Attack::Hammerfist
+            AttackForm::SpecialLight
+        } else if player_input.special_heavy {
+            AttackForm::SpecialHeavy
         } else {
             continue;
         };
 
-        update_player_attack_direction(&player_input, &mut player);
-        player.state_machine.set_attack(attack);
+        let attack_direction = if player_input.aim_direction != Vec2::ZERO {
+            player_input.aim_direction
+        } else {
+            player.current_direction
+        };
+        player.state_machine.set_attack_direction(attack_direction);
+        player.current_direction = attack_direction;
+
+        player.state_machine.transition_attack(attack_form);
     }
 }
 

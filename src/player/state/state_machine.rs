@@ -157,44 +157,13 @@ Attempted new state: {:?}",
     }
 
     pub fn set_default_attack(&mut self, attack_form: AttackForm) {
-        match attack_form {
-            AttackForm::None => {}
-            AttackForm::Light => self.set_attack(Attack::Light1),
-            AttackForm::Heavy => self.set_attack(Attack::Heavy1),
+        if let Some(attack) = attack_form.to_default_attack() {
+            self.set_attack(attack);
         }
     }
 
     pub fn combo_attack(&self, attack_form: AttackForm) -> Option<Attack> {
-        match self.attack() {
-            Attack::Light1 => match attack_form {
-                AttackForm::None => panic!("should never happen!"),
-                AttackForm::Light => Some(Attack::Light2),
-                AttackForm::Heavy => Some(Attack::Heavy1),
-            },
-            Attack::Light2 => match attack_form {
-                AttackForm::None => panic!("should never happen!"),
-                AttackForm::Light => Some(Attack::Light3),
-                AttackForm::Heavy => Some(Attack::Heavy3),
-            },
-            Attack::Light3 => match attack_form {
-                AttackForm::None => panic!("should never happen!"),
-                AttackForm::Light => None,
-                AttackForm::Heavy => Some(Attack::Heavy2),
-            },
-            Attack::Heavy1 => match attack_form {
-                AttackForm::None => panic!("should never happen!"),
-                AttackForm::Light => Some(Attack::Light2),
-                AttackForm::Heavy => Some(Attack::Heavy2),
-            },
-            Attack::Heavy2 => match attack_form {
-                AttackForm::None => panic!("should never happen!"),
-                AttackForm::Light => None,
-                AttackForm::Heavy => Some(Attack::Heavy3),
-            },
-            Attack::Heavy3 => None,
-            Attack::Dropkick => None,
-            Attack::Hammerfist => None,
-        }
+        self.attack().to_combo_attack(attack_form)
     }
 
     pub fn transition_chain_attack(&mut self, move_direction: Vec2) {
