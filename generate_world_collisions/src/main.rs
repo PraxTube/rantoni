@@ -88,6 +88,7 @@ fn compute_collier_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
 }
 
 fn grid_from_level(level: ldtk::Level) -> Grid {
+    info!("{}", level.px_wid);
     let width = (level.px_wid as f32 / TILE_SIZE) as usize;
     let height = (level.px_hei as f32 / TILE_SIZE) as usize;
 
@@ -104,8 +105,8 @@ fn grid_from_level(level: ldtk::Level) -> Grid {
         }
 
         assert_eq!(layer.layer_instance_type, ldtk::Type::IntGrid);
-        assert_eq!(layer.int_grid_csv.len(), height * width);
         assert_eq!(layer.identifier, WALKABLE_LAYER.to_string());
+        assert_eq!(layer.int_grid_csv.len(), height * width);
 
         for inv_y in 0..height {
             for x in 0..width {

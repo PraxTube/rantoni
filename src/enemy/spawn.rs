@@ -48,22 +48,22 @@ fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec
         commands,
         Hurtbox::new(entity, HurtboxType::Normal, ENEMY_GROUP),
         Vec2::new(0.0, 0.0),
-        Collider::cuboid(8.0, 24.0),
+        Collider::cuboid(20.0, 40.0),
     );
     let hurtbox_fallen = spawn_hurtbox_collision(
         commands,
         Hurtbox::new(entity, HurtboxType::Fallen, ENEMY_GROUP),
-        Vec2::new(0.0, -16.0),
-        Collider::cuboid(20.0, 14.0),
+        Vec2::new(0.0, -24.0),
+        Collider::cuboid(38.0, 28.0),
     );
 
     let collider = commands
         .spawn((
             PathfindingSource::new(entity),
-            Collider::ball(10.0),
+            Collider::ball(16.0),
             CollisionGroups::new(ENEMY_GROUP, WORLD_GROUP),
             TransformBundle::from_transform(Transform::from_translation(Vec3::new(
-                0.0, -10.0, 0.0,
+                0.0, -16.0, 0.0,
             ))),
         ))
         .id();

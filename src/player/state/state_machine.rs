@@ -262,7 +262,7 @@ Attempted new state: {:?}",
         self.jumping.reset_timer();
     }
 
-    pub fn jump_attack_speed(&self) -> f32 {
+    pub fn jump_attack_speed_multiplier(&self) -> f32 {
         match self.state {
             DudeState::Attacking => self.jumping.speed(),
             _ => {

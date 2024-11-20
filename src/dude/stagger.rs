@@ -66,7 +66,7 @@ impl Stagger {
                     StaggerState::Normal,
                     direction,
                     0.3 * duration_multiplier,
-                    50.0 * intensity_multiplier,
+                    75.0 * intensity_multiplier,
                 );
             }
             Attack::Light2 => {
@@ -82,7 +82,7 @@ impl Stagger {
                     StaggerState::Normal,
                     direction,
                     0.25 * duration_multiplier,
-                    700.0 * intensity_multiplier,
+                    150.0 * intensity_multiplier,
                 );
             }
             Attack::Heavy1 => {
@@ -90,7 +90,7 @@ impl Stagger {
                     StaggerState::Normal,
                     direction,
                     0.2 * duration_multiplier,
-                    0.0 * intensity_multiplier,
+                    50.0 * intensity_multiplier,
                 );
             }
             Attack::Heavy2 => {
@@ -114,15 +114,15 @@ impl Stagger {
                     StaggerState::Normal,
                     direction,
                     0.3 * duration_multiplier,
-                    1000.0 * intensity_multiplier,
+                    1500.0 * intensity_multiplier,
                 );
             }
             Attack::Hammerfist => {
                 self.new_state(
-                    StaggerState::Normal,
+                    StaggerState::Fall,
                     direction,
                     0.4 * duration_multiplier,
-                    50.0 * intensity_multiplier,
+                    0.0 * intensity_multiplier,
                 );
             }
         }

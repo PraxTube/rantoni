@@ -3,7 +3,7 @@ use bevy_rancic::prelude::*;
 use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 
 use crate::{
-    dude::{Attack, DudeState, ParryState, StaggerState},
+    dude::{Attack, DudeState, ParryState},
     enemy::{Enemy, EnemyCollisionSystemSet},
     world::{
         collisions::{
@@ -96,11 +96,7 @@ fn change_hurtbox_collisions(
                 _ => HurtboxType::Normal,
             },
             DudeState::Recovering => HurtboxType::Normal,
-            DudeState::Staggering => match player.state_machine.stagger_state() {
-                StaggerState::Fall => HurtboxType::Fallen,
-                StaggerState::FallRecover => HurtboxType::Fallen,
-                _ => HurtboxType::Normal,
-            },
+            DudeState::Staggering => HurtboxType::Normal,
             DudeState::Dashing => HurtboxType::None,
             DudeState::Parrying(_) => HurtboxType::Normal,
         };

@@ -6,7 +6,7 @@ use bevy_ecs_ldtk::prelude::LdtkProject;
 use bevy_trickfilm::prelude::*;
 
 // TODO: Write test that makes sure size equals this?
-pub const PLAYER_SPRITE_SIZE: u32 = 100;
+pub const PLAYER_SPRITE_SIZE: u32 = 125;
 
 pub struct AssetPlugin;
 
@@ -83,7 +83,7 @@ pub struct GameAssets {
     #[asset(path = "dude/shadow.png")]
     pub dude_shadow: Handle<Image>,
 
-    #[asset(texture_atlas_layout(tile_size_x = 100, tile_size_y = 100, columns = 19, rows = 8))]
+    #[asset(texture_atlas_layout(tile_size_x = 125, tile_size_y = 125, columns = 19, rows = 8))]
     pub dude_layout: Handle<TextureAtlasLayout>,
     #[asset(
         paths(

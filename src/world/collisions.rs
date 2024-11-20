@@ -186,7 +186,7 @@ pub fn spawn_attack_effect(
         .spawn((
             AttackArc::new(dir),
             YSortChild(10.0),
-            SpatialBundle::from_transform(transform),
+            SpatialBundle::from_transform(transform.with_scale(Vec3::ONE * 1.5)),
         ))
         .push_children(&[hitbox, gfx])
         .id();

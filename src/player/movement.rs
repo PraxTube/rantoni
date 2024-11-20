@@ -24,7 +24,7 @@ fn move_running_players(
     };
 
     let speed = match player.state_machine.state() {
-        DudeState::Running => 250.0,
+        DudeState::Running => 350.0,
         _ => 0.0,
     };
 
@@ -39,6 +39,10 @@ fn move_player_attacking(mut q_players: Query<(&mut Velocity, &Player)>) {
     // this isn't _super_ nice, although I don't know how much that matters as we will have
     // different attacks for each character anyways, but still will need to find a way to at least
     // have all of those informations in one place.
+    //
+    // Actually, I probably want to have a simple ron file or something else that is human readable
+    // and just read the values in from there. This would also allow others to test different
+    // values and just make things more user friendly in general.
     for (mut velocity, player) in &mut q_players {
         if player.state_machine.state() != DudeState::Attacking {
             continue;
@@ -51,13 +55,15 @@ fn move_player_attacking(mut q_players: Query<(&mut Velocity, &Player)>) {
         };
 
         let speed = match player.state_machine.attack() {
-            Attack::Light1 => can_move * 100.0,
-            Attack::Light2 => can_move * 250.0,
-            Attack::Light3 => can_move * 200.0,
-            Attack::Heavy1 => can_move * 200.0,
-            Attack::Heavy2 => can_move * 50.0,
-            Attack::Heavy3 => can_move * 250.0,
-            Attack::Dropkick | Attack::Hammerfist => player.state_machine.jump_attack_speed(),
+            Attack::Light1 => can_move * 130.0,
+            Attack::Light2 => can_move * 325.0,
+            Attack::Light3 => can_move * 300.0,
+            Attack::Heavy1 => can_move * 250.0,
+            Attack::Heavy2 => can_move * 75.0,
+            Attack::Heavy3 => can_move * 300.0,
+            Attack::Dropkick | Attack::Hammerfist => {
+                player.state_machine.jump_attack_speed_multiplier() * 450.0
+            }
         };
         velocity.linvel = player.state_machine.attack_direction() * speed;
     }
@@ -66,7 +72,7 @@ fn move_player_attacking(mut q_players: Query<(&mut Velocity, &Player)>) {
 fn move_player_dashing(mut q_players: Query<(&mut Velocity, &Player)>) {
     for (mut velocity, player) in &mut q_players {
         if player.state_machine.state() == DudeState::Dashing {
-            velocity.linvel = player.state_machine.attack_direction() * 500.0;
+            velocity.linvel = player.state_machine.attack_direction() * 1000.0;
         }
     }
 }

@@ -45,13 +45,10 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
             PathfindingTarget {
                 root_entity: entity,
             },
-            Collider::ball(10.0),
-            // TODO: Disable player - enemy collision when the player is sliding
-            // Though only start doing this once you have some world collisions (like walls) in the
-            // game, otherwise you can't really properly test this.
+            Collider::ball(16.0),
             CollisionGroups::new(WORLD_GROUP | PLAYER_GROUP, WORLD_GROUP | ENEMY_GROUP),
             TransformBundle::from_transform(Transform::from_translation(Vec3::new(
-                0.0, -10.0, 0.0,
+                0.0, -16.0, 0.0,
             ))),
         ))
         .id();
@@ -60,19 +57,13 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
         &mut commands,
         Hurtbox::new(entity, HurtboxType::Normal, PLAYER_GROUP),
         Vec2::new(0.0, 0.0),
-        Collider::cuboid(8.0, 24.0),
+        Collider::cuboid(10.0, 30.0),
     );
     let hurtbox_jumping = spawn_hurtbox_collision(
         &mut commands,
         Hurtbox::new(entity, HurtboxType::Jumping, PLAYER_GROUP),
-        Vec2::new(0.0, 18.0),
-        Collider::cuboid(8.0, 10.0),
-    );
-    let hurtbox_fallen = spawn_hurtbox_collision(
-        &mut commands,
-        Hurtbox::new(entity, HurtboxType::Fallen, PLAYER_GROUP),
-        Vec2::new(0.0, -10.0),
-        Collider::cuboid(16.0, 12.0),
+        Vec2::new(0.0, 22.0),
+        Collider::cuboid(12.0, 14.0),
     );
 
     let shadow = commands
@@ -80,19 +71,15 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
             YSortChild(-100.0),
             SpriteBundle {
                 texture: assets.dude_shadow.clone(),
-                transform: Transform::from_translation(Vec3::new(0.0, -18.0, 0.0)),
+                transform: Transform::from_translation(Vec3::new(0.0, -27.0, 0.0)),
                 ..default()
             },
         ))
         .id();
 
-    commands.entity(entity).push_children(&[
-        collider,
-        hurtbox_default,
-        hurtbox_jumping,
-        hurtbox_fallen,
-        shadow,
-    ]);
+    commands
+        .entity(entity)
+        .push_children(&[collider, hurtbox_default, hurtbox_jumping, shadow]);
 }
 
 pub struct PlayerSpawnPlugin;

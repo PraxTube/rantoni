@@ -1,4 +1,4 @@
-use bevy::{color::palettes::css::LIGHT_CYAN, prelude::*};
+use bevy::prelude::*;
 
 use crate::{
     dude::{dude_dashing_sprites, DudeState},
@@ -64,10 +64,6 @@ fn spawn_dash_sprites(
             SpriteBundle {
                 transform: Transform::from_translation(transform.translation),
                 texture,
-                sprite: Sprite {
-                    color: LIGHT_CYAN.into(),
-                    ..default()
-                },
                 ..default()
             },
             TextureAtlas { layout, index },

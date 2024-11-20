@@ -1,5 +1,7 @@
-use bevy::prelude::*;
+use bevy::{color::palettes::css::BLACK, prelude::*};
 use bevy_tweening::{lens::*, *};
+
+use crate::GameState;
 
 #[derive(Component)]
 struct ScreenFader;
@@ -41,6 +43,8 @@ fn spawn_screen_fader(mut commands: Commands) {
                 height: Val::Vh(110.0),
                 ..default()
             },
+            background_color: BackgroundColor(BLACK.into()),
+            z_index: ZIndex::Global(999),
             ..default()
         },
     ));
@@ -75,7 +79,7 @@ pub struct ScreenFadeUiPlugin;
 impl Plugin for ScreenFadeUiPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<FadeScreen>()
-            .add_systems(Startup, spawn_screen_fader)
+            .add_systems(OnEnter(GameState::AssetLoading), spawn_screen_fader)
             .add_systems(Update, tween_screen_fader);
     }
 }
