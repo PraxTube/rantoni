@@ -205,7 +205,10 @@ impl Plugin for MapLevelTransition {
                 Update,
                 // TODO: Remove this, right now only necessary because we don't really know which
                 // level to spawn, once main menu and stuff is in place modify this
-                change_level_on_start.run_if(once_after_delay(Duration::from_secs_f32(0.5))),
+                change_level_on_start.run_if(
+                    in_state(GameState::Gaming)
+                        .and_then(once_after_delay(Duration::from_secs_f32(0.5))),
+                ),
             )
             .add_systems(
                 Update,
