@@ -68,6 +68,7 @@ fn despawn_splash_screen(
 ) {
     for ev in ev_tween_completed.read() {
         if ev.user_data == SPLASH_SCREEN_TWEEN_ID {
+            info!("despawning splash");
             commands.entity(ev.entity).despawn_recursive();
         }
     }
