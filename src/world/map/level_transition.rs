@@ -76,6 +76,11 @@ fn transition_level(
         if q_players.get(pf_target.root_entity).is_err() {
             continue;
         }
+        let pos = transform.translation().truncate();
+        if pos == Vec2::ZERO {
+            warn!("player collider is Vec2::ZERO, skipping this for level transition as it is most likely not properly updated yet, this may be fixed in the future when you have a main menu and level selection etc, but for now this can trigger false positives in terms of level transition which can result in a panic due to the world not being correct. See issue #5");
+            continue;
+        }
 
         let direction = outside_of_bounds(
             transform.translation().truncate(),
