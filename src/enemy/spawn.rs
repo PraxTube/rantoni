@@ -17,6 +17,8 @@ use crate::{
 
 use super::Enemy;
 
+pub const COLLIDER_RADIUS: f32 = 16.0;
+
 fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec2) {
     let entity = commands
         .spawn((
@@ -60,7 +62,7 @@ fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec
     let collider = commands
         .spawn((
             PathfindingSource::new(entity),
-            Collider::ball(16.0),
+            Collider::ball(COLLIDER_RADIUS),
             CollisionGroups::new(ENEMY_GROUP, WORLD_GROUP),
             TransformBundle::from_transform(Transform::from_translation(Vec3::new(
                 0.0, -16.0, 0.0,

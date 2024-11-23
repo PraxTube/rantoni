@@ -51,8 +51,6 @@ fn main() {
                     primary_window: Some(Window {
                         present_mode: PresentMode::Fifo,
                         mode: WindowMode::Windowed,
-                        fit_canvas_to_parent: false,
-                        canvas: Some("#game-canvas".to_string()),
                         resolution: WindowResolution::new(1280.0, 720.0),
                         ..default()
                     }),
