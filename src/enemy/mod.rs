@@ -32,6 +32,7 @@ impl Plugin for EnemyPlugin {
 pub struct Enemy {
     move_direction: Vec2,
     target_pos: Vec2,
+    target_offset: Vec2,
     target: Option<Entity>,
     pub state_machine: EnemyStateMachine,
 }

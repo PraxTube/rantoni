@@ -3,6 +3,7 @@ use std::f32::consts::FRAC_1_SQRT_2;
 use bevy::{color::palettes::css::RED, prelude::*};
 use bevy_rancic::prelude::DebugState;
 use bevy_rapier2d::prelude::*;
+use rand::{thread_rng, Rng};
 
 use crate::{
     dude::DudeState,
@@ -15,6 +16,8 @@ use crate::{
 
 use super::{spawn::COLLIDER_RADIUS, state::EnemyStateSystemSet, Enemy, MOVE_SPEED};
 
+const MAX_TARGET_OFFSET: f32 = 64.0;
+
 const LINE_OF_SIGHT_COLLISION_GROUPS: CollisionGroups =
     CollisionGroups::new(WORLD_GROUP, PLAYER_GROUP);
 
@@ -26,6 +29,22 @@ const ROT_MATRIX_RIGHT: [[f32; 2]; 2] = [
     [FRAC_1_SQRT_2, FRAC_1_SQRT_2],
     [-FRAC_1_SQRT_2, FRAC_1_SQRT_2],
 ];
+
+fn target_pos_with_offset(source_pos: Vec2, target_pos: Vec2, target_offset: Vec2) -> Vec2 {
+    let dis = source_pos.distance_squared(target_pos);
+    if dis > (2.0 * MAX_TARGET_OFFSET).powi(2) {
+        return target_pos + target_offset * MAX_TARGET_OFFSET;
+    }
+
+    if dis < MAX_TARGET_OFFSET.powi(2) {
+        return target_pos;
+    }
+
+    let dis = dis.sqrt() / MAX_TARGET_OFFSET - 1.0;
+    assert!(dis > 0.0);
+    assert!(dis <= 1.0);
+    target_pos + target_offset * dis * MAX_TARGET_OFFSET
+}
 
 fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
     for (mut velocity, enemy) in &mut q_enemies {
@@ -50,6 +69,39 @@ fn rotate_vec(v: Vec2, rot_matrix: [[f32; 2]; 2]) -> Vec2 {
     )
 }
 
+fn clear_line_of_sight_of_target_offset(
+    gizmos: &mut Gizmos,
+    rapier_context: &RapierContext,
+    debug_state: &DebugState,
+    source_pos: Vec2,
+    target_pos: Vec2,
+    target: Entity,
+) -> bool {
+    for offset in [
+        Vec2::new(0.0, COLLIDER_RADIUS),
+        Vec2::new(COLLIDER_RADIUS, 0.0),
+        Vec2::new(0.0, -COLLIDER_RADIUS),
+        Vec2::new(-COLLIDER_RADIUS, 0.0),
+    ] {
+        if let Some((entity, toi)) = rapier_context.cast_ray(
+            source_pos + offset,
+            target_pos - source_pos,
+            f32::MAX,
+            true,
+            QueryFilter::new().groups(LINE_OF_SIGHT_COLLISION_GROUPS),
+        ) {
+            if toi <= 1.0 && entity != target {
+                return false;
+            }
+        }
+
+        if debug_state.0 {
+            gizmos.line_2d(source_pos + offset, target_pos + offset, RED);
+        }
+    }
+    true
+}
+
 fn clear_line_of_sight(
     gizmos: &mut Gizmos,
     rapier_context: &RapierContext,
@@ -65,20 +117,20 @@ fn clear_line_of_sight(
         Vec2::new(0.0, -COLLIDER_RADIUS),
         Vec2::new(-COLLIDER_RADIUS, 0.0),
     ] {
-        if debug_state.0 {
-            gizmos.line_2d(pf_source_pos + offset, target_pos + offset, RED);
-        }
-
-        if let Some((entity, _)) = rapier_context.cast_ray(
+        if let Some((entity, toi)) = rapier_context.cast_ray(
             pf_source_pos + offset,
             target_pos - pf_source_pos,
             f32::MAX,
             false,
             QueryFilter::new().groups(LINE_OF_SIGHT_COLLISION_GROUPS),
         ) {
-            if entity != target {
+            if toi <= 1.0 && entity != target {
                 return false;
             }
+        }
+
+        if debug_state.0 {
+            gizmos.line_2d(pf_source_pos + offset, target_pos + offset, RED);
         }
     }
     pf_source.path = None;
@@ -99,8 +151,11 @@ fn target_pos_from_path(
     );
     pf_source.path = Some(path.clone());
 
-    if path.len() < 2 {
+    if path.is_empty() {
         return target_pos;
+    }
+    if path.len() == 1 {
+        return path[0];
     }
 
     let path_dir = path[1] - path[0];
@@ -150,6 +205,18 @@ fn update_target_positions(
 
         let pf_source_pos = pf_source_transform.translation().truncate();
         let target_pos = target_transform.translation().truncate();
+        let target_pos = if clear_line_of_sight_of_target_offset(
+            &mut gizmos,
+            &rapier_context,
+            &debug_state,
+            target_pos_with_offset(pf_source_pos, target_pos, enemy.target_offset),
+            target_pos,
+            pf_target_entity,
+        ) {
+            target_pos_with_offset(pf_source_pos, target_pos, enemy.target_offset)
+        } else {
+            target_pos
+        };
 
         let pos = if clear_line_of_sight(
             &mut gizmos,
@@ -186,6 +253,15 @@ fn update_move_directions(
     }
 }
 
+fn set_random_target_offset(mut q_enemies: Query<&mut Enemy>) {
+    let mut rng = thread_rng();
+    for mut enemy in &mut q_enemies {
+        if enemy.target_offset == Vec2::ZERO {
+            enemy.target_offset = Vec2::new(rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0));
+        }
+    }
+}
+
 pub struct EnemyMovementPlugin;
 
 impl Plugin for EnemyMovementPlugin {
@@ -196,6 +272,7 @@ impl Plugin for EnemyMovementPlugin {
                 update_target_positions.run_if(resource_exists::<WorldSpatialData>),
                 update_move_directions,
                 move_enemies,
+                set_random_target_offset,
             )
                 .chain()
                 .after(EnemyStateSystemSet),
