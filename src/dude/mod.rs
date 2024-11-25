@@ -24,6 +24,7 @@ pub enum DudeState {
     Attacking,
     Recovering,
     Staggering,
+    Stalking,
     Dashing,
     Parrying(ParryState),
 }

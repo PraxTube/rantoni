@@ -169,6 +169,7 @@ fn transition_idle_state(
 
         match player.state_machine.state() {
             DudeState::Idling | DudeState::Running => {}
+            DudeState::Stalking => error!("player must never be in stalking state, you should refactor this in the first place"),
             DudeState::Attacking => {
                 if !animator.just_finished() {
                     continue;

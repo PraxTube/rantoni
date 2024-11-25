@@ -7,10 +7,14 @@ mod state;
 use bevy::prelude::*;
 use state::EnemyStateMachine;
 
-const MAX_AGGRO_DISTANCE: f32 = 500.0;
-const MIN_AGGRO_DISTANCE: f32 = 100.0;
+const MAX_CHASE_DISTANCE: f32 = 500.0;
+const MIN_CHASE_DISTANCE: f32 = 100.0;
+/// Must always be smaller than `MIN_CHASE_DISTANCE`.
+/// Acts as a buffer that the player can move while the enemy is still in stalking mode.
+/// The bigger the difference the more the enemy can "stalk" the player.
 const MIN_TARGET_DISTANCE: f32 = 50.0;
 const MOVE_SPEED: f32 = 400.0;
+const STALK_SPEED: f32 = 200.0;
 
 pub use collisions::EnemyCollisionSystemSet;
 

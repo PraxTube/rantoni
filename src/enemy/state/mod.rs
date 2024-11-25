@@ -12,7 +12,7 @@ use crate::{
     world::{PathfindingSource, PathfindingTarget},
 };
 
-use super::{Enemy, MAX_AGGRO_DISTANCE, MIN_AGGRO_DISTANCE, MIN_TARGET_DISTANCE};
+use super::{Enemy, MAX_CHASE_DISTANCE, MIN_CHASE_DISTANCE, MIN_TARGET_DISTANCE};
 
 pub struct EnemyStatePlugin;
 
@@ -25,6 +25,7 @@ impl Plugin for EnemyStatePlugin {
                 (
                     transition_stagger_state,
                     transition_attack_state,
+                    transition_stalking_state,
                     transition_run_state,
                     transition_idle_state,
                     reset_new_state,
@@ -98,6 +99,11 @@ fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy)>)
                     enemy.state_machine.set_state(DudeState::Idling);
                 }
             }
+            DudeState::Stalking => {
+                if enemy.target.is_none() {
+                    enemy.state_machine.set_state(DudeState::Idling);
+                }
+            }
             DudeState::Attacking => {
                 if animator.just_finished() {
                     enemy.state_machine.set_state(DudeState::Recovering);
@@ -122,6 +128,10 @@ fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy)>)
     }
 }
 
+// TODO: This is an issue if you want to allow enemy on enemy targets.
+// The simplest solution is to just load the transform of the target in another system before this
+// one, I think one solution is to have something like a `Target` component? That could then have
+// tmp stuff like current transform or some shit like that.
 fn transition_run_state(
     q_players: Query<(Entity, &Transform), With<Player>>,
     q_pf_targets: Query<(Entity, &PathfindingTarget)>,
@@ -136,7 +146,9 @@ fn transition_run_state(
         if enemy.state_machine.just_changed() {
             continue;
         }
-        if enemy.state_machine.state() != DudeState::Idling {
+        if enemy.state_machine.state() != DudeState::Idling
+            && enemy.state_machine.state() != DudeState::Stalking
+        {
             continue;
         }
 
@@ -149,7 +161,7 @@ fn transition_run_state(
                 .translation
                 .truncate()
                 .distance_squared(player_transform.translation.truncate());
-            if dis > MIN_AGGRO_DISTANCE.powi(2) && dis < MAX_AGGRO_DISTANCE.powi(2) {
+            if dis > MIN_CHASE_DISTANCE.powi(2) && dis < MAX_CHASE_DISTANCE.powi(2) {
                 pf_source.target = Some(pf_target_entity);
                 enemy.target = Some(player);
                 enemy.state_machine.set_state(DudeState::Running);
@@ -161,6 +173,42 @@ fn transition_run_state(
 fn reset_new_state(mut q_enemies: Query<&mut Enemy>) {
     for mut enemy in &mut q_enemies {
         enemy.state_machine.reset_new_state();
+    }
+}
+
+fn transition_stalking_state(
+    q_transforms: Query<&Transform, Without<Enemy>>,
+    mut q_enemies: Query<(&Transform, &mut Enemy)>,
+    q_pf_sources: Query<&PathfindingSource>,
+) {
+    for pf_source in &q_pf_sources {
+        let Ok((transform, mut enemy)) = q_enemies.get_mut(pf_source.root_entity) else {
+            continue;
+        };
+        if enemy.state_machine.just_changed() {
+            continue;
+        }
+        if enemy.state_machine.state() != DudeState::Idling
+            && enemy.state_machine.state() != DudeState::Running
+        {
+            continue;
+        }
+
+        let Some(target) = enemy.target else {
+            continue;
+        };
+        let Ok(target_transform) = q_transforms.get(target) else {
+            continue;
+        };
+
+        if transform
+            .translation
+            .truncate()
+            .distance_squared(target_transform.translation.truncate())
+            < MIN_TARGET_DISTANCE.powi(2)
+        {
+            enemy.state_machine.set_state(DudeState::Stalking);
+        }
     }
 }
 
@@ -189,7 +237,7 @@ fn reset_enemey_targets(
             .translation
             .truncate()
             .distance_squared(target_transform.translation.truncate())
-            < MIN_TARGET_DISTANCE.powi(2)
+            > MAX_CHASE_DISTANCE.powi(2)
         {
             pf_source.target = None;
             enemy.target = None;

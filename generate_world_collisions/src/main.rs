@@ -88,7 +88,6 @@ fn compute_collier_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
 }
 
 fn grid_from_level(level: ldtk::Level) -> Grid {
-    info!("{}", level.px_wid);
     let width = (level.px_wid as f32 / TILE_SIZE) as usize;
     let height = (level.px_hei as f32 / TILE_SIZE) as usize;
 

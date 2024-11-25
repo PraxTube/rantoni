@@ -89,6 +89,7 @@ fn change_hurtbox_collisions(
 
         let hurtbox_type = match player.state_machine.state() {
             DudeState::Idling => HurtboxType::Normal,
+            DudeState::Stalking => HurtboxType::Normal,
             DudeState::Running => HurtboxType::Normal,
             DudeState::Attacking => match player.state_machine.attack() {
                 Attack::Dropkick => HurtboxType::Jumping,

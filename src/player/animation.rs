@@ -42,6 +42,7 @@ fn update_player_animation(
         }
         DudeState::Attacking | DudeState::Recovering => player.state_machine.attack_direction(),
         DudeState::Dashing => panic!("should never happen! Dashing should not use this function"),
+        DudeState::Stalking => panic!("player must never be in stalking, refactor this anyways"),
     };
 
     let (texture, animation, repeat, animation_state) = dude_state_animation(

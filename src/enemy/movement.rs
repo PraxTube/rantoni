@@ -14,7 +14,7 @@ use crate::{
     },
 };
 
-use super::{spawn::COLLIDER_RADIUS, state::EnemyStateSystemSet, Enemy, MOVE_SPEED};
+use super::{spawn::COLLIDER_RADIUS, state::EnemyStateSystemSet, Enemy, MOVE_SPEED, STALK_SPEED};
 
 const MAX_TARGET_OFFSET: f32 = 64.0;
 
@@ -56,6 +56,9 @@ fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
                 if !enemy.state_machine.stagger_state().is_recovering() {
                     velocity.linvel = enemy.state_machine.stagger_linvel();
                 }
+            }
+            DudeState::Stalking => {
+                velocity.linvel = enemy.move_direction.perp() * STALK_SPEED;
             }
             _ => {}
         }
