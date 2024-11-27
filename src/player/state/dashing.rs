@@ -9,6 +9,8 @@ use crate::{
 use super::PlayerStateSystemSet;
 
 const DASH_TIME: f32 = 0.25;
+/// The number of frames one dash animation contains. This number shouldn't change.
+const DASH_FRAME_COUNT: usize = 2;
 
 #[derive(Component)]
 struct DashSprite {
@@ -42,7 +44,6 @@ fn tick_timers(time: Res<Time>, mut q_players: Query<&mut Player>) {
 fn spawn_dash_sprites(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    layouts: Res<Assets<TextureAtlasLayout>>,
     q_players: Query<(&Transform, &Player)>,
 ) {
     for (transform, player) in &q_players {
@@ -53,11 +54,8 @@ fn spawn_dash_sprites(
         let (texture, direction_index_offset) =
             dude_dashing_sprites(&assets, player.state_machine.attack_direction());
         let layout = assets.dude_layout.clone();
-        let atlas = layouts.get(&layout).unwrap();
 
-        assert_eq!(atlas.len() % 8, 0);
-        let columns = atlas.len() / 8;
-        let index = columns * direction_index_offset;
+        let index = DASH_FRAME_COUNT * direction_index_offset;
 
         commands.spawn((
             DashSprite::default(),
