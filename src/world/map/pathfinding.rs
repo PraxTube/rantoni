@@ -140,11 +140,11 @@ pub fn a_star(
     _path: &Option<Vec<Vec2>>,
 ) -> Vec<Vec2> {
     fn h(v: Vec2, end: Vec2) -> f32 {
-        v.distance_squared(end)
+        (v.x - end.x).abs() + (v.y - end.y).abs()
     }
 
     fn d(v: Vec2, w: Vec2) -> f32 {
-        v.distance_squared(w)
+        (v.x - w.x).abs() + (v.y - w.y).abs()
     }
 
     let Some(start_indices) = point_to_matrix_indices(grid_matrix, start) else {
