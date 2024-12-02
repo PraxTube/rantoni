@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::{dude::dude_state_animation, GameAssets};
+use crate::{dude::dude_state_animation_enemy, GameAssets};
 
 use super::{state::EnemyStateSystemSet, Enemy};
 
@@ -10,7 +10,7 @@ fn update_animations(
     mut q_enemies: Query<(&mut Handle<Image>, &mut AnimationPlayer2D, &mut Enemy)>,
 ) {
     for (mut enemy_texture, mut animator, mut enemy) in &mut q_enemies {
-        let (texture, animation, repeat, animation_state) = dude_state_animation(
+        let (texture, animation, repeat, animation_state) = dude_state_animation_enemy(
             &assets,
             enemy.state_machine.state(),
             enemy.state_machine.attack(),

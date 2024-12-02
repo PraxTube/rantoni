@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::dude::{Attack, DudeAnimations, DudeState, Stagger, StaggerState};
+use crate::dude::{Attack, DudeState, EnemyAnimations, Stagger, StaggerState};
 
 use super::attack::AttackHandler;
 
@@ -13,7 +13,7 @@ pub struct EnemyStateMachine {
     previous_state: DudeState,
     stagger: Stagger,
     new_state: Option<DudeState>,
-    animation_state: DudeAnimations,
+    animation_state: EnemyAnimations,
     attack_handler: AttackHandler,
 }
 
@@ -61,11 +61,11 @@ Attempted new state: {:?}",
         self.new_state = None;
     }
 
-    pub fn animation_state(&self) -> DudeAnimations {
+    pub fn animation_state(&self) -> EnemyAnimations {
         self.animation_state
     }
 
-    pub fn set_animation_state(&mut self, animation_state: DudeAnimations) {
+    pub fn set_animation_state(&mut self, animation_state: EnemyAnimations) {
         self.animation_state = animation_state;
     }
 

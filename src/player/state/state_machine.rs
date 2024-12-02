@@ -3,7 +3,7 @@ use std::time::Duration;
 use bevy::prelude::*;
 
 use crate::dude::{
-    Attack, AttackForm, DudeAnimations, DudeState, ParryState, Stagger, StaggerState,
+    Attack, AttackForm, DudeState, ParryState, PlayerAnimations, Stagger, StaggerState,
 };
 
 use super::{dashing::DashingTimer, jumping::Jumping, AttackHandler};
@@ -18,7 +18,7 @@ pub struct PlayerStateMachine {
     jumping: Jumping,
     new_state: Option<DudeState>,
     attack_handler: AttackHandler,
-    animation_state: DudeAnimations,
+    animation_state: PlayerAnimations,
 }
 
 impl PlayerStateMachine {
@@ -91,11 +91,11 @@ Attempted new state: {:?}",
         self.new_state = None;
     }
 
-    pub fn animation_state(&self) -> DudeAnimations {
+    pub fn animation_state(&self) -> PlayerAnimations {
         self.animation_state
     }
 
-    pub fn set_animation_state(&mut self, animation_state: DudeAnimations) {
+    pub fn set_animation_state(&mut self, animation_state: PlayerAnimations) {
         self.animation_state = animation_state;
     }
 

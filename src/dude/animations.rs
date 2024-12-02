@@ -8,7 +8,7 @@ use crate::GameAssets;
 use super::{Attack, DudeState, ParryState, StaggerState};
 
 #[derive(Default, Clone, Copy, PartialEq)]
-pub enum DudeAnimations {
+pub enum PlayerAnimations {
     #[default]
     Idle,
     Run,
@@ -40,7 +40,30 @@ pub enum DudeAnimations {
     HammerfistRecover,
 }
 
-impl DudeAnimations {
+#[derive(Default, Clone, Copy, PartialEq)]
+pub enum EnemyAnimations {
+    #[default]
+    Idle,
+    Run,
+    Light1,
+    Light1Recover,
+    Heavy1,
+    Heavy1Recover,
+    StaggerNormal,
+    StaggerNormalRecover,
+    StanceBreak,
+    StanceBreakRecover,
+    Fall,
+    FallRecover,
+}
+
+impl PlayerAnimations {
+    pub fn index(self) -> usize {
+        self as usize
+    }
+}
+
+impl EnemyAnimations {
     pub fn index(self) -> usize {
         self as usize
     }
@@ -86,71 +109,107 @@ fn direction_index_offset(direction: Vec2) -> usize {
     }
 }
 
-fn get_animation_data(
+fn get_animation_data_player(
     assets: &Res<GameAssets>,
-    dude_animation: DudeAnimations,
+    player_animation: PlayerAnimations,
     direction: Vec2,
     repeat: bool,
-) -> (Handle<Image>, Handle<AnimationClip2D>, bool, DudeAnimations) {
-    let index = dude_animation.index();
+) -> (
+    Handle<Image>,
+    Handle<AnimationClip2D>,
+    bool,
+    PlayerAnimations,
+) {
+    let index = player_animation.index();
     let animation_index = index * 8 + direction_index_offset(direction);
 
     (
         assets.dude_textures[index].clone(),
         assets.dude_animations[animation_index].clone(),
         repeat,
-        dude_animation,
+        player_animation,
     )
 }
 
-pub fn dude_state_animation(
+fn get_animation_data_enemy(
+    assets: &Res<GameAssets>,
+    enemy_animation: EnemyAnimations,
+    direction: Vec2,
+    repeat: bool,
+) -> (
+    Handle<Image>,
+    Handle<AnimationClip2D>,
+    bool,
+    EnemyAnimations,
+) {
+    let index = enemy_animation.index();
+    let animation_index = index * 8 + direction_index_offset(direction);
+
+    (
+        assets.enemy_goon_textures[index].clone(),
+        assets.enemy_goon_animations[animation_index].clone(),
+        repeat,
+        enemy_animation,
+    )
+}
+
+pub fn dude_state_animation_player(
     assets: &Res<GameAssets>,
     state: DudeState,
     attack: Attack,
     stagger_state: StaggerState,
     direction: Vec2,
-) -> (Handle<Image>, Handle<AnimationClip2D>, bool, DudeAnimations) {
+) -> (
+    Handle<Image>,
+    Handle<AnimationClip2D>,
+    bool,
+    PlayerAnimations,
+) {
     match state {
-        DudeState::Idling => get_animation_data(assets, DudeAnimations::Idle, direction, true),
-        DudeState::Running => get_animation_data(assets, DudeAnimations::Run, direction, true),
+        DudeState::Idling => {
+            get_animation_data_player(assets, PlayerAnimations::Idle, direction, true)
+        }
+        DudeState::Running => {
+            get_animation_data_player(assets, PlayerAnimations::Run, direction, true)
+        }
         DudeState::Attacking => {
             let dude_animation = match attack {
-                Attack::Light1 => DudeAnimations::Light1,
-                Attack::Light2 => DudeAnimations::Light2,
-                Attack::Light3 => DudeAnimations::Light3,
-                Attack::Heavy1 => DudeAnimations::Heavy1,
-                Attack::Heavy2 => DudeAnimations::Heavy2,
-                Attack::Heavy3 => DudeAnimations::Heavy3,
-                Attack::Dropkick => DudeAnimations::Dropkick,
-                Attack::Hammerfist => DudeAnimations::Hammerfist,
+                Attack::Light1 => PlayerAnimations::Light1,
+                Attack::Light2 => PlayerAnimations::Light2,
+                Attack::Light3 => PlayerAnimations::Light3,
+                Attack::Heavy1 => PlayerAnimations::Heavy1,
+                Attack::Heavy2 => PlayerAnimations::Heavy2,
+                Attack::Heavy3 => PlayerAnimations::Heavy3,
+                Attack::Dropkick => PlayerAnimations::Dropkick,
+                Attack::Hammerfist => PlayerAnimations::Hammerfist,
             };
-            get_animation_data(assets, dude_animation, direction, false)
+            get_animation_data_player(assets, dude_animation, direction, false)
         }
         DudeState::Recovering => {
             let dude_animation = match attack {
-                Attack::Light1 => DudeAnimations::Light1Recover,
-                Attack::Light2 => DudeAnimations::Light2Recover,
-                Attack::Light3 => DudeAnimations::Light3Recover,
-                Attack::Heavy1 => DudeAnimations::Heavy1Recover,
-                Attack::Heavy2 => DudeAnimations::Heavy2Recover,
-                Attack::Heavy3 => DudeAnimations::Heavy3Recover,
-                Attack::Dropkick => DudeAnimations::DropkickRecover,
-                Attack::Hammerfist => DudeAnimations::HammerfistRecover,
+                Attack::Light1 => PlayerAnimations::Light1Recover,
+                Attack::Light2 => PlayerAnimations::Light2Recover,
+                Attack::Light3 => PlayerAnimations::Light3Recover,
+                Attack::Heavy1 => PlayerAnimations::Heavy1Recover,
+                Attack::Heavy2 => PlayerAnimations::Heavy2Recover,
+                Attack::Heavy3 => PlayerAnimations::Heavy3Recover,
+                Attack::Dropkick => PlayerAnimations::DropkickRecover,
+                Attack::Hammerfist => PlayerAnimations::HammerfistRecover,
             };
-            get_animation_data(assets, dude_animation, direction, false)
+            get_animation_data_player(assets, dude_animation, direction, false)
         }
         DudeState::Staggering => {
             let dude_animation = match stagger_state {
-                StaggerState::Normal => DudeAnimations::StaggerNormal,
-                StaggerState::StanceBreak => DudeAnimations::StanceBreak,
-                StaggerState::Fall => DudeAnimations::Fall,
-                StaggerState::NormalRecover => DudeAnimations::StaggerNormalRecover,
-                StaggerState::StanceBreakRecover => DudeAnimations::StanceBreakRecover,
-                StaggerState::FallRecover => DudeAnimations::FallRecover,
+                StaggerState::Normal => PlayerAnimations::StaggerNormal,
+                StaggerState::StanceBreak => PlayerAnimations::StanceBreak,
+                StaggerState::Fall => PlayerAnimations::Fall,
+                StaggerState::NormalRecover => PlayerAnimations::StaggerNormalRecover,
+                StaggerState::StanceBreakRecover => PlayerAnimations::StanceBreakRecover,
+                StaggerState::FallRecover => PlayerAnimations::FallRecover,
             };
 
-            let direction = if dude_animation == DudeAnimations::Fall
-                || dude_animation == DudeAnimations::FallRecover
+            let direction = if dude_animation == PlayerAnimations::Fall
+                || dude_animation == PlayerAnimations::FallRecover
             {
                 // We only care about one of the 8 directions, but because of how the whole pipeline is
                 // set up we just keep the other 7 useless animations, it's a minor issue but
@@ -160,25 +219,106 @@ pub fn dude_state_animation(
                 direction
             };
 
-            get_animation_data(assets, dude_animation, direction, false)
+            get_animation_data_player(assets, dude_animation, direction, false)
         }
         DudeState::Parrying(parry_state) => {
             let dude_animation = match parry_state {
-                ParryState::Start => DudeAnimations::Parry,
-                ParryState::Fail => DudeAnimations::ParryFail,
-                ParryState::Success => DudeAnimations::ParrySuccess,
+                ParryState::Start => PlayerAnimations::Parry,
+                ParryState::Fail => PlayerAnimations::ParryFail,
+                ParryState::Success => PlayerAnimations::ParrySuccess,
             };
-            get_animation_data(assets, dude_animation, direction, false)
+            get_animation_data_player(assets, dude_animation, direction, false)
         }
-        DudeState::Stalking => get_animation_data(assets, DudeAnimations::Idle, direction, true),
+        DudeState::Stalking => {
+            get_animation_data_player(assets, PlayerAnimations::Idle, direction, true)
+        }
         DudeState::Dashing => {
             error!("this should never happen! You are not allowed to call this function when in dashing state!");
-            get_animation_data(assets, DudeAnimations::Idle, direction, false)
+            get_animation_data_player(assets, PlayerAnimations::Idle, direction, false)
+        }
+    }
+}
+
+pub fn dude_state_animation_enemy(
+    assets: &Res<GameAssets>,
+    state: DudeState,
+    attack: Attack,
+    stagger_state: StaggerState,
+    direction: Vec2,
+) -> (
+    Handle<Image>,
+    Handle<AnimationClip2D>,
+    bool,
+    EnemyAnimations,
+) {
+    match state {
+        DudeState::Idling => {
+            get_animation_data_enemy(assets, EnemyAnimations::Idle, direction, true)
+        }
+        DudeState::Running => {
+            get_animation_data_enemy(assets, EnemyAnimations::Run, direction, true)
+        }
+        DudeState::Attacking => {
+            let animation = match attack {
+                Attack::Light1 => EnemyAnimations::Light1,
+                Attack::Heavy1 => EnemyAnimations::Heavy1,
+                _ => {
+                    error!("enemies are only allowed to have one light and one heavy attack, should never happen");
+                    EnemyAnimations::Light1
+                }
+            };
+            get_animation_data_enemy(assets, animation, direction, false)
+        }
+        DudeState::Recovering => {
+            let animation = match attack {
+                Attack::Light1 => EnemyAnimations::Light1Recover,
+                Attack::Heavy1 => EnemyAnimations::Heavy1Recover,
+                _ => {
+                    error!("enemies are only allowed to have one light and one heavy attack, should never happen");
+                    EnemyAnimations::Light1Recover
+                }
+            };
+            get_animation_data_enemy(assets, animation, direction, false)
+        }
+        DudeState::Staggering => {
+            let animation = match stagger_state {
+                StaggerState::Normal => EnemyAnimations::StaggerNormal,
+                StaggerState::StanceBreak => EnemyAnimations::StanceBreak,
+                StaggerState::Fall => EnemyAnimations::Fall,
+                StaggerState::NormalRecover => EnemyAnimations::StaggerNormalRecover,
+                StaggerState::StanceBreakRecover => EnemyAnimations::StanceBreakRecover,
+                StaggerState::FallRecover => EnemyAnimations::FallRecover,
+            };
+
+            let direction = if animation == EnemyAnimations::Fall
+                || animation == EnemyAnimations::FallRecover
+            {
+                // We only care about one of the 8 directions, but because of how the whole pipeline is
+                // set up we just keep the other 7 useless animations, it's a minor issue but
+                // absolutely not worth the optimization.
+                Vec2::Y
+            } else {
+                direction
+            };
+
+            get_animation_data_enemy(assets, animation, direction, false)
+        }
+        DudeState::Stalking => {
+            get_animation_data_enemy(assets, EnemyAnimations::Idle, direction, true)
+        }
+        DudeState::Parrying(_) => {
+            error!("called animation data on enemy with parry state, should never happen");
+            get_animation_data_enemy(assets, EnemyAnimations::Idle, direction, false)
+        }
+        DudeState::Dashing => {
+            error!("this should never happen! You are not allowed to call this function when in dashing state!");
+            get_animation_data_enemy(assets, EnemyAnimations::Idle, direction, false)
         }
     }
 }
 
 pub fn dude_dashing_sprites(assets: &Res<GameAssets>, direction: Vec2) -> (Handle<Image>, usize) {
-    let (texture, _, _, _) = get_animation_data(assets, DudeAnimations::Dash, direction, false);
+    let (texture, _, _, _) =
+        get_animation_data_player(assets, PlayerAnimations::Dash, direction, false);
     (texture, direction_index_offset(direction))
 }

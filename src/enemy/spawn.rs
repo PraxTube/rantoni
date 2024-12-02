@@ -1,4 +1,4 @@
-use bevy::{color::palettes::css::RED, prelude::*};
+use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rancic::prelude::{YSort, YSortChild};
 use bevy_rapier2d::prelude::*;
@@ -6,7 +6,7 @@ use bevy_trickfilm::prelude::*;
 use generate_world_collisions::{ENEMY_LAYER_IDENTIFIER, TILE_SIZE};
 
 use crate::{
-    dude::DudeAnimations,
+    dude::EnemyAnimations,
     world::{
         collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType, ENEMY_GROUP, WORLD_GROUP},
         CachedEnemy, CachedLevelData, DespawnLevelSystemSet, LevelChanged, PathfindingSource,
@@ -35,14 +35,10 @@ fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec
             YSort(0.0),
             SpriteBundle {
                 transform: Transform::from_translation(pos.extend(0.0)),
-                texture: assets.dude_textures[0].clone(),
-                sprite: Sprite {
-                    color: RED.into(),
-                    ..default()
-                },
+                texture: assets.enemy_goon_textures[0].clone(),
                 ..default()
             },
-            TextureAtlas::from(assets.dude_layout.clone()),
+            TextureAtlas::from(assets.enemy_goon_layout.clone()),
         ))
         .id();
 
@@ -74,7 +70,7 @@ fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec
         .spawn((
             YSortChild(-100.0),
             SpriteBundle {
-                texture: assets.dude_shadow.clone(),
+                texture: assets.enemy_goon_shadow.clone(),
                 transform: Transform::from_translation(Vec3::new(0.0, -18.0, 0.0)),
                 ..default()
             },
@@ -83,7 +79,7 @@ fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec
 
     let mut animator = AnimationPlayer2D::default();
     animator
-        .play(assets.dude_animations[DudeAnimations::Idle.index()].clone())
+        .play(assets.enemy_goon_animations[EnemyAnimations::Idle.index()].clone())
         .repeat();
 
     commands.entity(entity).insert(animator).push_children(&[

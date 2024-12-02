@@ -3,7 +3,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{
     assets::events::SpawnHitboxEvent,
-    dude::{dude_state_animation, Attack, DudeState},
+    dude::{dude_state_animation_player, Attack, DudeState},
     GameAssets,
 };
 
@@ -45,7 +45,7 @@ fn update_player_animation(
         DudeState::Stalking => panic!("player must never be in stalking, refactor this anyways"),
     };
 
-    let (texture, animation, repeat, animation_state) = dude_state_animation(
+    let (texture, animation, repeat, animation_state) = dude_state_animation_player(
         &assets,
         player.state_machine.state(),
         player.state_machine.attack(),

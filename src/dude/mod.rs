@@ -2,7 +2,10 @@ mod animations;
 mod attack;
 mod stagger;
 
-pub use animations::{dude_dashing_sprites, dude_state_animation, DudeAnimations};
+pub use animations::{
+    dude_dashing_sprites, dude_state_animation_enemy, dude_state_animation_player, EnemyAnimations,
+    PlayerAnimations,
+};
 pub use attack::{Attack, AttackForm};
 pub use stagger::{Stagger, StaggerState};
 
@@ -16,6 +19,7 @@ impl Plugin for StatePlugin {
     }
 }
 
+// TODO: Replace this with separate states for player and enemy?
 #[derive(Debug, Default, PartialEq, Clone, Copy)]
 pub enum DudeState {
     #[default]

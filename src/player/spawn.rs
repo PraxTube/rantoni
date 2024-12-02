@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::DudeAnimations,
+    dude::PlayerAnimations,
     world::{
         collisions::{
             spawn_hurtbox_collision, Hurtbox, HurtboxType, ENEMY_GROUP, PLAYER_GROUP, WORLD_GROUP,
@@ -19,7 +19,7 @@ use super::Player;
 fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
     let mut animator = AnimationPlayer2D::default();
     animator
-        .play(assets.dude_animations[DudeAnimations::Idle.index()].clone())
+        .play(assets.dude_animations[PlayerAnimations::Idle.index()].clone())
         .repeat();
 
     let entity = commands
