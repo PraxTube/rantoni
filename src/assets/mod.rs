@@ -330,6 +330,8 @@ pub struct GameAssets {
             "enemy/goon/stance_broken_recover.png",
             "enemy/goon/fall.png",
             "enemy/goon/fall_recover.png",
+            "enemy/goon/stalking.png",
+            "enemy/goon/stalking_left.png",
         ),
         collection(typed)
     )]
@@ -437,6 +439,22 @@ pub struct GameAssets {
             "enemy/goon/goon.trickfilm.ron#fall_recover-o5",
             "enemy/goon/goon.trickfilm.ron#fall_recover-o6",
             "enemy/goon/goon.trickfilm.ron#fall_recover-o7",
+            "enemy/goon/goon.trickfilm.ron#stalking-o0",
+            "enemy/goon/goon.trickfilm.ron#stalking-o1",
+            "enemy/goon/goon.trickfilm.ron#stalking-o2",
+            "enemy/goon/goon.trickfilm.ron#stalking-o3",
+            "enemy/goon/goon.trickfilm.ron#stalking-o4",
+            "enemy/goon/goon.trickfilm.ron#stalking-o5",
+            "enemy/goon/goon.trickfilm.ron#stalking-o6",
+            "enemy/goon/goon.trickfilm.ron#stalking-o7",
+            "enemy/goon/goon.trickfilm.ron#stalking_left-o0",
+            "enemy/goon/goon.trickfilm.ron#stalking_left-o1",
+            "enemy/goon/goon.trickfilm.ron#stalking_left-o2",
+            "enemy/goon/goon.trickfilm.ron#stalking_left-o3",
+            "enemy/goon/goon.trickfilm.ron#stalking_left-o4",
+            "enemy/goon/goon.trickfilm.ron#stalking_left-o5",
+            "enemy/goon/goon.trickfilm.ron#stalking_left-o6",
+            "enemy/goon/goon.trickfilm.ron#stalking_left-o7",
         ),
         collection(typed)
     )]
