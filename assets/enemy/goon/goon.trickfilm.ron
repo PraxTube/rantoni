@@ -96,10 +96,10 @@
 		duration: 1.1666666,
 	),
 	"punch-o0": (
-		keyframes: KeyframesRange((start: 0, end: 16)),
-		duration: 0.8888889,
+		keyframes: KeyframesRange((start: 0, end: 10)),
+		duration: 0.5555556,
 		events: {
-			13: {
+			8: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "punch-o0",
 				)
@@ -107,10 +107,10 @@
 		},
 	),
 	"punch-o1": (
-		keyframes: KeyframesRange((start: 16, end: 32)),
-		duration: 0.8888889,
+		keyframes: KeyframesRange((start: 10, end: 20)),
+		duration: 0.5555556,
 		events: {
-			13: {
+			8: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "punch-o1",
 				)
@@ -118,10 +118,10 @@
 		},
 	),
 	"punch-o2": (
-		keyframes: KeyframesRange((start: 32, end: 48)),
-		duration: 0.8888889,
+		keyframes: KeyframesRange((start: 20, end: 30)),
+		duration: 0.5555556,
 		events: {
-			13: {
+			8: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "punch-o2",
 				)
@@ -129,10 +129,10 @@
 		},
 	),
 	"punch-o3": (
-		keyframes: KeyframesRange((start: 48, end: 64)),
-		duration: 0.8888889,
+		keyframes: KeyframesRange((start: 30, end: 40)),
+		duration: 0.5555556,
 		events: {
-			13: {
+			8: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "punch-o3",
 				)
@@ -140,10 +140,10 @@
 		},
 	),
 	"punch-o4": (
-		keyframes: KeyframesRange((start: 64, end: 80)),
-		duration: 0.8888889,
+		keyframes: KeyframesRange((start: 40, end: 50)),
+		duration: 0.5555556,
 		events: {
-			13: {
+			8: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "punch-o4",
 				)
@@ -151,10 +151,10 @@
 		},
 	),
 	"punch-o5": (
-		keyframes: KeyframesRange((start: 80, end: 96)),
-		duration: 0.8888889,
+		keyframes: KeyframesRange((start: 50, end: 60)),
+		duration: 0.5555556,
 		events: {
-			13: {
+			8: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "punch-o5",
 				)
@@ -162,10 +162,10 @@
 		},
 	),
 	"punch-o6": (
-		keyframes: KeyframesRange((start: 96, end: 112)),
-		duration: 0.8888889,
+		keyframes: KeyframesRange((start: 60, end: 70)),
+		duration: 0.5555556,
 		events: {
-			13: {
+			8: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "punch-o6",
 				)
@@ -173,10 +173,10 @@
 		},
 	),
 	"punch-o7": (
-		keyframes: KeyframesRange((start: 112, end: 128)),
-		duration: 0.8888889,
+		keyframes: KeyframesRange((start: 70, end: 80)),
+		duration: 0.5555556,
 		events: {
-			13: {
+			8: {
 				"rantoni::assets::events::SpawnHitboxEvent": (
 					msg: "punch-o7",
 				)
@@ -184,36 +184,36 @@
 		},
 	),
 	"punch_recover-o0": (
-		keyframes: KeyframesRange((start: 0, end: 9)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 0, end: 16)),
+		duration: 0.8888889,
 	),
 	"punch_recover-o1": (
-		keyframes: KeyframesRange((start: 9, end: 18)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 16, end: 32)),
+		duration: 0.8888889,
 	),
 	"punch_recover-o2": (
-		keyframes: KeyframesRange((start: 18, end: 27)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 32, end: 48)),
+		duration: 0.8888889,
 	),
 	"punch_recover-o3": (
-		keyframes: KeyframesRange((start: 27, end: 36)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 48, end: 64)),
+		duration: 0.8888889,
 	),
 	"punch_recover-o4": (
-		keyframes: KeyframesRange((start: 36, end: 45)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 64, end: 80)),
+		duration: 0.8888889,
 	),
 	"punch_recover-o5": (
-		keyframes: KeyframesRange((start: 45, end: 54)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 80, end: 96)),
+		duration: 0.8888889,
 	),
 	"punch_recover-o6": (
-		keyframes: KeyframesRange((start: 54, end: 63)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 96, end: 112)),
+		duration: 0.8888889,
 	),
 	"punch_recover-o7": (
-		keyframes: KeyframesRange((start: 63, end: 72)),
-		duration: 0.5,
+		keyframes: KeyframesRange((start: 112, end: 128)),
+		duration: 0.8888889,
 	),
 	"run-o0": (
 		keyframes: KeyframesRange((start: 0, end: 12)),
@@ -463,6 +463,70 @@
 		keyframes: KeyframesRange((start: 84, end: 96)),
 		duration: 0.6666667,
 	),
+	"stalking_back-o0": (
+		keyframes: KeyframesRange((start: 0, end: 12)),
+		duration: 0.6666667,
+	),
+	"stalking_back-o1": (
+		keyframes: KeyframesRange((start: 12, end: 24)),
+		duration: 0.6666667,
+	),
+	"stalking_back-o2": (
+		keyframes: KeyframesRange((start: 24, end: 36)),
+		duration: 0.6666667,
+	),
+	"stalking_back-o3": (
+		keyframes: KeyframesRange((start: 36, end: 48)),
+		duration: 0.6666667,
+	),
+	"stalking_back-o4": (
+		keyframes: KeyframesRange((start: 48, end: 60)),
+		duration: 0.6666667,
+	),
+	"stalking_back-o5": (
+		keyframes: KeyframesRange((start: 60, end: 72)),
+		duration: 0.6666667,
+	),
+	"stalking_back-o6": (
+		keyframes: KeyframesRange((start: 72, end: 84)),
+		duration: 0.6666667,
+	),
+	"stalking_back-o7": (
+		keyframes: KeyframesRange((start: 84, end: 96)),
+		duration: 0.6666667,
+	),
+	"stalking_forward-o0": (
+		keyframes: KeyframesRange((start: 0, end: 12)),
+		duration: 0.6666667,
+	),
+	"stalking_forward-o1": (
+		keyframes: KeyframesRange((start: 12, end: 24)),
+		duration: 0.6666667,
+	),
+	"stalking_forward-o2": (
+		keyframes: KeyframesRange((start: 24, end: 36)),
+		duration: 0.6666667,
+	),
+	"stalking_forward-o3": (
+		keyframes: KeyframesRange((start: 36, end: 48)),
+		duration: 0.6666667,
+	),
+	"stalking_forward-o4": (
+		keyframes: KeyframesRange((start: 48, end: 60)),
+		duration: 0.6666667,
+	),
+	"stalking_forward-o5": (
+		keyframes: KeyframesRange((start: 60, end: 72)),
+		duration: 0.6666667,
+	),
+	"stalking_forward-o6": (
+		keyframes: KeyframesRange((start: 72, end: 84)),
+		duration: 0.6666667,
+	),
+	"stalking_forward-o7": (
+		keyframes: KeyframesRange((start: 84, end: 96)),
+		duration: 0.6666667,
+	),
 	"stalking_left-o0": (
 		keyframes: KeyframesRange((start: 0, end: 12)),
 		duration: 0.6666667,
@@ -492,6 +556,38 @@
 		duration: 0.6666667,
 	),
 	"stalking_left-o7": (
+		keyframes: KeyframesRange((start: 84, end: 96)),
+		duration: 0.6666667,
+	),
+	"stalking_right-o0": (
+		keyframes: KeyframesRange((start: 0, end: 12)),
+		duration: 0.6666667,
+	),
+	"stalking_right-o1": (
+		keyframes: KeyframesRange((start: 12, end: 24)),
+		duration: 0.6666667,
+	),
+	"stalking_right-o2": (
+		keyframes: KeyframesRange((start: 24, end: 36)),
+		duration: 0.6666667,
+	),
+	"stalking_right-o3": (
+		keyframes: KeyframesRange((start: 36, end: 48)),
+		duration: 0.6666667,
+	),
+	"stalking_right-o4": (
+		keyframes: KeyframesRange((start: 48, end: 60)),
+		duration: 0.6666667,
+	),
+	"stalking_right-o5": (
+		keyframes: KeyframesRange((start: 60, end: 72)),
+		duration: 0.6666667,
+	),
+	"stalking_right-o6": (
+		keyframes: KeyframesRange((start: 72, end: 84)),
+		duration: 0.6666667,
+	),
+	"stalking_right-o7": (
 		keyframes: KeyframesRange((start: 84, end: 96)),
 		duration: 0.6666667,
 	),
