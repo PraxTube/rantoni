@@ -12,7 +12,7 @@ use crate::{
     world::{PathfindingSource, PathfindingTarget},
 };
 
-use super::{Enemy, MAX_CHASE_DISTANCE, MIN_CHASE_DISTANCE, MIN_TARGET_DISTANCE};
+use super::{Enemy, ATTACK_DISTANCE, MAX_CHASE_DISTANCE, MIN_CHASE_DISTANCE};
 
 pub struct EnemyStatePlugin;
 
@@ -77,12 +77,18 @@ fn transition_attack_state(mut q_enemies: Query<(&Transform, &mut Enemy)>) {
             continue;
         }
 
+        if (enemy.target_pos - transform.translation.truncate()).length_squared()
+            > ATTACK_DISTANCE.powi(2)
+        {
+            continue;
+        }
+
         let attack_direction =
             (enemy.target_pos - transform.translation.truncate()).normalize_or_zero();
 
         enemy
             .state_machine
-            .set_attack(Attack::Heavy3, attack_direction);
+            .set_attack(Attack::Light1, attack_direction);
     }
 }
 
@@ -188,9 +194,7 @@ fn transition_stalking_state(
         if enemy.state_machine.just_changed() {
             continue;
         }
-        if enemy.state_machine.state() != DudeState::Idling
-            && enemy.state_machine.state() != DudeState::Running
-        {
+        if enemy.state_machine.state() != DudeState::Idling {
             continue;
         }
 
@@ -205,7 +209,7 @@ fn transition_stalking_state(
             .translation
             .truncate()
             .distance_squared(target_transform.translation.truncate())
-            < MIN_TARGET_DISTANCE.powi(2)
+            < MIN_CHASE_DISTANCE.powi(2)
         {
             enemy.state_machine.set_state(DudeState::Stalking);
         }

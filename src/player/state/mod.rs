@@ -76,7 +76,7 @@ fn transition_parry_state(player_input: Res<PlayerInput>, mut q_players: Query<&
         if !player_input.parry {
             continue;
         }
-        if !player.state_machine.can_run() {
+        if !player.state_machine.can_attack() {
             continue;
         }
 

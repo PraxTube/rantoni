@@ -43,7 +43,9 @@ Attempted new state: {:?}",
     }
 
     pub fn can_attack(&self) -> bool {
-        self.state() == DudeState::Idling || self.state() == DudeState::Running
+        self.state() == DudeState::Idling
+            || self.state() == DudeState::Running
+            || self.state() == DudeState::Stalking
     }
 
     pub fn new_state(&self) -> Option<DudeState> {

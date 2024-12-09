@@ -2,7 +2,6 @@ use std::f32::consts::PI;
 
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
-use generate_world_collisions::ATOL;
 
 use crate::GameAssets;
 
@@ -57,6 +56,9 @@ pub enum EnemyAnimations {
     Fall,
     FallRecover,
     Stalking,
+    StalkingForward,
+    StalkingRight,
+    StalkingBack,
     StalkingLeft,
 }
 
@@ -308,11 +310,21 @@ pub fn dude_state_animation_enemy(
             get_animation_data_enemy(assets, animation, direction, false)
         }
         DudeState::Stalking => {
-            if direction.dot(stalk_direction) - 1.0 < ATOL {
-                get_animation_data_enemy(assets, EnemyAnimations::StalkingLeft, direction, true)
+            let angle = direction.angle_between(stalk_direction);
+
+            let animation = if angle.abs() < PI / 4.0 {
+                EnemyAnimations::StalkingForward
+            } else if angle.abs() < 3.0 / 4.0 * PI {
+                if angle > 0.0 {
+                    EnemyAnimations::StalkingRight
+                } else {
+                    EnemyAnimations::StalkingLeft
+                }
             } else {
-                get_animation_data_enemy(assets, EnemyAnimations::Stalking, direction, true)
-            }
+                EnemyAnimations::StalkingBack
+            };
+
+            get_animation_data_enemy(assets, animation, direction, true)
         }
         DudeState::Parrying(_) => {
             error!("called animation data on enemy with parry state, should never happen");

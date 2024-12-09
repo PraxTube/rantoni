@@ -19,6 +19,17 @@ fn update_animations(
     )>,
 ) {
     for (mut enemy_texture, velocity, mut animator, mut enemy) in &mut q_enemies {
+        let direction = match enemy.state_machine.state() {
+            DudeState::Idling
+            | DudeState::Running
+            | DudeState::Staggering
+            | DudeState::Stalking => enemy.move_direction,
+            DudeState::Attacking | DudeState::Recovering => enemy.state_machine.attack_direction(),
+            DudeState::Parrying(_) | DudeState::Dashing => {
+                panic!("enemy must never go into these states. Should never happen")
+            }
+        };
+
         let stalk_direction = if enemy.state_machine.state() == DudeState::Stalking {
             velocity.linvel
         } else {
@@ -29,7 +40,7 @@ fn update_animations(
             enemy.state_machine.state(),
             enemy.state_machine.attack(),
             enemy.state_machine.stagger_state(),
-            enemy.move_direction,
+            direction,
             stalk_direction,
         );
 

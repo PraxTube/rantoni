@@ -60,6 +60,9 @@ fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
             DudeState::Stalking => {
                 velocity.linvel = enemy.move_direction.perp() * STALK_SPEED;
             }
+            DudeState::Attacking => {
+                velocity.linvel = enemy.state_machine.attack_direction() * 100.0;
+            }
             _ => {}
         }
     }
