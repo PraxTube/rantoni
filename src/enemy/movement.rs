@@ -58,7 +58,7 @@ fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
                 }
             }
             DudeState::Stalking => {
-                velocity.linvel = enemy.move_direction.perp() * STALK_SPEED;
+                velocity.linvel = enemy.move_direction * STALK_SPEED;
             }
             DudeState::Attacking => {
                 velocity.linvel = enemy.state_machine.attack_direction() * 100.0;
@@ -211,6 +211,8 @@ fn update_target_positions(
 
         let pf_source_pos = pf_source_transform.translation().truncate();
         let target_pos = target_transform.translation().truncate();
+        enemy.target_pos = target_pos;
+
         let target_pos = if clear_line_of_sight_of_target_offset(
             &mut gizmos,
             &rapier_context,
@@ -238,7 +240,7 @@ fn update_target_positions(
             target_pos_from_path(&map_polygon_data, &mut pf_source, pf_source_pos, target_pos)
         };
 
-        enemy.target_pos = pos;
+        enemy.move_target_pos = pos;
     }
 }
 
@@ -255,7 +257,7 @@ fn update_move_directions(
         }
 
         enemy.move_direction =
-            (enemy.target_pos - transform.translation().truncate()).normalize_or_zero();
+            (enemy.move_target_pos - transform.translation().truncate()).normalize_or_zero();
     }
 }
 
@@ -278,7 +280,7 @@ impl Plugin for EnemyMovementPlugin {
                 update_target_positions.run_if(resource_exists::<WorldSpatialData>),
                 update_move_directions,
                 move_enemies,
-                set_random_target_offset,
+                // set_random_target_offset,
             )
                 .chain()
                 .after(EnemyStateSystemSet),

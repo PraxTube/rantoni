@@ -140,10 +140,20 @@ pub fn a_star(
     _path: &Option<Vec<Vec2>>,
 ) -> Vec<Vec2> {
     fn h(v: Vec2, end: Vec2) -> f32 {
+        // TODO: This metric is wrong!
+        // It isn't the smallest actual distance which is required for A* to find the shortest path
+        // in all cases. Simply using `distance` would work, but that is kinda ass for performance
+        // (though I didn't really notice it, but it wouldn't be could from a theoretical view
+        // already).
         v.distance_squared(end)
     }
 
     fn d(v: Vec2, w: Vec2) -> f32 {
+        // TODO: This metric is wrong!
+        // It isn't the smallest actual distance which is required for A* to find the shortest path
+        // in all cases. Simply using `distance` would work, but that is kinda ass for performance
+        // (though I didn't really notice it, but it wouldn't be could from a theoretical view
+        // already).
         v.distance_squared(w)
     }
 

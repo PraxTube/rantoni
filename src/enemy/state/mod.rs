@@ -118,18 +118,52 @@ fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy)>)
             DudeState::Recovering => {
                 if animator.just_finished() {
                     enemy.state_machine.reset_attack_timer();
-                    enemy.state_machine.set_state(DudeState::Idling);
+                    enemy.state_machine.set_state(DudeState::Stalking);
                 }
             }
             DudeState::Staggering => {
                 if enemy.state_machine.stagger_state().is_recovering() {
                     if animator.just_finished() {
-                        enemy.state_machine.set_state(DudeState::Idling);
+                        enemy.state_machine.set_state(DudeState::Stalking);
                     }
                 } else if enemy.state_machine.stagger_finished() {
                     enemy.state_machine.set_stagger_state_recover();
                 }
             }
+        }
+    }
+}
+
+fn transition_stalking_state(
+    q_transforms: Query<&Transform, Without<Enemy>>,
+    mut q_enemies: Query<(&Transform, &mut Enemy)>,
+    q_pf_sources: Query<&PathfindingSource>,
+) {
+    for pf_source in &q_pf_sources {
+        let Ok((transform, mut enemy)) = q_enemies.get_mut(pf_source.root_entity) else {
+            continue;
+        };
+        if enemy.state_machine.just_changed() {
+            continue;
+        }
+        if enemy.state_machine.state() != DudeState::Idling {
+            continue;
+        }
+
+        let Some(target) = enemy.target else {
+            continue;
+        };
+        let Ok(target_transform) = q_transforms.get(target) else {
+            continue;
+        };
+
+        if transform
+            .translation
+            .truncate()
+            .distance_squared(target_transform.translation.truncate())
+            < MIN_CHASE_DISTANCE.powi(2)
+        {
+            enemy.state_machine.set_state(DudeState::Stalking);
         }
     }
 }
@@ -167,7 +201,7 @@ fn transition_run_state(
                 .translation
                 .truncate()
                 .distance_squared(player_transform.translation.truncate());
-            if dis > MIN_CHASE_DISTANCE.powi(2) && dis < MAX_CHASE_DISTANCE.powi(2) {
+            if dis > ATTACK_DISTANCE.powi(2) && dis < MAX_CHASE_DISTANCE.powi(2) {
                 pf_source.target = Some(pf_target_entity);
                 enemy.target = Some(player);
                 enemy.state_machine.set_state(DudeState::Running);
@@ -179,40 +213,6 @@ fn transition_run_state(
 fn reset_new_state(mut q_enemies: Query<&mut Enemy>) {
     for mut enemy in &mut q_enemies {
         enemy.state_machine.reset_new_state();
-    }
-}
-
-fn transition_stalking_state(
-    q_transforms: Query<&Transform, Without<Enemy>>,
-    mut q_enemies: Query<(&Transform, &mut Enemy)>,
-    q_pf_sources: Query<&PathfindingSource>,
-) {
-    for pf_source in &q_pf_sources {
-        let Ok((transform, mut enemy)) = q_enemies.get_mut(pf_source.root_entity) else {
-            continue;
-        };
-        if enemy.state_machine.just_changed() {
-            continue;
-        }
-        if enemy.state_machine.state() != DudeState::Idling {
-            continue;
-        }
-
-        let Some(target) = enemy.target else {
-            continue;
-        };
-        let Ok(target_transform) = q_transforms.get(target) else {
-            continue;
-        };
-
-        if transform
-            .translation
-            .truncate()
-            .distance_squared(target_transform.translation.truncate())
-            < MIN_CHASE_DISTANCE.powi(2)
-        {
-            enemy.state_machine.set_state(DudeState::Stalking);
-        }
     }
 }
 
