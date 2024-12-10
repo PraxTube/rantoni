@@ -9,10 +9,9 @@ use bevy_trickfilm::prelude::*;
 use crate::{
     dude::{Attack, DudeState},
     player::Player,
-    world::{PathfindingSource, PathfindingTarget},
 };
 
-use super::{Enemy, ATTACK_DISTANCE, MAX_CHASE_DISTANCE, MIN_CHASE_DISTANCE};
+use super::{Enemy, ATTACK_DISTANCE, MIN_CHASE_DISTANCE};
 
 pub struct EnemyStatePlugin;
 
@@ -91,6 +90,53 @@ fn transition_attack_state(mut q_enemies: Query<(&Transform, &mut Enemy)>) {
     }
 }
 
+fn transition_stalking_state(mut q_enemies: Query<(&Transform, &mut Enemy)>) {
+    for (transform, mut enemy) in &mut q_enemies {
+        if enemy.state_machine.just_changed() {
+            continue;
+        }
+        if enemy.target.is_none() {
+            continue;
+        }
+        if enemy.state_machine.state() != DudeState::Idling {
+            continue;
+        }
+
+        if transform
+            .translation
+            .truncate()
+            .distance_squared(enemy.target_pos)
+            < MIN_CHASE_DISTANCE.powi(2)
+        {
+            enemy.state_machine.set_state(DudeState::Stalking);
+        }
+    }
+}
+
+fn transition_run_state(mut q_enemies: Query<(&Transform, &mut Enemy), Without<Player>>) {
+    for (transform, mut enemy) in &mut q_enemies {
+        if enemy.state_machine.just_changed() {
+            continue;
+        }
+        if enemy.target.is_none() {
+            continue;
+        }
+        if enemy.state_machine.state() != DudeState::Idling
+            && enemy.state_machine.state() != DudeState::Stalking
+        {
+            continue;
+        }
+
+        let dis = transform
+            .translation
+            .truncate()
+            .distance_squared(enemy.target_pos);
+        if dis > MIN_CHASE_DISTANCE.powi(2) {
+            enemy.state_machine.set_state(DudeState::Running);
+        }
+    }
+}
+
 fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy)>) {
     for (animator, mut enemy) in &mut q_enemies {
         if enemy.state_machine.just_changed() {
@@ -128,81 +174,6 @@ fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy)>)
                 } else if enemy.state_machine.stagger_finished() {
                     enemy.state_machine.set_stagger_state_recover();
                 }
-            }
-        }
-    }
-}
-
-fn transition_stalking_state(
-    q_transforms: Query<&Transform, Without<Enemy>>,
-    mut q_enemies: Query<(&Transform, &mut Enemy)>,
-    q_pf_sources: Query<&PathfindingSource>,
-) {
-    for pf_source in &q_pf_sources {
-        let Ok((transform, mut enemy)) = q_enemies.get_mut(pf_source.root_entity) else {
-            continue;
-        };
-        if enemy.state_machine.just_changed() {
-            continue;
-        }
-        if enemy.state_machine.state() != DudeState::Idling {
-            continue;
-        }
-
-        let Some(target) = enemy.target else {
-            continue;
-        };
-        let Ok(target_transform) = q_transforms.get(target) else {
-            continue;
-        };
-
-        if transform
-            .translation
-            .truncate()
-            .distance_squared(target_transform.translation.truncate())
-            < MIN_CHASE_DISTANCE.powi(2)
-        {
-            enemy.state_machine.set_state(DudeState::Stalking);
-        }
-    }
-}
-
-// TODO: This is an issue if you want to allow enemy on enemy targets.
-// The simplest solution is to just load the transform of the target in another system before this
-// one, I think one solution is to have something like a `Target` component? That could then have
-// tmp stuff like current transform or some shit like that.
-fn transition_run_state(
-    q_players: Query<(Entity, &Transform), With<Player>>,
-    q_pf_targets: Query<&PathfindingTarget>,
-    mut q_enemies: Query<(&Transform, &mut Enemy), Without<Player>>,
-    q_pf_sources: Query<&PathfindingSource>,
-) {
-    for pf_source in &q_pf_sources {
-        let Ok((enemy_transform, mut enemy)) = q_enemies.get_mut(pf_source.root_entity) else {
-            continue;
-        };
-
-        if enemy.state_machine.just_changed() {
-            continue;
-        }
-        if enemy.state_machine.state() != DudeState::Idling
-            && enemy.state_machine.state() != DudeState::Stalking
-        {
-            continue;
-        }
-
-        for pf_target in &q_pf_targets {
-            let Ok((player, player_transform)) = q_players.get(pf_target.root_entity) else {
-                continue;
-            };
-
-            let dis = enemy_transform
-                .translation
-                .truncate()
-                .distance_squared(player_transform.translation.truncate());
-            if dis > MIN_CHASE_DISTANCE.powi(2) && dis < MAX_CHASE_DISTANCE.powi(2) {
-                enemy.target = Some(player);
-                enemy.state_machine.set_state(DudeState::Running);
             }
         }
     }

@@ -41,6 +41,28 @@ fn update_enemy_crowd_distances(
     }
 }
 
+fn set_enemy_targets(
+    q_players: Query<(Entity, &Transform), With<Player>>,
+    mut q_enemies: Query<(&Transform, &mut Enemy), Without<Player>>,
+) {
+    for (enemy_transform, mut enemy) in &mut q_enemies {
+        if enemy.target.is_some() {
+            continue;
+        }
+
+        if let Some((target, _)) = q_players.iter().find(|(_, t)| {
+            let dis = enemy_transform
+                .translation
+                .truncate()
+                .distance_squared(t.translation.truncate());
+
+            dis < MAX_CHASE_DISTANCE.powi(2)
+        }) {
+            enemy.target = Some(target);
+        }
+    }
+}
+
 fn update_enemy_target_positions(
     q_transforms: Query<&Transform>,
     mut q_enemies: Query<&mut Enemy>,
@@ -95,17 +117,6 @@ fn update_pf_source_targets(
                 .map(|(entity, _)| entity)
         });
 
-        // let target = match enemy.target {
-        //     Some(target) => match q_pf_targets
-        //         .iter()
-        //         .find(|(_, pf_target)| pf_target.root_entity == target)
-        //     {
-        //         Some((entity, _)) => Some(entity),
-        //         None => None,
-        //     },
-        //     None => None,
-        // };
-
         pf_source.target = target;
     }
 }
@@ -122,6 +133,7 @@ impl Plugin for EnemyCrowdPlugin {
             .add_systems(
                 Update,
                 (
+                    set_enemy_targets,
                     update_enemy_target_positions,
                     reset_enemey_targets,
                     update_pf_source_targets,
