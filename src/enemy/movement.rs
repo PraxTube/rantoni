@@ -10,7 +10,7 @@ use crate::{
     world::{
         a_star,
         collisions::{PLAYER_GROUP, WORLD_GROUP},
-        PathfindingSource, PathfindingTarget, WorldSpatialData,
+        PathfindingSource, WorldSpatialData,
     },
 };
 
@@ -50,7 +50,7 @@ fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
     for (mut velocity, enemy) in &mut q_enemies {
         match enemy.state_machine.state() {
             DudeState::Running => {
-                velocity.linvel = enemy.move_direction * MOVE_SPEED;
+                velocity.linvel = enemy.move_direction * enemy.move_speed_mult * MOVE_SPEED;
             }
             DudeState::Staggering => {
                 if !enemy.state_machine.stagger_state().is_recovering() {
@@ -191,10 +191,6 @@ fn update_target_positions(
     rapier_context: Res<RapierContext>,
     debug_state: Res<DebugState>,
     map_polygon_data: Res<WorldSpatialData>,
-    q_pf_target_transforms: Query<
-        &GlobalTransform,
-        (With<PathfindingTarget>, Without<PathfindingSource>),
-    >,
     mut q_enemies: Query<&mut Enemy>,
     mut q_pathfinding_sources: Query<(&GlobalTransform, &mut PathfindingSource)>,
 ) {
@@ -205,25 +201,20 @@ fn update_target_positions(
         let Some(pf_target_entity) = pf_source.target else {
             continue;
         };
-        let Ok(target_transform) = q_pf_target_transforms.get(pf_target_entity) else {
-            continue;
-        };
 
         let pf_source_pos = pf_source_transform.translation().truncate();
-        let target_pos = target_transform.translation().truncate();
-        enemy.target_pos = target_pos;
 
         let target_pos = if clear_line_of_sight_of_target_offset(
             &mut gizmos,
             &rapier_context,
             &debug_state,
-            target_pos_with_offset(pf_source_pos, target_pos, enemy.target_offset),
-            target_pos,
+            target_pos_with_offset(pf_source_pos, enemy.target_pos, enemy.target_offset),
+            enemy.target_pos,
             pf_target_entity,
         ) {
-            target_pos_with_offset(pf_source_pos, target_pos, enemy.target_offset)
+            target_pos_with_offset(pf_source_pos, enemy.target_pos, enemy.target_offset)
         } else {
-            target_pos
+            enemy.target_pos
         };
 
         let pos = if clear_line_of_sight(
@@ -270,6 +261,15 @@ fn set_random_target_offset(mut q_enemies: Query<&mut Enemy>) {
     }
 }
 
+fn set_random_move_speed_mult(mut q_enemies: Query<&mut Enemy>) {
+    let mut rng = thread_rng();
+    for mut enemy in &mut q_enemies {
+        if enemy.move_speed_mult == 0.0 {
+            enemy.move_speed_mult = rng.gen_range(0.8..1.2);
+        }
+    }
+}
+
 pub struct EnemyMovementPlugin;
 
 impl Plugin for EnemyMovementPlugin {
@@ -281,6 +281,7 @@ impl Plugin for EnemyMovementPlugin {
                 update_move_directions,
                 move_enemies,
                 // set_random_target_offset,
+                set_random_move_speed_mult,
             )
                 .chain()
                 .after(EnemyStateSystemSet),

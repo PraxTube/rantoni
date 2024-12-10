@@ -32,8 +32,7 @@ impl Plugin for EnemyStatePlugin {
                 )
                     .chain()
                     .in_set(EnemyStateSystemSet),
-            )
-            .add_systems(Update, (reset_enemey_targets).before(EnemyStateSystemSet));
+            );
     }
 }
 
@@ -201,7 +200,7 @@ fn transition_run_state(
                 .translation
                 .truncate()
                 .distance_squared(player_transform.translation.truncate());
-            if dis > ATTACK_DISTANCE.powi(2) && dis < MAX_CHASE_DISTANCE.powi(2) {
+            if dis > MIN_CHASE_DISTANCE.powi(2) && dis < MAX_CHASE_DISTANCE.powi(2) {
                 pf_source.target = Some(pf_target_entity);
                 enemy.target = Some(player);
                 enemy.state_machine.set_state(DudeState::Running);
@@ -213,38 +212,5 @@ fn transition_run_state(
 fn reset_new_state(mut q_enemies: Query<&mut Enemy>) {
     for mut enemy in &mut q_enemies {
         enemy.state_machine.reset_new_state();
-    }
-}
-
-// TODO: This is an issue if you want to allow enemy on enemy targets.
-// The simplest solution is to just load the transform of the target in another system before this
-// one, I think one solution is to have something like a `Target` component? That could then have
-// tmp stuff like current transform or some shit like that.
-fn reset_enemey_targets(
-    q_transforms: Query<&Transform, Without<Enemy>>,
-    mut q_enemies: Query<(&Transform, &mut Enemy)>,
-    mut q_pf_sources: Query<&mut PathfindingSource>,
-) {
-    for mut pf_source in &mut q_pf_sources {
-        let Ok((transform, mut enemy)) = q_enemies.get_mut(pf_source.root_entity) else {
-            continue;
-        };
-
-        let Some(target) = enemy.target else {
-            continue;
-        };
-        let Ok(target_transform) = q_transforms.get(target) else {
-            continue;
-        };
-
-        if transform
-            .translation
-            .truncate()
-            .distance_squared(target_transform.translation.truncate())
-            > MAX_CHASE_DISTANCE.powi(2)
-        {
-            pf_source.target = None;
-            enemy.target = None;
-        }
     }
 }

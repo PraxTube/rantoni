@@ -761,6 +761,22 @@
 							"fieldInstances": [],
 							"__worldX": 264,
 							"__worldY": 600
+						},
+						{
+							"__identifier": "Enemy",
+							"__grid": [7,11],
+							"__pivot": [0.5,0.5],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#BE4A2F",
+							"iid": "42c36c80-9b00-11ef-bf3d-41739cd908a8",
+							"width": 48,
+							"height": 48,
+							"defUid": 58,
+							"px": [360,552],
+							"fieldInstances": [],
+							"__worldX": 360,
+							"__worldY": 552
 						}
 					]
 				},

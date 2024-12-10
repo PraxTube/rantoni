@@ -29,6 +29,7 @@ impl Plugin for WorldMapPlugin {
                 OnExit(GameState::AssetLoading),
                 (spawn_ldtk_world, deserialize_and_insert_wrold_data),
             )
+            .add_systems(PreUpdate, update_pf_source_target_positions)
             .add_systems(
                 Update,
                 (debug_enemy_pathfinding.run_if(resource_exists::<WorldSpatialData>),),
@@ -40,6 +41,7 @@ impl Plugin for WorldMapPlugin {
 pub struct PathfindingSource {
     pub root_entity: Entity,
     pub target: Option<Entity>,
+    pub target_pos: Vec2,
     pub path: Option<Vec<Vec2>>,
 }
 #[derive(Component)]
@@ -79,6 +81,7 @@ impl PathfindingSource {
         Self {
             root_entity,
             target: None,
+            target_pos: Vec2::ZERO,
             path: None,
         }
     }
@@ -201,6 +204,19 @@ fn deserialize_and_insert_wrold_data(mut commands: Commands) {
         level_transition_offset: IVec2::default(),
         level_transition_direction: LevelChangeDirection::North,
     });
+}
+
+fn update_pf_source_target_positions(
+    q_transforms: Query<&Transform>,
+    mut q_pf_sources: Query<&mut PathfindingSource>,
+) {
+    for mut pf_source in &mut q_pf_sources {
+        if let Some(target) = pf_source.target {
+            if let Ok(transform) = q_transforms.get(target) {
+                pf_source.target_pos = transform.translation.truncate();
+            }
+        }
+    }
 }
 
 fn debug_enemy_pathfinding(
