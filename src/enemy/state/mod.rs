@@ -173,11 +173,11 @@ fn transition_stalking_state(
 // tmp stuff like current transform or some shit like that.
 fn transition_run_state(
     q_players: Query<(Entity, &Transform), With<Player>>,
-    q_pf_targets: Query<(Entity, &PathfindingTarget)>,
+    q_pf_targets: Query<&PathfindingTarget>,
     mut q_enemies: Query<(&Transform, &mut Enemy), Without<Player>>,
-    mut q_pf_sources: Query<&mut PathfindingSource>,
+    q_pf_sources: Query<&PathfindingSource>,
 ) {
-    for mut pf_source in &mut q_pf_sources {
+    for pf_source in &q_pf_sources {
         let Ok((enemy_transform, mut enemy)) = q_enemies.get_mut(pf_source.root_entity) else {
             continue;
         };
@@ -191,7 +191,7 @@ fn transition_run_state(
             continue;
         }
 
-        for (pf_target_entity, pf_target) in &q_pf_targets {
+        for pf_target in &q_pf_targets {
             let Ok((player, player_transform)) = q_players.get(pf_target.root_entity) else {
                 continue;
             };
@@ -201,7 +201,6 @@ fn transition_run_state(
                 .truncate()
                 .distance_squared(player_transform.translation.truncate());
             if dis > MIN_CHASE_DISTANCE.powi(2) && dis < MAX_CHASE_DISTANCE.powi(2) {
-                pf_source.target = Some(pf_target_entity);
                 enemy.target = Some(player);
                 enemy.state_machine.set_state(DudeState::Running);
             }

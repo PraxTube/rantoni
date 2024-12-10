@@ -1,5 +1,10 @@
 use bevy::prelude::*;
 
+use crate::{
+    player::Player,
+    world::{PathfindingSource, PathfindingTarget},
+};
+
 use super::{state::EnemyStateSystemSet, Enemy, MAX_CHASE_DISTANCE};
 
 #[derive(Debug)]
@@ -67,8 +72,42 @@ fn reset_enemey_targets(mut q_enemies: Query<(&Transform, &mut Enemy)>) {
     }
 }
 
-fn debug(enemy_crowd: Res<EnemyCrowd>) {
-    info!("{:?}", enemy_crowd.target_distances);
+/// Sync the enemy targets with the pathfinding source targets.
+/// If enmey target is `None` then this will also set the pf source target to `None`.
+/// If it is some then it will set the `PathfindingTarget` entity as the target of the pf source.
+///
+/// Note: The targets will not match in most cases, as they are not intended to match in the first
+/// plae.
+fn update_pf_source_targets(
+    q_enemies: Query<&Enemy>,
+    mut q_pf_sources: Query<&mut PathfindingSource>,
+    q_pf_targets: Query<(Entity, &PathfindingTarget)>,
+) {
+    for mut pf_source in &mut q_pf_sources {
+        let Ok(enemy) = q_enemies.get(pf_source.root_entity) else {
+            continue;
+        };
+
+        let target = enemy.target.and_then(|target| {
+            q_pf_targets
+                .iter()
+                .find(|(_, pf_target)| pf_target.root_entity == target)
+                .map(|(entity, _)| entity)
+        });
+
+        // let target = match enemy.target {
+        //     Some(target) => match q_pf_targets
+        //         .iter()
+        //         .find(|(_, pf_target)| pf_target.root_entity == target)
+        //     {
+        //         Some((entity, _)) => Some(entity),
+        //         None => None,
+        //     },
+        //     None => None,
+        // };
+
+        pf_source.target = target;
+    }
 }
 
 pub struct EnemyCrowdPlugin;
@@ -78,11 +117,15 @@ impl Plugin for EnemyCrowdPlugin {
         app.init_resource::<EnemyCrowd>()
             .add_systems(
                 PreUpdate,
-                (reset_enmey_crowd, update_enemy_crowd_distances, debug).chain(),
+                (reset_enmey_crowd, update_enemy_crowd_distances).chain(),
             )
             .add_systems(
                 Update,
-                (update_enemy_target_positions, reset_enemey_targets)
+                (
+                    update_enemy_target_positions,
+                    reset_enemey_targets,
+                    update_pf_source_targets,
+                )
                     .chain()
                     .before(EnemyStateSystemSet),
             );
