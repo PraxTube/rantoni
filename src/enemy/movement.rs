@@ -14,7 +14,10 @@ use crate::{
     },
 };
 
-use super::{spawn::COLLIDER_RADIUS, state::EnemyStateSystemSet, Enemy, MOVE_SPEED, STALK_SPEED};
+use super::{
+    crowd::EnemyCrowd, spawn::COLLIDER_RADIUS, state::EnemyStateSystemSet, Enemy, MOVE_SPEED,
+    STALK_SPEED,
+};
 
 const MAX_TARGET_OFFSET: f32 = 64.0;
 
@@ -46,11 +49,29 @@ fn target_pos_with_offset(source_pos: Vec2, target_pos: Vec2, target_offset: Vec
     target_pos + target_offset * dis * MAX_TARGET_OFFSET
 }
 
-fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
-    for (mut velocity, enemy) in &mut q_enemies {
+fn move_enemies(
+    enemy_crowd: Res<EnemyCrowd>,
+    mut q_enemies: Query<(Entity, &mut Velocity, &Enemy)>,
+) {
+    for (entity, mut velocity, enemy) in &mut q_enemies {
+        let Some(target) = enemy.target else {
+            continue;
+        };
+
+        let speed_mult = if let Some(index) = enemy_crowd
+            .target_distances
+            .get(&target)
+            .and_then(|t_distances| t_distances.iter().position(|t| t.entity == entity))
+        {
+            let index = index.min(4);
+            0.5 + 0.5 * (4 - index) as f32 / 4.0
+        } else {
+            1.0
+        };
+
         match enemy.state_machine.state() {
             DudeState::Running => {
-                velocity.linvel = enemy.move_direction * enemy.move_speed_mult * MOVE_SPEED;
+                velocity.linvel = enemy.move_direction * speed_mult * MOVE_SPEED;
             }
             DudeState::Staggering => {
                 if !enemy.state_machine.stagger_state().is_recovering() {
@@ -58,7 +79,7 @@ fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
                 }
             }
             DudeState::Stalking => {
-                velocity.linvel = enemy.move_direction * STALK_SPEED;
+                velocity.linvel = enemy.move_direction * speed_mult * STALK_SPEED;
             }
             DudeState::Attacking => {
                 velocity.linvel = enemy.state_machine.attack_direction() * 100.0;
@@ -261,15 +282,6 @@ fn set_random_target_offset(mut q_enemies: Query<&mut Enemy>) {
     }
 }
 
-fn set_random_move_speed_mult(mut q_enemies: Query<&mut Enemy>) {
-    let mut rng = thread_rng();
-    for mut enemy in &mut q_enemies {
-        if enemy.move_speed_mult == 0.0 {
-            enemy.move_speed_mult = rng.gen_range(0.8..1.2);
-        }
-    }
-}
-
 pub struct EnemyMovementPlugin;
 
 impl Plugin for EnemyMovementPlugin {
@@ -281,7 +293,6 @@ impl Plugin for EnemyMovementPlugin {
                 update_move_directions,
                 move_enemies,
                 // set_random_target_offset,
-                set_random_move_speed_mult,
             )
                 .chain()
                 .after(EnemyStateSystemSet),

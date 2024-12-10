@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 
 use crate::{
     player::Player,
@@ -7,16 +7,15 @@ use crate::{
 
 use super::{state::EnemyStateSystemSet, Enemy, MAX_CHASE_DISTANCE};
 
-#[derive(Debug)]
-struct TargetDistance {
-    entity: Entity,
-    target: Entity,
+#[derive(Debug, Clone)]
+pub struct TargetDistance {
+    pub entity: Entity,
     distance: f32,
 }
 
 #[derive(Resource, Default)]
 pub struct EnemyCrowd {
-    target_distances: Vec<TargetDistance>,
+    pub target_distances: HashMap<Entity, Vec<TargetDistance>>,
 }
 
 fn reset_enmey_crowd(mut enemy_crowd: ResMut<EnemyCrowd>) {
@@ -28,16 +27,30 @@ fn update_enemy_crowd_distances(
     q_enemies: Query<(Entity, &Transform, &Enemy)>,
 ) {
     for (entity, transform, enemy) in &q_enemies {
+        let t_distance = TargetDistance {
+            entity,
+            distance: transform
+                .translation
+                .truncate()
+                .distance_squared(enemy.target_pos),
+        };
+
         if let Some(target) = enemy.target {
-            enemy_crowd.target_distances.push(TargetDistance {
-                entity,
-                target,
-                distance: transform
-                    .translation
-                    .truncate()
-                    .distance_squared(enemy.target_pos),
-            });
+            match enemy_crowd.target_distances.get_mut(&target) {
+                Some(distances) => distances.push(t_distance),
+                None => assert!(
+                    enemy_crowd
+                        .target_distances
+                        .insert(target, [t_distance].to_vec())
+                        .is_none(),
+                    "map should have empty value at this point, should never happen"
+                ),
+            }
         }
+    }
+
+    for values in &mut enemy_crowd.target_distances.values_mut() {
+        values.sort_by(|a, b| a.distance.total_cmp(&b.distance));
     }
 }
 
