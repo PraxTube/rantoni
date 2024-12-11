@@ -27,6 +27,7 @@ impl Plugin for EnemyStatePlugin {
                     transition_stalking_state,
                     transition_run_state,
                     transition_idle_state,
+                    transition_death_state,
                     reset_new_state,
                 )
                     .chain()
@@ -137,6 +138,8 @@ fn transition_run_state(mut q_enemies: Query<(&Transform, &mut Enemy), Without<P
     }
 }
 
+fn transition_death_state() {}
+
 fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy)>) {
     for (animator, mut enemy) in &mut q_enemies {
         if enemy.state_machine.just_changed() {
@@ -144,7 +147,7 @@ fn transition_idle_state(mut q_enemies: Query<(&AnimationPlayer2D, &mut Enemy)>)
         }
 
         match enemy.state_machine.state() {
-            DudeState::Idling | DudeState::Parrying(_) | DudeState::Dashing => {}
+            DudeState::Idling | DudeState::Parrying(_) | DudeState::Dashing | DudeState::Dying => {}
             DudeState::Running => {
                 if enemy.target.is_none() {
                     enemy.state_machine.set_state(DudeState::Idling);

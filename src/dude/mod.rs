@@ -1,5 +1,6 @@
 mod animations;
 mod attack;
+mod health;
 mod stagger;
 
 pub use animations::{
@@ -7,6 +8,7 @@ pub use animations::{
     PlayerAnimations,
 };
 pub use attack::{Attack, AttackForm};
+pub use health::Health;
 pub use stagger::{Stagger, StaggerState};
 
 use bevy::prelude::*;
@@ -31,6 +33,7 @@ pub enum DudeState {
     Stalking,
     Dashing,
     Parrying(ParryState),
+    Dying,
 }
 
 #[derive(Default, Clone, Copy, PartialEq, Debug)]

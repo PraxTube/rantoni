@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 use bevy_rancic::prelude::*;
-use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
+use bevy_rapier2d::prelude::*;
 
 use crate::{
     dude::{DudeState, ParryState, StaggerState},
     player::Player,
-    world::collisions::{Hitbox, HitboxType, Hurtbox, HurtboxType},
+    world::collisions::{HitboxHurtboxEvent, HitboxType, Hurtbox, HurtboxType},
     GameState,
 };
 
@@ -14,55 +14,22 @@ use super::{state::EnemyStateSystemSet, Enemy};
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct EnemyCollisionSystemSet;
 
-fn player_hitbox_collisions(
-    q_players: Query<&Player>,
+fn hitbox_collisions(
     mut q_enemies: Query<&mut Enemy>,
-    q_hitboxes: Query<&Hitbox>,
-    q_hurtboxes: Query<&Hurtbox>,
-    mut ev_collision_events: EventReader<CollisionEvent>,
+    mut ev_hitbox_hurtbox: EventReader<HitboxHurtboxEvent>,
 ) {
-    for ev in ev_collision_events.read() {
-        let (source, target, flags) = match ev {
-            CollisionEvent::Started(source, target, flags) => (source, target, flags),
-            CollisionEvent::Stopped(_, _, _) => continue,
-        };
-
-        // None of the colliders are sensors, so it can't be hitbox & hurtbox collision.
-        if *flags & CollisionEventFlags::SENSOR != CollisionEventFlags::SENSOR {
-            continue;
-        }
-
-        let player_hitbox = if let Ok(r) = q_hitboxes.get(*source) {
-            r
-        } else if let Ok(r) = q_hitboxes.get(*target) {
-            r
-        } else {
+    for ev in ev_hitbox_hurtbox.read() {
+        let Ok(mut enemy) = q_enemies.get_mut(ev.hurtbox.root_entity) else {
             continue;
         };
 
-        let enemy_hurtbox = if let Ok(r) = q_hurtboxes.get(*source) {
-            r
-        } else if let Ok(r) = q_hurtboxes.get(*target) {
-            r
-        } else {
-            continue;
-        };
+        // TODO: Do you want to send an event that somebody got hit?
+        // Perf should be fine, would also allow health stuff, would be cleaner I think?
 
-        let Ok(player) = q_players.get(player_hitbox.root_entity) else {
-            continue;
-        };
-
-        let Ok(mut enemy) = q_enemies.get_mut(enemy_hurtbox.root_entity) else {
-            continue;
-        };
-
-        if let HitboxType::Player(attack) = player_hitbox.hitbox_type {
-            enemy.state_machine.set_stagger_state(
-                attack,
-                player.state_machine.attack_direction(),
-                1.0,
-                1.0,
-            );
+        if let HitboxType::Player(attack) = ev.hitbox.hitbox_type {
+            enemy
+                .state_machine
+                .set_stagger_state(attack, ev.hitbox.attack_direction, 1.0, 1.0);
         }
     }
 }
@@ -70,46 +37,18 @@ fn player_hitbox_collisions(
 fn enemy_parry_collisions(
     q_players: Query<&Player>,
     mut q_enemies: Query<&mut Enemy>,
-    q_hitboxes: Query<&Hitbox>,
-    q_hurtboxes: Query<&Hurtbox>,
-    mut ev_collision_events: EventReader<CollisionEvent>,
+    mut ev_hitbox_hurtbox: EventReader<HitboxHurtboxEvent>,
 ) {
-    for ev in ev_collision_events.read() {
-        let (source, target, flags) = match ev {
-            CollisionEvent::Started(source, target, flags) => (source, target, flags),
-            CollisionEvent::Stopped(_, _, _) => continue,
-        };
-
-        // None of the colliders are sensors, so it can't be hitbox & hurtbox collision.
-        if *flags & CollisionEventFlags::SENSOR != CollisionEventFlags::SENSOR {
-            continue;
-        }
-
-        let player_hurtbox = if let Ok(r) = q_hurtboxes.get(*source) {
-            r
-        } else if let Ok(r) = q_hurtboxes.get(*target) {
-            r
-        } else {
+    for ev in ev_hitbox_hurtbox.read() {
+        let Ok(player) = q_players.get(ev.hurtbox.root_entity) else {
             continue;
         };
 
-        let enemy_hitbox = if let Ok(r) = q_hitboxes.get(*source) {
-            r
-        } else if let Ok(r) = q_hitboxes.get(*target) {
-            r
-        } else {
+        let Ok(mut enemy) = q_enemies.get_mut(ev.hitbox.root_entity) else {
             continue;
         };
 
-        let Ok(player) = q_players.get(player_hurtbox.root_entity) else {
-            continue;
-        };
-
-        let Ok(mut enemy) = q_enemies.get_mut(enemy_hitbox.root_entity) else {
-            continue;
-        };
-
-        let HitboxType::Enemy(_attack) = enemy_hitbox.hitbox_type else {
+        let HitboxType::Enemy(_attack) = ev.hitbox.hitbox_type else {
             continue;
         };
 
@@ -155,7 +94,7 @@ impl Plugin for EnemyCollisionsPlugin {
             Update,
             (
                 change_hurtbox_collisions,
-                player_hitbox_collisions,
+                hitbox_collisions,
                 enemy_parry_collisions,
             )
                 .chain()

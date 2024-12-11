@@ -241,6 +241,10 @@ pub fn dude_state_animation_player(
             error!("this should never happen! You are not allowed to call this function when in dashing state!");
             get_animation_data_player(assets, PlayerAnimations::Idle, direction, false)
         }
+        DudeState::Dying => {
+            error!("this should never happen! You are not allowed to call this function when in dying state!");
+            get_animation_data_player(assets, PlayerAnimations::Idle, direction, false)
+        }
     }
 }
 
@@ -332,6 +336,10 @@ pub fn dude_state_animation_enemy(
         }
         DudeState::Dashing => {
             error!("this should never happen! You are not allowed to call this function when in dashing state!");
+            get_animation_data_enemy(assets, EnemyAnimations::Idle, direction, false)
+        }
+        DudeState::Dying => {
+            error!("this should never happen! You are not allowed to call this function when in dying state!");
             get_animation_data_enemy(assets, EnemyAnimations::Idle, direction, false)
         }
     }

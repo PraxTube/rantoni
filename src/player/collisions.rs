@@ -1,13 +1,14 @@
 use bevy::prelude::*;
 use bevy_rancic::prelude::*;
-use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
+use bevy_rapier2d::prelude::*;
 
 use crate::{
     dude::{Attack, DudeState, ParryState},
-    enemy::{Enemy, EnemyCollisionSystemSet},
+    enemy::EnemyCollisionSystemSet,
     world::{
         collisions::{
-            Hitbox, HitboxType, Hurtbox, HurtboxType, ENEMY_GROUP, PLAYER_GROUP, WORLD_GROUP,
+            HitboxHurtboxEvent, HitboxType, Hurtbox, HurtboxType, ENEMY_GROUP, PLAYER_GROUP,
+            WORLD_GROUP,
         },
         PathfindingTarget,
     },
@@ -16,52 +17,20 @@ use crate::{
 
 use super::{Player, PlayerStateSystemSet};
 
-fn enemy_hitbox_collisions(
+fn hitbox_collisions(
     mut q_players: Query<&mut Player>,
-    q_enemies: Query<&Enemy>,
-    q_hitboxes: Query<&Hitbox>,
-    q_hurtboxes: Query<&Hurtbox>,
-    mut ev_collision_events: EventReader<CollisionEvent>,
+    mut ev_hitbox_hurtbox: EventReader<HitboxHurtboxEvent>,
 ) {
-    for ev in ev_collision_events.read() {
-        let (source, target, flags) = match ev {
-            CollisionEvent::Started(source, target, flags) => (source, target, flags),
-            CollisionEvent::Stopped(_, _, _) => continue,
-        };
-
-        // None of the colliders are sensors, so it can't be hitbox & hurtbox collision.
-        if *flags & CollisionEventFlags::SENSOR != CollisionEventFlags::SENSOR {
-            continue;
-        }
-
-        let player_hurtbox = if let Ok(r) = q_hurtboxes.get(*source) {
-            r
-        } else if let Ok(r) = q_hurtboxes.get(*target) {
-            r
-        } else {
-            continue;
-        };
-
-        let enemy_hitbox = if let Ok(r) = q_hitboxes.get(*source) {
-            r
-        } else if let Ok(r) = q_hitboxes.get(*target) {
-            r
-        } else {
-            continue;
-        };
-
-        let Ok(mut player) = q_players.get_mut(player_hurtbox.root_entity) else {
+    for ev in ev_hitbox_hurtbox.read() {
+        let Ok(mut player) = q_players.get_mut(ev.hurtbox.root_entity) else {
             continue;
         };
         if player.state_machine.state() == DudeState::Dashing {
+            warn!("you got a hurtbox event on player while he is dashing, should never happen, frame delay?");
             continue;
         }
 
-        let Ok(enemy) = q_enemies.get(enemy_hitbox.root_entity) else {
-            continue;
-        };
-
-        let HitboxType::Enemy(_attack) = enemy_hitbox.hitbox_type else {
+        let HitboxType::Enemy(_attack) = ev.hitbox.hitbox_type else {
             continue;
         };
 
@@ -74,7 +43,7 @@ fn enemy_hitbox_collisions(
 
         player
             .state_machine
-            .set_stagger_state(enemy.state_machine.attack_direction());
+            .set_stagger_state(ev.hitbox.attack_direction);
     }
 }
 
@@ -100,6 +69,7 @@ fn change_hurtbox_collisions(
             DudeState::Staggering => HurtboxType::Normal,
             DudeState::Dashing => HurtboxType::None,
             DudeState::Parrying(_) => HurtboxType::Normal,
+            DudeState::Dying => HurtboxType::None,
         };
 
         if hurtbox.hurtbox_type != hurtbox_type {
@@ -139,7 +109,7 @@ impl Plugin for PlayerCollisionsPlugin {
             Update,
             (
                 change_hurtbox_collisions,
-                enemy_hitbox_collisions,
+                hitbox_collisions,
                 change_collider_collisions,
             )
                 .chain()

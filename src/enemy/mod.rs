@@ -1,6 +1,7 @@
 mod animation;
 mod collisions;
 mod crowd;
+mod health;
 mod movement;
 mod spawn;
 mod state;

@@ -28,6 +28,7 @@ fn update_animations(
             DudeState::Parrying(_) | DudeState::Dashing => {
                 panic!("enemy must never go into these states. Should never happen")
             }
+            DudeState::Dying => continue,
         };
 
         let stalk_direction = if enemy.state_machine.state() == DudeState::Stalking {

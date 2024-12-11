@@ -1,6 +1,6 @@
 use bevy::{color::palettes::css::LIME, prelude::*};
 use bevy_rancic::prelude::*;
-use bevy_rapier2d::prelude::*;
+use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 use bevy_trickfilm::prelude::*;
 
 use crate::{dude::Attack, GameAssets, GameState};
@@ -25,6 +25,7 @@ pub struct Hitbox {
     pub hitbox_type: HitboxType,
     pub memberships: Group,
     pub offset: Vec2,
+    pub attack_direction: Vec2,
     filters: Group,
 }
 
@@ -55,13 +56,26 @@ pub struct AttackArc {
     dir: Vec2,
 }
 
+#[derive(Event)]
+pub struct HitboxHurtboxEvent {
+    pub hitbox: Hitbox,
+    pub hurtbox: Hurtbox,
+}
+
 impl Hitbox {
-    pub fn new(root_entity: Entity, hitbox_type: HitboxType, group: Group, offset: Vec2) -> Self {
+    pub fn new(
+        root_entity: Entity,
+        hitbox_type: HitboxType,
+        group: Group,
+        offset: Vec2,
+        attack_direction: Vec2,
+    ) -> Self {
         Self {
             root_entity,
             hitbox_type,
             memberships: group,
             offset,
+            attack_direction,
             filters: HURTBOX_GROUP,
         }
     }
@@ -155,7 +169,7 @@ pub fn spawn_attack_effect(
     };
     let hitbox = spawn_hitbox_collision(
         commands,
-        Hitbox::new(entity, hitbox_type, group, hitbox_offset),
+        Hitbox::new(entity, hitbox_type, group, hitbox_offset, direction),
         collider,
     );
 
@@ -249,22 +263,58 @@ fn despawn_map_collisions(
     }
 }
 
+fn relay_hitbox_hurtbox_events(
+    q_hitboxes: Query<&Hitbox>,
+    q_hurtboxes: Query<&Hurtbox>,
+    mut ev_collision_events: EventReader<CollisionEvent>,
+    mut ev_hitbox_hurtbox: EventWriter<HitboxHurtboxEvent>,
+) {
+    for ev in ev_collision_events.read() {
+        let (source, target, flags) = match ev {
+            CollisionEvent::Started(source, target, flags) => (source, target, flags),
+            CollisionEvent::Stopped(_, _, _) => continue,
+        };
+
+        // None of the colliders are sensors, so it can't be hitbox & hurtbox collision.
+        if *flags & CollisionEventFlags::SENSOR != CollisionEventFlags::SENSOR {
+            continue;
+        }
+
+        let Ok(hitbox) = q_hitboxes.get(*source).or(q_hitboxes.get(*target)) else {
+            continue;
+        };
+
+        let Ok(hurtbox) = q_hurtboxes.get(*source).or(q_hurtboxes.get(*target)) else {
+            continue;
+        };
+
+        ev_hitbox_hurtbox.send(HitboxHurtboxEvent {
+            hitbox: hitbox.clone(),
+            hurtbox: hurtbox.clone(),
+        });
+    }
+}
+
 pub struct WorldCollisionPlugin;
 
 impl Plugin for WorldCollisionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (disable_attack_arc_hitboxes, despawn_attack_arcs)
-                .run_if(not(in_state(GameState::AssetLoading))),
-        )
-        .add_systems(
-            Update,
-            (
-                despawn_map_collisions.in_set(DespawnLevelSystemSet),
-                spawn_map_collisions.after(DespawnLevelSystemSet),
+        app.add_event::<HitboxHurtboxEvent>()
+            .add_systems(PreUpdate, relay_hitbox_hurtbox_events)
+            .add_systems(
+                Update,
+                (disable_attack_arc_hitboxes, despawn_attack_arcs)
+                    .run_if(not(in_state(GameState::AssetLoading))),
             )
-                .run_if(in_state(GameState::TransitionLevel).and_then(on_event::<LevelChanged>())),
-        );
+            .add_systems(
+                Update,
+                (
+                    despawn_map_collisions.in_set(DespawnLevelSystemSet),
+                    spawn_map_collisions.after(DespawnLevelSystemSet),
+                )
+                    .run_if(
+                        in_state(GameState::TransitionLevel).and_then(on_event::<LevelChanged>()),
+                    ),
+            );
     }
 }

@@ -6,7 +6,7 @@ use bevy_trickfilm::prelude::*;
 use generate_world_collisions::{ENEMY_LAYER_IDENTIFIER, TILE_SIZE};
 
 use crate::{
-    dude::EnemyAnimations,
+    dude::{EnemyAnimations, Health},
     world::{
         collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType, ENEMY_GROUP, WORLD_GROUP},
         CachedEnemy, CachedLevelData, DespawnLevelSystemSet, LevelChanged, PathfindingSource,
@@ -23,6 +23,7 @@ fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec
     let entity = commands
         .spawn((
             Enemy::default(),
+            Health::new(10.0),
             WorldEntity,
             // TODO: Bundle into some kind of convenience bundle so you don't forget them
             RigidBody::Dynamic,
