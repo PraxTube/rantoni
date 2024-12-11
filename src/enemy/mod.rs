@@ -31,6 +31,7 @@ impl Plugin for EnemyPlugin {
             spawn::EnemySpawnPlugin,
             animation::EnemyAnimationPlugin,
             crowd::EnemyCrowdPlugin,
+            health::EnemyHealthPlugin,
         ));
     }
 }

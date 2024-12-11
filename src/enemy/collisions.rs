@@ -3,7 +3,7 @@ use bevy_rancic::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    dude::{DudeState, ParryState, StaggerState},
+    dude::{DudeState, Health, ParryState, StaggerState},
     player::Player,
     world::collisions::{
         HitboxHurtboxEvent, HitboxType, Hurtbox, HurtboxType, HURTBOX_COLLISION_GROUPS,
@@ -17,21 +17,20 @@ use super::{state::EnemyStateSystemSet, Enemy};
 pub struct EnemyCollisionSystemSet;
 
 fn hitbox_collisions(
-    mut q_enemies: Query<&mut Enemy>,
+    mut q_enemies: Query<(&mut Enemy, &mut Health)>,
     mut ev_hitbox_hurtbox: EventReader<HitboxHurtboxEvent>,
 ) {
     for ev in ev_hitbox_hurtbox.read() {
-        let Ok(mut enemy) = q_enemies.get_mut(ev.hurtbox.root_entity) else {
+        let Ok((mut enemy, mut health)) = q_enemies.get_mut(ev.hurtbox.root_entity) else {
             continue;
         };
-
-        // TODO: Do you want to send an event that somebody got hit?
-        // Perf should be fine, would also allow health stuff, would be cleaner I think?
 
         if let HitboxType::Player(attack) = ev.hitbox.hitbox_type {
             enemy
                 .state_machine
                 .set_stagger_state(attack, ev.hitbox.attack_direction, 1.0, 1.0);
+            health.reduce(attack.to_damage());
+            info!("{}", health.health);
         }
     }
 }
@@ -51,6 +50,7 @@ fn enemy_parry_collisions(
         };
 
         let HitboxType::Enemy(_attack) = ev.hitbox.hitbox_type else {
+            error!("hitbox type is not that of enemy, this should never happen");
             continue;
         };
 

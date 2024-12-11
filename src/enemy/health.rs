@@ -1,17 +1,21 @@
 use bevy::prelude::*;
 
-use crate::GameAssets;
+use crate::dude::Health;
 
-fn spawn_enemy_death_effect(mut commands: Commands, assets: Res<GameAssets>) {
-    //
+use super::Enemy;
+
+fn despawn_enemies(mut commands: Commands, q_enemies: Query<(Entity, &Health), With<Enemy>>) {
+    for (entity, health) in &q_enemies {
+        if health.health == 0 {
+            commands.entity(entity).despawn_recursive();
+        }
+    }
 }
-
-// fn despawn_enemies(mut commands: Commands)
 
 pub struct EnemyHealthPlugin;
 
 impl Plugin for EnemyHealthPlugin {
     fn build(&self, app: &mut App) {
-        // app.add_systems(Update, ());
+        app.add_systems(Update, (despawn_enemies,));
     }
 }

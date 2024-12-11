@@ -40,6 +40,19 @@ impl AttackForm {
 }
 
 impl Attack {
+    pub fn to_damage(self) -> u32 {
+        match self {
+            Attack::Light1 => 10,
+            Attack::Light2 => 12,
+            Attack::Light3 => 12,
+            Attack::Heavy1 => 12,
+            Attack::Heavy2 => 15,
+            Attack::Heavy3 => 15,
+            Attack::Dropkick => 20,
+            Attack::Hammerfist => 18,
+        }
+    }
+
     pub fn to_combo_attack(self, attack_form: AttackForm) -> Option<Attack> {
         match self {
             Attack::Light1 => match attack_form {

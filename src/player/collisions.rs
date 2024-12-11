@@ -31,6 +31,7 @@ fn hitbox_collisions(
         }
 
         let HitboxType::Enemy(_attack) = ev.hitbox.hitbox_type else {
+            error!("hitbox type is not that of enemy, this should never happen");
             continue;
         };
 

@@ -23,7 +23,7 @@ fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec
     let entity = commands
         .spawn((
             Enemy::default(),
-            Health::new(10.0),
+            Health::new(34),
             WorldEntity,
             // TODO: Bundle into some kind of convenience bundle so you don't forget them
             RigidBody::Dynamic,

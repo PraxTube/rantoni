@@ -2,12 +2,20 @@ use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct Health {
-    pub health: f32,
+    pub health: u32,
 }
 
 impl Health {
-    pub fn new(health: f32) -> Self {
+    pub fn new(health: u32) -> Self {
         Self { health }
+    }
+
+    pub fn reduce(&mut self, amount: u32) {
+        if amount > self.health {
+            self.health = 0;
+        } else {
+            self.health -= amount;
+        }
     }
 }
 
