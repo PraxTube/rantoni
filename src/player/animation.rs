@@ -14,9 +14,7 @@ fn update_current_directions(player_input: Res<PlayerInput>, mut q_players: Quer
         if player_input.move_direction == Vec2::ZERO {
             continue;
         }
-        if player.state_machine.state() == DudeState::Attacking
-            || player.state_machine.state() == DudeState::Recovering
-        {
+        if !player.state_machine.can_change_direction() {
             continue;
         }
 
@@ -37,12 +35,13 @@ fn update_player_animation(
     }
 
     let direction = match player.state_machine.state() {
-        DudeState::Idling | DudeState::Running | DudeState::Staggering | DudeState::Parrying(_) => {
-            player.current_direction
-        }
+        DudeState::Idling
+        | DudeState::Running
+        | DudeState::Staggering
+        | DudeState::Parrying(_)
+        | DudeState::Dying => player.current_direction,
         DudeState::Attacking | DudeState::Recovering => player.state_machine.attack_direction(),
         DudeState::Dashing => panic!("should never happen! Dashing should not use this function"),
-        DudeState::Dying => panic!("should never happen! Dying should not use this function"),
         DudeState::Stalking => panic!("player must never be in stalking, refactor this anyways"),
     };
 

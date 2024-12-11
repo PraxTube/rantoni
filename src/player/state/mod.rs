@@ -9,7 +9,7 @@ pub use state_machine::PlayerStateMachine;
 use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
-use crate::dude::{AttackForm, DudeState, ParryState};
+use crate::dude::{AttackForm, DudeState, Health, ParryState};
 use crate::player::{input::PlayerInput, Player};
 
 pub struct PlayerStatePlugin;
@@ -25,6 +25,7 @@ impl Plugin for PlayerStatePlugin {
         .add_systems(
             Update,
             (
+                transition_dying_state,
                 transition_stagger_state,
                 transition_parry_state,
                 transition_dash_state,
@@ -47,6 +48,18 @@ impl Plugin for PlayerStatePlugin {
 
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct PlayerStateSystemSet;
+
+fn transition_dying_state(mut q_players: Query<(&mut Player, &Health)>) {
+    for (mut player, health) in &mut q_players {
+        if player.state_machine.just_changed() {
+            continue;
+        }
+
+        if health.health == 0 {
+            player.state_machine.set_state(DudeState::Dying);
+        }
+    }
+}
 
 fn transition_stagger_state(mut q_players: Query<(&mut AnimationPlayer2D, &mut Player)>) {
     for (mut animator, mut player) in &mut q_players {

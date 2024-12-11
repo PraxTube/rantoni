@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use bevy_trickfilm::prelude::*;
 
 use crate::dude::{Attack, DudeState};
 use crate::GameState;
@@ -14,10 +15,7 @@ fn reset_velocity(mut q_player: Query<&mut Velocity, With<Player>>) {
     velocity.linvel = Vec2::ZERO;
 }
 
-fn move_running_players(
-    player_input: Res<PlayerInput>,
-    mut q_player: Query<(&Player, &mut Velocity)>,
-) {
+fn move_running(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &mut Velocity)>) {
     let (player, mut velocity) = match q_player.get_single_mut() {
         Ok(p) => p,
         Err(_) => return,
@@ -32,7 +30,7 @@ fn move_running_players(
     velocity.linvel = direction * speed;
 }
 
-fn move_player_attacking(mut q_players: Query<(&mut Velocity, &Player)>) {
+fn move_attacking(mut q_players: Query<(&mut Velocity, &Player)>) {
     // TODO: Refactor this, intuitively I expeted to find these values and stuff in
     // `dude/attack.rs`, with each attack having some kind of information about the movement, it
     // would be a little tricky to pull that off as the direction isn't always the same, but still
@@ -69,7 +67,7 @@ fn move_player_attacking(mut q_players: Query<(&mut Velocity, &Player)>) {
     }
 }
 
-fn move_player_dashing(mut q_players: Query<(&mut Velocity, &Player)>) {
+fn move_dashing(mut q_players: Query<(&mut Velocity, &Player)>) {
     for (mut velocity, player) in &mut q_players {
         if player.state_machine.state() == DudeState::Dashing {
             velocity.linvel = player.state_machine.attack_direction() * 1000.0;
@@ -77,7 +75,7 @@ fn move_player_dashing(mut q_players: Query<(&mut Velocity, &Player)>) {
     }
 }
 
-fn move_player_staggering(mut q_players: Query<(&mut Velocity, &Player)>) {
+fn move_staggering(mut q_players: Query<(&mut Velocity, &Player)>) {
     for (mut velocity, player) in &mut q_players {
         if player.state_machine.state() != DudeState::Staggering {
             continue;
@@ -90,6 +88,14 @@ fn move_player_staggering(mut q_players: Query<(&mut Velocity, &Player)>) {
     }
 }
 
+fn move_dying(mut q_players: Query<(&mut Velocity, &AnimationPlayer2D, &Player)>) {
+    for (mut velocity, animator, player) in &mut q_players {
+        if player.state_machine.state() == DudeState::Dying && !animator.finished() {
+            velocity.linvel = -player.current_direction * 100.0;
+        }
+    }
+}
+
 pub struct PlayerMovementPlugin;
 
 impl Plugin for PlayerMovementPlugin {
@@ -97,10 +103,11 @@ impl Plugin for PlayerMovementPlugin {
         app.add_systems(PreUpdate, reset_velocity).add_systems(
             Update,
             (
-                move_running_players,
-                move_player_attacking,
-                move_player_staggering,
-                move_player_dashing,
+                move_running,
+                move_attacking,
+                move_staggering,
+                move_dashing,
+                move_dying,
             )
                 .chain()
                 .run_if(in_state(GameState::Gaming)),

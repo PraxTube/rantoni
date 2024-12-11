@@ -30,6 +30,7 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
             LockedAxes::ROTATION_LOCKED,
             Velocity::zero(),
             Ccd::enabled(),
+            Dominance::group(1),
             animator,
             YSort(0.0),
             SpriteBundle {

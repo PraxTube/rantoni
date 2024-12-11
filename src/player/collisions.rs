@@ -45,6 +45,8 @@ fn hitbox_collisions(
         player
             .state_machine
             .set_stagger_state(ev.hitbox.attack_direction);
+        // TODO: Use the actual direction from hitbox source to player.
+        player.current_direction = -ev.hitbox.attack_direction;
 
         health.reduce(attack.to_damage());
     }

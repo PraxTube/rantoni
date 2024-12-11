@@ -85,6 +85,7 @@ pub struct GameAssets {
             "dude/dropkick_recover.png",
             "dude/hammer_fist.png",
             "dude/hammer_fist_recover.png",
+            "dude/dying.png",
         ),
         collection(typed)
     )]
@@ -320,6 +321,14 @@ pub struct GameAssets {
             "dude/dude.trickfilm.ron#hammer_fist_recover-o5",
             "dude/dude.trickfilm.ron#hammer_fist_recover-o6",
             "dude/dude.trickfilm.ron#hammer_fist_recover-o7",
+            "dude/dude.trickfilm.ron#dying-o0",
+            "dude/dude.trickfilm.ron#dying-o1",
+            "dude/dude.trickfilm.ron#dying-o2",
+            "dude/dude.trickfilm.ron#dying-o3",
+            "dude/dude.trickfilm.ron#dying-o4",
+            "dude/dude.trickfilm.ron#dying-o5",
+            "dude/dude.trickfilm.ron#dying-o6",
+            "dude/dude.trickfilm.ron#dying-o7",
         ),
         collection(typed)
     )]

@@ -38,6 +38,12 @@ impl PlayerStateMachine {
                 && self.attack() != Attack::Hammerfist)
     }
 
+    pub fn can_change_direction(&self) -> bool {
+        self.state != DudeState::Attacking
+            && self.state != DudeState::Recovering
+            && self.state != DudeState::Dying
+    }
+
     pub fn previous_state(&self) -> DudeState {
         self.previous_state
     }
@@ -81,6 +87,7 @@ Attempted new state: {:?}",
     pub fn set_new_state(&mut self, new_state: DudeState) {
         // TODO: Should I handle this? Should this never happen? asserts, or just warning? Same
         // with enemy statemachine.
+        assert_eq!(new_state, DudeState::Staggering, "If you want to use this for other states, then you will need to handle that in the `state/mod.rs` file too, i.e. you need to make sure that the new_state is either the target state or continue (return) and do nothing, see how the `transition_stagger_state` handles this for more info.");
         if self.new_state.is_some() {
             return;
         }

@@ -38,6 +38,7 @@ pub enum PlayerAnimations {
     DropkickRecover,
     Hammerfist,
     HammerfistRecover,
+    Dying,
 }
 
 #[derive(Default, Clone, Copy, PartialEq)]
@@ -242,8 +243,7 @@ pub fn dude_state_animation_player(
             get_animation_data_player(assets, PlayerAnimations::Idle, direction, false)
         }
         DudeState::Dying => {
-            error!("this should never happen! You are not allowed to call this function when in dying state!");
-            get_animation_data_player(assets, PlayerAnimations::Idle, direction, false)
+            get_animation_data_player(assets, PlayerAnimations::Dying, direction, false)
         }
     }
 }
