@@ -219,6 +219,9 @@ fn update_target_positions(
         let Ok(mut enemy) = q_enemies.get_mut(pf_source.root_entity) else {
             continue;
         };
+        if enemy.target.is_none() {
+            continue;
+        }
         let Some(pf_target_entity) = pf_source.target else {
             continue;
         };
@@ -258,10 +261,10 @@ fn update_target_positions(
 
 fn update_move_directions(
     mut q_enemies: Query<&mut Enemy>,
-    q_pathfinding_sources: Query<(&Parent, &GlobalTransform), With<PathfindingSource>>,
+    q_pathfinding_sources: Query<(&GlobalTransform, &PathfindingSource)>,
 ) {
-    for (parent, transform) in &q_pathfinding_sources {
-        let Ok(mut enemy) = q_enemies.get_mut(parent.get()) else {
+    for (transform, pf_source) in &q_pathfinding_sources {
+        let Ok(mut enemy) = q_enemies.get_mut(pf_source.root_entity) else {
             continue;
         };
         if enemy.target.is_none() {

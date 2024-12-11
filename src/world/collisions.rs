@@ -13,6 +13,10 @@ pub const WORLD_GROUP: Group = Group::GROUP_3;
 pub const PLAYER_GROUP: Group = Group::GROUP_4;
 pub const ENEMY_GROUP: Group = Group::GROUP_5;
 
+const HITBOX_COLLISION_GROUPS: CollisionGroups = CollisionGroups::new(HITBOX_GROUP, HURTBOX_GROUP);
+pub const HURTBOX_COLLISION_GROUPS: CollisionGroups =
+    CollisionGroups::new(HURTBOX_GROUP, HITBOX_GROUP);
+
 #[derive(PartialEq, Eq, Clone)]
 pub enum HitboxType {
     Player(Attack),
@@ -23,17 +27,14 @@ pub enum HitboxType {
 pub struct Hitbox {
     pub root_entity: Entity,
     pub hitbox_type: HitboxType,
-    pub memberships: Group,
     pub offset: Vec2,
     pub attack_direction: Vec2,
-    filters: Group,
 }
 
 #[derive(Component, Clone)]
 pub struct Hurtbox {
     pub root_entity: Entity,
     pub hurtbox_type: HurtboxType,
-    pub collision_groups: CollisionGroups,
 }
 
 #[derive(Component)]
@@ -66,27 +67,23 @@ impl Hitbox {
     pub fn new(
         root_entity: Entity,
         hitbox_type: HitboxType,
-        group: Group,
         offset: Vec2,
         attack_direction: Vec2,
     ) -> Self {
         Self {
             root_entity,
             hitbox_type,
-            memberships: group,
             offset,
             attack_direction,
-            filters: HURTBOX_GROUP,
         }
     }
 }
 
 impl Hurtbox {
-    pub fn new(root_entity: Entity, hurtbox_type: HurtboxType, memberships: Group) -> Self {
+    pub fn new(root_entity: Entity, hurtbox_type: HurtboxType) -> Self {
         Self {
             root_entity,
             hurtbox_type,
-            collision_groups: CollisionGroups::new(memberships | HURTBOX_GROUP, HITBOX_GROUP),
         }
     }
 }
@@ -109,15 +106,13 @@ pub fn spawn_hitbox_collision(
     hitbox: Hitbox,
     collider: Collider,
 ) -> Entity {
-    let mut hitbox = hitbox.clone();
-    hitbox.memberships |= HITBOX_GROUP;
     let transform = Transform::from_translation(hitbox.offset.extend(0.0));
     commands
         .spawn((
             hitbox.clone(),
             collider,
             Sensor,
-            CollisionGroups::new(hitbox.memberships, hitbox.filters),
+            HITBOX_COLLISION_GROUPS,
             COLLIDER_COLOR_WHITE,
             TransformBundle::from_transform(transform),
         ))
@@ -133,7 +128,7 @@ pub fn spawn_hurtbox_collision(
     let (collision_groups, collider_color) = if hurtbox.hurtbox_type != HurtboxType::Normal {
         (COLLISION_GROUPS_NONE, COLLIDER_COLOR_BLACK)
     } else {
-        (hurtbox.collision_groups, COLLIDER_COLOR_WHITE)
+        (HURTBOX_COLLISION_GROUPS, COLLIDER_COLOR_WHITE)
     };
     commands
         .spawn((
@@ -155,10 +150,6 @@ pub fn spawn_attack_effect(
     direction: Vec2,
     hitbox_type: HitboxType,
 ) {
-    let group = match hitbox_type {
-        HitboxType::Player(_) => PLAYER_GROUP,
-        HitboxType::Enemy(_) => ENEMY_GROUP,
-    };
     let (hitbox_offset, collider, direction_magnitude, pos_offset) = match hitbox_type {
         HitboxType::Player(attack) => attack.effect_position_data(),
         HitboxType::Enemy(attack) => attack.effect_position_data(),
@@ -169,7 +160,7 @@ pub fn spawn_attack_effect(
     };
     let hitbox = spawn_hitbox_collision(
         commands,
-        Hitbox::new(entity, hitbox_type, group, hitbox_offset, direction),
+        Hitbox::new(entity, hitbox_type, hitbox_offset, direction),
         collider,
     );
 

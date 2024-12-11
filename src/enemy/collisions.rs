@@ -5,7 +5,9 @@ use bevy_rapier2d::prelude::*;
 use crate::{
     dude::{DudeState, ParryState, StaggerState},
     player::Player,
-    world::collisions::{HitboxHurtboxEvent, HitboxType, Hurtbox, HurtboxType},
+    world::collisions::{
+        HitboxHurtboxEvent, HitboxType, Hurtbox, HurtboxType, HURTBOX_COLLISION_GROUPS,
+    },
     GameState,
 };
 
@@ -80,7 +82,7 @@ fn change_hurtbox_collisions(
             *collision_groups = COLLISION_GROUPS_NONE;
             *collider_color = COLLIDER_COLOR_BLACK;
         } else {
-            *collision_groups = hurtbox.collision_groups;
+            *collision_groups = HURTBOX_COLLISION_GROUPS;
             *collider_color = COLLIDER_COLOR_WHITE;
         }
     }

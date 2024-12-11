@@ -45,13 +45,13 @@ fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec
 
     let hurtbox_normal = spawn_hurtbox_collision(
         commands,
-        Hurtbox::new(entity, HurtboxType::Normal, ENEMY_GROUP),
+        Hurtbox::new(entity, HurtboxType::Normal),
         Vec2::new(0.0, 0.0),
         Collider::cuboid(20.0, 40.0),
     );
     let hurtbox_fallen = spawn_hurtbox_collision(
         commands,
-        Hurtbox::new(entity, HurtboxType::Fallen, ENEMY_GROUP),
+        Hurtbox::new(entity, HurtboxType::Fallen),
         Vec2::new(0.0, -24.0),
         Collider::cuboid(38.0, 28.0),
     );

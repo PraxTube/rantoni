@@ -7,8 +7,8 @@ use crate::{
     enemy::EnemyCollisionSystemSet,
     world::{
         collisions::{
-            HitboxHurtboxEvent, HitboxType, Hurtbox, HurtboxType, ENEMY_GROUP, PLAYER_GROUP,
-            WORLD_GROUP,
+            HitboxHurtboxEvent, HitboxType, Hurtbox, HurtboxType, ENEMY_GROUP,
+            HURTBOX_COLLISION_GROUPS, PLAYER_GROUP, WORLD_GROUP,
         },
         PathfindingTarget,
     },
@@ -76,7 +76,7 @@ fn change_hurtbox_collisions(
             *collision_groups = COLLISION_GROUPS_NONE;
             *collider_color = COLLIDER_COLOR_BLACK;
         } else {
-            *collision_groups = hurtbox.collision_groups;
+            *collision_groups = HURTBOX_COLLISION_GROUPS;
             *collider_color = COLLIDER_COLOR_WHITE;
         }
     }

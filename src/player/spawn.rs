@@ -55,13 +55,13 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
 
     let hurtbox_default = spawn_hurtbox_collision(
         &mut commands,
-        Hurtbox::new(entity, HurtboxType::Normal, PLAYER_GROUP),
+        Hurtbox::new(entity, HurtboxType::Normal),
         Vec2::new(0.0, 0.0),
         Collider::cuboid(10.0, 30.0),
     );
     let hurtbox_jumping = spawn_hurtbox_collision(
         &mut commands,
-        Hurtbox::new(entity, HurtboxType::Jumping, PLAYER_GROUP),
+        Hurtbox::new(entity, HurtboxType::Jumping),
         Vec2::new(0.0, 22.0),
         Collider::cuboid(12.0, 14.0),
     );
