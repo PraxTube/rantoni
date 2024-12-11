@@ -46,6 +46,15 @@ pub struct GameAssets {
     #[asset(path = "attack/arc.trickfilm.ron#flat_line")]
     pub attack_flat_line_animation: Handle<AnimationClip2D>,
 
+    // --- EFFECTS ---
+    #[asset(path = "effect/blood_pile.png")]
+    pub blood_pile: Handle<Image>,
+    #[asset(texture_atlas_layout(tile_size_x = 125, tile_size_y = 111, columns = 3, rows = 1))]
+    pub blood_pile_layout: Handle<TextureAtlasLayout>,
+    #[asset(path = "effect/effects.trickfilm.ron#bloodpile")]
+    pub blood_pile_animation: Handle<AnimationClip2D>,
+
+    // --- PLAYER ---
     #[asset(
         paths(
             "dude/idle.png",
@@ -316,6 +325,7 @@ pub struct GameAssets {
     )]
     pub dude_animations: Vec<Handle<AnimationClip2D>>,
 
+    // --- ENEMY ---
     #[asset(
         paths(
             "enemy/goon/idle.png",

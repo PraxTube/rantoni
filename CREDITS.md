@@ -4,6 +4,12 @@ Disclaimer: All assets listed here are NOT owned by me. If you wish to use them 
 
 ---
 
+## Effects
+
+### Bloodpile
+
+https://nyknck.itch.io/blood-effect-fx013
+
 ## UI
 
 ### Splash Screen

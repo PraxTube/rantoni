@@ -69,6 +69,7 @@ pub struct LevelSpatialData {
 #[derive(Debug, Clone, Default)]
 pub struct CachedLevelData {
     pub enemies: Vec<CachedEnemy>,
+    pub bloodpiles: Vec<Vec2>,
 }
 
 #[derive(Debug, Clone)]
