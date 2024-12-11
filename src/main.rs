@@ -28,6 +28,7 @@ use bevy_trickfilm::Animation2DPlugin;
 use bevy_tweening::*;
 
 const BACKGROUND_COLOR: Color = Color::BLACK;
+const DEFAULT_WINDOW_WIDTH: f32 = 1280.0;
 
 #[derive(States, Clone, Eq, PartialEq, Debug, Hash, Default)]
 pub enum GameState {
@@ -51,7 +52,10 @@ fn main() {
                     primary_window: Some(Window {
                         present_mode: PresentMode::Fifo,
                         mode: WindowMode::Windowed,
-                        resolution: WindowResolution::new(1280.0, 720.0),
+                        resolution: WindowResolution::new(
+                            DEFAULT_WINDOW_WIDTH,
+                            DEFAULT_WINDOW_WIDTH * 9.0 / 16.0,
+                        ),
                         ..default()
                     }),
                     ..default()

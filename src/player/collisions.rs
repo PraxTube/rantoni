@@ -3,7 +3,7 @@ use bevy_rancic::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    dude::{Attack, DudeState, ParryState},
+    dude::{Attack, DudeState, Health, ParryState},
     enemy::EnemyCollisionSystemSet,
     world::{
         collisions::{
@@ -18,11 +18,11 @@ use crate::{
 use super::{Player, PlayerStateSystemSet};
 
 fn hitbox_collisions(
-    mut q_players: Query<&mut Player>,
+    mut q_players: Query<(&mut Player, &mut Health)>,
     mut ev_hitbox_hurtbox: EventReader<HitboxHurtboxEvent>,
 ) {
     for ev in ev_hitbox_hurtbox.read() {
-        let Ok(mut player) = q_players.get_mut(ev.hurtbox.root_entity) else {
+        let Ok((mut player, mut health)) = q_players.get_mut(ev.hurtbox.root_entity) else {
             continue;
         };
         if player.state_machine.state() == DudeState::Dashing {
@@ -30,7 +30,7 @@ fn hitbox_collisions(
             continue;
         }
 
-        let HitboxType::Enemy(_attack) = ev.hitbox.hitbox_type else {
+        let HitboxType::Enemy(attack) = ev.hitbox.hitbox_type else {
             error!("hitbox type is not that of enemy, this should never happen");
             continue;
         };
@@ -45,6 +45,8 @@ fn hitbox_collisions(
         player
             .state_machine
             .set_stagger_state(ev.hitbox.attack_direction);
+
+        health.reduce(attack.to_damage());
     }
 }
 

@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
-    dude::PlayerAnimations,
+    dude::{Health, PlayerAnimations},
     world::{
         collisions::{
             spawn_hurtbox_collision, Hurtbox, HurtboxType, ENEMY_GROUP, PLAYER_GROUP, WORLD_GROUP,
@@ -14,7 +14,7 @@ use crate::{
     GameAssets, GameState,
 };
 
-use super::Player;
+use super::{Player, HEALTH};
 
 fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
     let mut animator = AnimationPlayer2D::default();
@@ -25,6 +25,7 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
     let entity = commands
         .spawn((
             Player::default(),
+            Health::new(HEALTH),
             RigidBody::Dynamic,
             LockedAxes::ROTATION_LOCKED,
             Velocity::zero(),

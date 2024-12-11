@@ -30,7 +30,6 @@ fn hitbox_collisions(
                 .state_machine
                 .set_stagger_state(attack, ev.hitbox.attack_direction, 1.0, 1.0);
             health.reduce(attack.to_damage());
-            info!("{}", health.health);
         }
     }
 }

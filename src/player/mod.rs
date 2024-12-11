@@ -12,6 +12,8 @@ pub use state::PlayerStateSystemSet;
 use bevy::prelude::*;
 use state::PlayerStateMachine;
 
+pub const HEALTH: u32 = 100;
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
