@@ -228,7 +228,7 @@ impl Plugin for MapLevelTransition {
                     ),
             )
             .add_systems(
-                Update,
+                PreUpdate,
                 (trigger_level_changed,).run_if(in_state(GameState::TransitionLevel)),
             )
             .add_systems(
