@@ -6,7 +6,7 @@ use bevy_trickfilm::prelude::*;
 use crate::{
     dude::{Health, PlayerAnimations},
     world::{
-        collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType},
+        collisions::{spawn_hurtbox_collision, Hurtbox},
         PathfindingTarget,
     },
     GameAssets, GameState,
@@ -53,17 +53,11 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
         ))
         .id();
 
-    let hurtbox_default = spawn_hurtbox_collision(
+    let hurtbox = spawn_hurtbox_collision(
         &mut commands,
-        Hurtbox::new(entity, HurtboxType::Normal),
+        Hurtbox::new(entity),
         Vec2::new(0.0, 0.0),
         Collider::cuboid(10.0, 30.0),
-    );
-    let hurtbox_jumping = spawn_hurtbox_collision(
-        &mut commands,
-        Hurtbox::new(entity, HurtboxType::Jumping),
-        Vec2::new(0.0, 22.0),
-        Collider::cuboid(12.0, 14.0),
     );
 
     let shadow = commands
@@ -79,7 +73,7 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
 
     commands
         .entity(entity)
-        .push_children(&[collider, hurtbox_default, hurtbox_jumping, shadow]);
+        .push_children(&[collider, hurtbox, shadow]);
 }
 
 pub struct PlayerSpawnPlugin;

@@ -8,7 +8,7 @@ use generate_world_collisions::{ENEMY_LAYER_IDENTIFIER, TILE_SIZE};
 use crate::{
     dude::{EnemyAnimations, Health},
     world::{
-        collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType, ENEMY_GROUP, WORLD_GROUP},
+        collisions::{spawn_hurtbox_collision, Hurtbox, ENEMY_GROUP, PLAYER_GROUP, WORLD_GROUP},
         CachedEnemy, CachedLevelData, DespawnLevelSystemSet, LevelChanged, PathfindingSource,
         WorldEntity, WorldSpatialData,
     },
@@ -43,24 +43,18 @@ fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec
         ))
         .id();
 
-    let hurtbox_normal = spawn_hurtbox_collision(
+    let hurtbox = spawn_hurtbox_collision(
         commands,
-        Hurtbox::new(entity, HurtboxType::Normal),
+        Hurtbox::new(entity),
         Vec2::new(0.0, 0.0),
         Collider::cuboid(20.0, 40.0),
-    );
-    let hurtbox_fallen = spawn_hurtbox_collision(
-        commands,
-        Hurtbox::new(entity, HurtboxType::Fallen),
-        Vec2::new(0.0, -24.0),
-        Collider::cuboid(38.0, 28.0),
     );
 
     let collider = commands
         .spawn((
             PathfindingSource::new(entity),
             Collider::ball(COLLIDER_RADIUS),
-            CollisionGroups::new(ENEMY_GROUP, WORLD_GROUP),
+            CollisionGroups::new(ENEMY_GROUP, WORLD_GROUP | PLAYER_GROUP),
             TransformBundle::from_transform(Transform::from_translation(Vec3::new(
                 0.0, -16.0, 0.0,
             ))),
@@ -83,12 +77,10 @@ fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec
         .play(assets.enemy_goon_animations[EnemyAnimations::Idle.index()].clone())
         .repeat();
 
-    commands.entity(entity).insert(animator).push_children(&[
-        collider,
-        hurtbox_normal,
-        hurtbox_fallen,
-        shadow,
-    ]);
+    commands
+        .entity(entity)
+        .insert(animator)
+        .push_children(&[collider, hurtbox, shadow]);
 }
 
 fn spawn_enemies_from_ldtk(

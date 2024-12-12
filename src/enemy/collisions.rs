@@ -1,13 +1,9 @@
 use bevy::prelude::*;
-use bevy_rancic::prelude::*;
-use bevy_rapier2d::prelude::*;
 
 use crate::{
-    dude::{DudeState, Health, ParryState, StaggerState},
+    dude::{DudeState, Health, ParryState},
     player::Player,
-    world::collisions::{
-        HitboxHurtboxEvent, HitboxType, Hurtbox, HurtboxType, HURTBOX_COLLISION_GROUPS,
-    },
+    world::collisions::{HitboxHurtboxEvent, HitboxType},
     GameState,
 };
 
@@ -59,45 +55,13 @@ fn enemy_parry_collisions(
     }
 }
 
-fn change_hurtbox_collisions(
-    q_enemies: Query<&Enemy>,
-    mut q_hurtboxes: Query<(&mut CollisionGroups, &mut ColliderDebugColor, &Hurtbox)>,
-) {
-    for (mut collision_groups, mut collider_color, hurtbox) in &mut q_hurtboxes {
-        let Ok(enemy) = q_enemies.get(hurtbox.root_entity) else {
-            continue;
-        };
-
-        let hurtbox_type = match enemy.state_machine.state() {
-            DudeState::Staggering => match enemy.state_machine.stagger_state() {
-                StaggerState::Fall => HurtboxType::Fallen,
-                StaggerState::FallRecover => HurtboxType::Fallen,
-                _ => HurtboxType::Normal,
-            },
-            _ => HurtboxType::Normal,
-        };
-
-        if hurtbox.hurtbox_type != hurtbox_type {
-            *collision_groups = COLLISION_GROUPS_NONE;
-            *collider_color = COLLIDER_COLOR_BLACK;
-        } else {
-            *collision_groups = HURTBOX_COLLISION_GROUPS;
-            *collider_color = COLLIDER_COLOR_WHITE;
-        }
-    }
-}
-
 pub struct EnemyCollisionsPlugin;
 
 impl Plugin for EnemyCollisionsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (
-                change_hurtbox_collisions,
-                hitbox_collisions,
-                enemy_parry_collisions,
-            )
+            (hitbox_collisions, enemy_parry_collisions)
                 .chain()
                 .before(EnemyStateSystemSet)
                 .in_set(EnemyCollisionSystemSet)

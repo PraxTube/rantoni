@@ -34,19 +34,10 @@ pub struct Hitbox {
 #[derive(Component, Clone)]
 pub struct Hurtbox {
     pub root_entity: Entity,
-    pub hurtbox_type: HurtboxType,
 }
 
 #[derive(Component)]
 struct WorldCollision;
-
-#[derive(Clone, Copy, PartialEq)]
-pub enum HurtboxType {
-    None,
-    Normal,
-    Jumping,
-    Fallen,
-}
 
 #[derive(Component)]
 pub struct AttackArcGFX;
@@ -80,11 +71,8 @@ impl Hitbox {
 }
 
 impl Hurtbox {
-    pub fn new(root_entity: Entity, hurtbox_type: HurtboxType) -> Self {
-        Self {
-            root_entity,
-            hurtbox_type,
-        }
+    pub fn new(root_entity: Entity) -> Self {
+        Self { root_entity }
     }
 }
 
@@ -125,19 +113,14 @@ pub fn spawn_hurtbox_collision(
     offset: Vec2,
     collider: Collider,
 ) -> Entity {
-    let (collision_groups, collider_color) = if hurtbox.hurtbox_type != HurtboxType::Normal {
-        (COLLISION_GROUPS_NONE, COLLIDER_COLOR_BLACK)
-    } else {
-        (HURTBOX_COLLISION_GROUPS, COLLIDER_COLOR_WHITE)
-    };
     commands
         .spawn((
             hurtbox,
             collider,
-            collider_color,
             Sensor,
             ActiveEvents::COLLISION_EVENTS,
-            collision_groups,
+            HURTBOX_COLLISION_GROUPS,
+            COLLIDER_COLOR_WHITE,
             TransformBundle::from_transform(Transform::from_translation(offset.extend(0.0))),
         ))
         .id()
@@ -237,7 +220,7 @@ fn spawn_map_collisions(mut commands: Commands, world_data: Res<WorldSpatialData
     for poly in world_data.collider_polygons() {
         commands.spawn((
             WorldCollision,
-            CollisionGroups::new(WORLD_GROUP, WORLD_GROUP),
+            CollisionGroups::new(WORLD_GROUP, WORLD_GROUP | ENEMY_GROUP | PLAYER_GROUP),
             Collider::convex_hull(poly).expect(
                 "polygon should be convertable to convex hull, something went really wrong",
             ),
