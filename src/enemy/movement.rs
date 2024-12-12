@@ -91,21 +91,25 @@ fn clear_line_of_sight(
     target: Entity,
     target_pos: Vec2,
 ) -> bool {
-    if let Some((entity, hit)) = rapier_context.cast_shape(
-        pf_source_pos,
-        Rot::default(),
-        target_pos - pf_source_pos,
-        &Collider::ball(COLLIDER_RADIUS),
-        ShapeCastOptions::with_max_time_of_impact(1.0),
-        QueryFilter::new().groups(LINE_OF_SIGHT_COLLISION_GROUPS),
-    ) {
-        if hit.time_of_impact <= 1.0 && entity != target {
-            return false;
+    let dir = (target_pos - pf_source_pos).normalize_or_zero() * COLLIDER_RADIUS;
+    for offset in [dir.perp(), -dir.perp()] {
+        if let Some((entity, _)) = rapier_context.cast_ray(
+            pf_source_pos + offset,
+            target_pos - pf_source_pos,
+            1.0,
+            false,
+            QueryFilter::new().groups(LINE_OF_SIGHT_COLLISION_GROUPS),
+        ) {
+            if entity != target {
+                return false;
+            }
         }
     }
 
     if debug_state.0 {
-        gizmos.line_2d(pf_source_pos, target_pos, RED);
+        for offset in [dir.perp(), -dir.perp()] {
+            gizmos.line_2d(pf_source_pos + offset, target_pos + offset, RED);
+        }
     }
 
     pf_source.path = None;
