@@ -47,7 +47,5 @@ pub struct Enemy {
     target: Option<Entity>,
     /// Point of the actual current target of this enemy.
     target_pos: Vec2,
-    /// Random offset, this may need to be removed as it's not a great solution.
-    target_offset: Vec2,
     pub state_machine: EnemyStateMachine,
 }

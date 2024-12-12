@@ -3,15 +3,10 @@ use std::f32::consts::FRAC_1_SQRT_2;
 use bevy::{color::palettes::css::RED, prelude::*};
 use bevy_rancic::prelude::DebugState;
 use bevy_rapier2d::prelude::*;
-use rand::{thread_rng, Rng};
 
 use crate::{
     dude::DudeState,
-    world::{
-        a_star,
-        collisions::{PLAYER_GROUP, WORLD_GROUP},
-        PathfindingSource, WorldSpatialData,
-    },
+    world::{a_star, collisions::WORLD_GROUP, PathfindingSource, WorldSpatialData},
 };
 
 use super::{
@@ -19,10 +14,8 @@ use super::{
     STALK_SPEED,
 };
 
-const MAX_TARGET_OFFSET: f32 = 64.0;
-
 const LINE_OF_SIGHT_COLLISION_GROUPS: CollisionGroups =
-    CollisionGroups::new(WORLD_GROUP, PLAYER_GROUP);
+    CollisionGroups::new(WORLD_GROUP, WORLD_GROUP);
 
 const ROT_MATRIX_LEFT: [[f32; 2]; 2] = [
     [FRAC_1_SQRT_2, -FRAC_1_SQRT_2],
@@ -32,22 +25,6 @@ const ROT_MATRIX_RIGHT: [[f32; 2]; 2] = [
     [FRAC_1_SQRT_2, FRAC_1_SQRT_2],
     [-FRAC_1_SQRT_2, FRAC_1_SQRT_2],
 ];
-
-fn target_pos_with_offset(source_pos: Vec2, target_pos: Vec2, target_offset: Vec2) -> Vec2 {
-    let dis = source_pos.distance_squared(target_pos);
-    if dis > (2.0 * MAX_TARGET_OFFSET).powi(2) {
-        return target_pos + target_offset * MAX_TARGET_OFFSET;
-    }
-
-    if dis < MAX_TARGET_OFFSET.powi(2) {
-        return target_pos;
-    }
-
-    let dis = dis.sqrt() / MAX_TARGET_OFFSET - 1.0;
-    assert!(dis > 0.0);
-    assert!(dis <= 1.0);
-    target_pos + target_offset * dis * MAX_TARGET_OFFSET
-}
 
 fn move_enemies(
     enemy_crowd: Res<EnemyCrowd>,
@@ -96,39 +73,15 @@ fn rotate_vec(v: Vec2, rot_matrix: [[f32; 2]; 2]) -> Vec2 {
     )
 }
 
-fn clear_line_of_sight_of_target_offset(
-    gizmos: &mut Gizmos,
-    rapier_context: &RapierContext,
-    debug_state: &DebugState,
-    source_pos: Vec2,
-    target_pos: Vec2,
-    target: Entity,
-) -> bool {
-    for offset in [
-        Vec2::new(0.0, COLLIDER_RADIUS),
-        Vec2::new(COLLIDER_RADIUS, 0.0),
-        Vec2::new(0.0, -COLLIDER_RADIUS),
-        Vec2::new(-COLLIDER_RADIUS, 0.0),
-    ] {
-        if let Some((entity, toi)) = rapier_context.cast_ray(
-            source_pos + offset,
-            target_pos - source_pos,
-            f32::MAX,
-            true,
-            QueryFilter::new().groups(LINE_OF_SIGHT_COLLISION_GROUPS),
-        ) {
-            if toi <= 1.0 && entity != target {
-                return false;
-            }
-        }
-
-        if debug_state.0 {
-            gizmos.line_2d(source_pos + offset, target_pos + offset, RED);
-        }
-    }
-    true
-}
-
+/// Check whether there is a clear line of sight between two points in the nav mash.
+///
+/// The definition of "clear line of sight" is that there is not collision with any
+/// (WORLD_GROUP, WORLD_GROUP) for membership and filter respectively.
+/// If the starting position is already inside of a collider with a WORLD_GROUP
+/// then this is likely to fail.
+///
+/// It's meant to be only used for enemies -> player as of now, maybe it would also work for
+/// enemy -> enemy.
 fn clear_line_of_sight(
     gizmos: &mut Gizmos,
     rapier_context: &RapierContext,
@@ -138,28 +91,23 @@ fn clear_line_of_sight(
     target: Entity,
     target_pos: Vec2,
 ) -> bool {
-    for offset in [
-        Vec2::new(0.0, COLLIDER_RADIUS),
-        Vec2::new(COLLIDER_RADIUS, 0.0),
-        Vec2::new(0.0, -COLLIDER_RADIUS),
-        Vec2::new(-COLLIDER_RADIUS, 0.0),
-    ] {
-        if let Some((entity, toi)) = rapier_context.cast_ray(
-            pf_source_pos + offset,
-            target_pos - pf_source_pos,
-            f32::MAX,
-            false,
-            QueryFilter::new().groups(LINE_OF_SIGHT_COLLISION_GROUPS),
-        ) {
-            if toi <= 1.0 && entity != target {
-                return false;
-            }
-        }
-
-        if debug_state.0 {
-            gizmos.line_2d(pf_source_pos + offset, target_pos + offset, RED);
+    if let Some((entity, hit)) = rapier_context.cast_shape(
+        pf_source_pos,
+        Rot::default(),
+        target_pos - pf_source_pos,
+        &Collider::ball(COLLIDER_RADIUS),
+        ShapeCastOptions::with_max_time_of_impact(1.0),
+        QueryFilter::new().groups(LINE_OF_SIGHT_COLLISION_GROUPS),
+    ) {
+        if hit.time_of_impact <= 1.0 && entity != target {
+            return false;
         }
     }
+
+    if debug_state.0 {
+        gizmos.line_2d(pf_source_pos, target_pos, RED);
+    }
+
     pf_source.path = None;
     true
 }
@@ -227,19 +175,7 @@ fn update_target_positions(
         };
 
         let pf_source_pos = pf_source_transform.translation().truncate();
-
-        let target_pos = if clear_line_of_sight_of_target_offset(
-            &mut gizmos,
-            &rapier_context,
-            &debug_state,
-            target_pos_with_offset(pf_source_pos, enemy.target_pos, enemy.target_offset),
-            enemy.target_pos,
-            pf_target_entity,
-        ) {
-            target_pos_with_offset(pf_source_pos, enemy.target_pos, enemy.target_offset)
-        } else {
-            enemy.target_pos
-        };
+        let target_pos = pf_source.target_pos;
 
         let pos = if clear_line_of_sight(
             &mut gizmos,
@@ -276,15 +212,6 @@ fn update_move_directions(
     }
 }
 
-fn set_random_target_offset(mut q_enemies: Query<&mut Enemy>) {
-    let mut rng = thread_rng();
-    for mut enemy in &mut q_enemies {
-        if enemy.target_offset == Vec2::ZERO {
-            enemy.target_offset = Vec2::new(rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0));
-        }
-    }
-}
-
 pub struct EnemyMovementPlugin;
 
 impl Plugin for EnemyMovementPlugin {
@@ -295,7 +222,6 @@ impl Plugin for EnemyMovementPlugin {
                 update_target_positions.run_if(resource_exists::<WorldSpatialData>),
                 update_move_directions,
                 move_enemies,
-                // set_random_target_offset,
             )
                 .chain()
                 .after(EnemyStateSystemSet),

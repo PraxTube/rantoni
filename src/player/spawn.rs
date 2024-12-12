@@ -6,15 +6,13 @@ use bevy_trickfilm::prelude::*;
 use crate::{
     dude::{Health, PlayerAnimations},
     world::{
-        collisions::{
-            spawn_hurtbox_collision, Hurtbox, HurtboxType, ENEMY_GROUP, PLAYER_GROUP, WORLD_GROUP,
-        },
+        collisions::{spawn_hurtbox_collision, Hurtbox, HurtboxType},
         PathfindingTarget,
     },
     GameAssets, GameState,
 };
 
-use super::{Player, HEALTH};
+use super::{collisions::DEFAULT_PLAYER_COLLISION_GROUPS, Player, HEALTH};
 
 fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
     let mut animator = AnimationPlayer2D::default();
@@ -48,7 +46,7 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
                 root_entity: entity,
             },
             Collider::ball(16.0),
-            CollisionGroups::new(WORLD_GROUP | PLAYER_GROUP, WORLD_GROUP | ENEMY_GROUP),
+            DEFAULT_PLAYER_COLLISION_GROUPS,
             TransformBundle::from_transform(Transform::from_translation(Vec3::new(
                 0.0, -16.0, 0.0,
             ))),

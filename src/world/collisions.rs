@@ -237,6 +237,7 @@ fn spawn_map_collisions(mut commands: Commands, world_data: Res<WorldSpatialData
     for poly in world_data.collider_polygons() {
         commands.spawn((
             WorldCollision,
+            CollisionGroups::new(WORLD_GROUP, WORLD_GROUP),
             Collider::convex_hull(poly).expect(
                 "polygon should be convertable to convex hull, something went really wrong",
             ),

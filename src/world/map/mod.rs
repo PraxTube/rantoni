@@ -208,13 +208,13 @@ fn deserialize_and_insert_wrold_data(mut commands: Commands) {
 }
 
 fn update_pf_source_target_positions(
-    q_transforms: Query<&Transform>,
+    q_transforms: Query<&GlobalTransform>,
     mut q_pf_sources: Query<&mut PathfindingSource>,
 ) {
     for mut pf_source in &mut q_pf_sources {
         if let Some(target) = pf_source.target {
             if let Ok(transform) = q_transforms.get(target) {
-                pf_source.target_pos = transform.translation.truncate();
+                pf_source.target_pos = transform.translation().truncate();
             }
         }
     }

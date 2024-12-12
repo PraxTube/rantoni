@@ -17,6 +17,13 @@ use crate::{
 
 use super::{Player, PlayerStateSystemSet};
 
+pub const DEFAULT_PLAYER_COLLISION_GROUPS: CollisionGroups = CollisionGroups::new(
+    WORLD_GROUP.union(PLAYER_GROUP),
+    WORLD_GROUP.union(ENEMY_GROUP),
+);
+const DASHING_PLAYER_COLLISION_GROUPS: CollisionGroups =
+    CollisionGroups::new(WORLD_GROUP.union(PLAYER_GROUP), WORLD_GROUP);
+
 fn hitbox_collisions(
     mut q_players: Query<(&mut Player, &mut Health)>,
     mut ev_hitbox_hurtbox: EventReader<HitboxHurtboxEvent>,
@@ -96,13 +103,12 @@ fn change_collider_collisions(
             continue;
         };
 
-        let (memberships, filters) = match player.state_machine.state() {
-            DudeState::Dashing => (WORLD_GROUP | PLAYER_GROUP, WORLD_GROUP),
-            _ => (WORLD_GROUP | PLAYER_GROUP, WORLD_GROUP | ENEMY_GROUP),
+        let new_collision_groups = match player.state_machine.state() {
+            DudeState::Dashing => DASHING_PLAYER_COLLISION_GROUPS,
+            _ => DEFAULT_PLAYER_COLLISION_GROUPS,
         };
 
-        collision_groups.memberships = memberships;
-        collision_groups.filters = filters;
+        *collision_groups = new_collision_groups;
     }
 }
 
