@@ -164,6 +164,8 @@ pub fn a_star(
     start: Vec2,
     goal: Vec2,
     grid_matrix: &[Vec<u8>],
+    // TODO: Do we need this? I thought it would be required for the diagonals issue thing but I
+    // believe that is solved by using the line of sight check for path[1].
     _path: &Option<Vec<Vec2>>,
 ) -> Vec<Vec2> {
     fn h(v: Vec2, end: Vec2) -> f32 {

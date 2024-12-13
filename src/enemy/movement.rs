@@ -77,7 +77,6 @@ fn clear_line_of_sight(
     gizmos: &mut Gizmos,
     rapier_context: &RapierContext,
     debug_state: &DebugState,
-    pf_source: &mut PathfindingSource,
     pf_source_pos: Vec2,
     target: Entity,
     target_pos: Vec2,
@@ -102,8 +101,6 @@ fn clear_line_of_sight(
             gizmos.line_2d(pf_source_pos + offset, target_pos + offset, RED);
         }
     }
-
-    pf_source.path = None;
     true
 }
 
@@ -121,16 +118,20 @@ fn source_pos_in_point(source_pos: Vec2, point: Vec2, move_speed: f32) -> bool {
 }
 
 fn target_pos_from_path(
-    map_polygon_data: &WorldSpatialData,
+    gizmos: &mut Gizmos,
+    rapier_context: &RapierContext,
+    debug_state: &DebugState,
+    map_data: &WorldSpatialData,
     pf_source: &mut PathfindingSource,
     pf_source_pos: Vec2,
+    target: Entity,
     target_pos: Vec2,
     move_speed: f32,
 ) -> Vec2 {
     let path = a_star(
         pf_source_pos,
         target_pos,
-        map_polygon_data.grid_matrix(),
+        map_data.grid_matrix(),
         &pf_source.path,
     );
     pf_source.path = Some(path.clone());
@@ -155,6 +156,14 @@ fn target_pos_from_path(
 
     if is_past_current_tile(pf_source_pos, path[0], path[1])
         || source_pos_in_point(pf_source_pos, path[0], move_speed)
+        || clear_line_of_sight(
+            gizmos,
+            rapier_context,
+            debug_state,
+            pf_source_pos,
+            target,
+            path[1],
+        )
     {
         path[1]
     } else {
@@ -166,7 +175,7 @@ fn update_target_positions(
     mut gizmos: Gizmos,
     rapier_context: Res<RapierContext>,
     debug_state: Res<DebugState>,
-    map_polygon_data: Res<WorldSpatialData>,
+    map_data: Res<WorldSpatialData>,
     mut q_enemies: Query<&mut Enemy>,
     mut q_pathfinding_sources: Query<(&GlobalTransform, &mut PathfindingSource)>,
 ) {
@@ -188,17 +197,21 @@ fn update_target_positions(
             &mut gizmos,
             &rapier_context,
             &debug_state,
-            &mut pf_source,
             pf_source_pos,
             pf_target_entity,
             target_pos,
         ) {
+            pf_source.path = None;
             target_pos
         } else {
             target_pos_from_path(
-                &map_polygon_data,
+                &mut gizmos,
+                &rapier_context,
+                &debug_state,
+                &map_data,
                 &mut pf_source,
                 pf_source_pos,
+                pf_target_entity,
                 target_pos,
                 enemy.pathfinding_move_speed,
             )
