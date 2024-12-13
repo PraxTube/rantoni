@@ -26,11 +26,13 @@ const ROT_MATRIX_RIGHT: [[f32; 2]; 2] = [
     [-FRAC_1_SQRT_2, FRAC_1_SQRT_2],
 ];
 
-fn move_enemies(
+const EPSILON_K_VALUE: f32 = 0.01;
+
+fn set_pathfinding_move_speeds(
     enemy_crowd: Res<EnemyCrowd>,
-    mut q_enemies: Query<(Entity, &mut Velocity, &Enemy)>,
+    mut q_enemies: Query<(Entity, &mut Enemy)>,
 ) {
-    for (entity, mut velocity, enemy) in &mut q_enemies {
+    for (entity, mut enemy) in &mut q_enemies {
         let Some(target) = enemy.target else {
             continue;
         };
@@ -46,23 +48,12 @@ fn move_enemies(
             1.0
         };
 
-        match enemy.state_machine.state() {
-            DudeState::Running => {
-                velocity.linvel = enemy.move_direction * speed_mult * MOVE_SPEED;
-            }
-            DudeState::Staggering => {
-                if !enemy.state_machine.stagger_state().is_recovering() {
-                    velocity.linvel = enemy.state_machine.stagger_linvel();
-                }
-            }
-            DudeState::Stalking => {
-                velocity.linvel = enemy.move_direction * speed_mult * STALK_SPEED;
-            }
-            DudeState::Attacking => {
-                velocity.linvel = enemy.state_machine.attack_direction() * 100.0;
-            }
-            _ => {}
-        }
+        let speed = match enemy.state_machine.state() {
+            DudeState::Running => speed_mult * MOVE_SPEED,
+            DudeState::Stalking => speed_mult * STALK_SPEED,
+            _ => 0.0,
+        };
+        enemy.pathfinding_move_speed = speed;
     }
 }
 
@@ -116,11 +107,25 @@ fn clear_line_of_sight(
     true
 }
 
+fn is_past_current_tile(source_pos: Vec2, tile_pos: Vec2, next_pos: Vec2) -> bool {
+    let path_dir = next_pos - tile_pos;
+    let dir = source_pos - tile_pos;
+
+    dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_LEFT)) >= 0.0
+        && dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_RIGHT)) <= 0.0
+}
+
+fn source_pos_in_point(source_pos: Vec2, point: Vec2, move_speed: f32) -> bool {
+    let distance_to_current_tile = source_pos.distance_squared(point);
+    distance_to_current_tile < (EPSILON_K_VALUE * move_speed).powi(2)
+}
+
 fn target_pos_from_path(
     map_polygon_data: &WorldSpatialData,
     pf_source: &mut PathfindingSource,
     pf_source_pos: Vec2,
     target_pos: Vec2,
+    move_speed: f32,
 ) -> Vec2 {
     let path = a_star(
         pf_source_pos,
@@ -134,24 +139,22 @@ fn target_pos_from_path(
         return target_pos;
     }
     if path.len() == 1 {
-        return path[0];
+        // Why don't we always just walk to the target_pos directly? Because when we call this
+        // function there is no clear line of sight to the target... Hold on doesn't this mean we
+        // should never return target_pos from this function? Well, not quite. The issue is that the
+        // clear line of sight can be faulty, giving false negatives when the player is walking
+        // into a wall for example.
+        if is_past_current_tile(pf_source_pos, path[0], target_pos)
+            || source_pos_in_point(pf_source_pos, path[0], move_speed)
+        {
+            return target_pos;
+        } else {
+            return path[0];
+        }
     }
 
-    let path_dir = path[1] - path[0];
-    let dir = pf_source_pos - path[0];
-
-    let is_past_current_tile = dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_LEFT)) >= 0.0
-        && dir.perp_dot(rotate_vec(path_dir, ROT_MATRIX_RIGHT)) <= 0.0;
-
-    let distance_to_current_tile = pf_source_pos.distance_squared(path[0]);
-
-    // Enemy is already past `path[0]`, so skip to the next point on path.
-    if is_past_current_tile
-        || distance_to_current_tile
-        // TODO: figure out a good value here, also don't use magic numbers, make const or
-        // something.
-        // Okay well shit `https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/`
-        < 10.0
+    if is_past_current_tile(pf_source_pos, path[0], path[1])
+        || source_pos_in_point(pf_source_pos, path[0], move_speed)
     {
         path[1]
     } else {
@@ -192,7 +195,13 @@ fn update_target_positions(
         ) {
             target_pos
         } else {
-            target_pos_from_path(&map_polygon_data, &mut pf_source, pf_source_pos, target_pos)
+            target_pos_from_path(
+                &map_polygon_data,
+                &mut pf_source,
+                pf_source_pos,
+                target_pos,
+                enemy.pathfinding_move_speed,
+            )
         };
 
         enemy.move_target_pos = pos;
@@ -216,6 +225,32 @@ fn update_move_directions(
     }
 }
 
+fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
+    for (mut velocity, enemy) in &mut q_enemies {
+        if enemy.target.is_none() {
+            continue;
+        }
+
+        match enemy.state_machine.state() {
+            DudeState::Running => {
+                velocity.linvel = enemy.move_direction * enemy.pathfinding_move_speed;
+            }
+            DudeState::Staggering => {
+                if !enemy.state_machine.stagger_state().is_recovering() {
+                    velocity.linvel = enemy.state_machine.stagger_linvel();
+                }
+            }
+            DudeState::Stalking => {
+                velocity.linvel = enemy.move_direction * enemy.pathfinding_move_speed;
+            }
+            DudeState::Attacking => {
+                velocity.linvel = enemy.state_machine.attack_direction() * 100.0;
+            }
+            _ => {}
+        }
+    }
+}
+
 pub struct EnemyMovementPlugin;
 
 impl Plugin for EnemyMovementPlugin {
@@ -223,6 +258,7 @@ impl Plugin for EnemyMovementPlugin {
         app.add_systems(
             Update,
             (
+                set_pathfinding_move_speeds,
                 update_target_positions.run_if(resource_exists::<WorldSpatialData>),
                 update_move_directions,
                 move_enemies,
