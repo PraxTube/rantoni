@@ -15,7 +15,7 @@ const MIN_CHASE_DISTANCE: f32 = 200.0;
 /// Acts as a buffer that the player can move while the enemy is still in stalking mode.
 /// The bigger the difference the more the enemy can "stalk" the player.
 const ATTACK_DISTANCE: f32 = 75.0;
-const MOVE_SPEED: f32 = 400.0;
+const MOVE_SPEED: f32 = 000.0;
 const STALK_SPEED: f32 = 200.0;
 
 pub use collisions::EnemyCollisionSystemSet;

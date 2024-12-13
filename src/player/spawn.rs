@@ -33,7 +33,7 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
             YSort(0.0),
             SpriteBundle {
                 texture: assets.dude_textures[0].clone(),
-                transform: Transform::from_xyz(100.0, 100.0, 0.0),
+                transform: Transform::from_xyz(565.4461, 264.66992, 0.0),
                 ..default()
             },
             TextureAtlas::from(assets.dude_layout.clone()),

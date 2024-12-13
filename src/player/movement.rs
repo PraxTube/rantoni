@@ -96,6 +96,12 @@ fn move_dying(mut q_players: Query<(&mut Velocity, &AnimationPlayer2D, &Player)>
     }
 }
 
+fn debug(q_players: Query<&Transform, With<Player>>) {
+    for transform in &q_players {
+        info!("{}", transform.translation);
+    }
+}
+
 pub struct PlayerMovementPlugin;
 
 impl Plugin for PlayerMovementPlugin {
@@ -108,6 +114,7 @@ impl Plugin for PlayerMovementPlugin {
                 move_staggering,
                 move_dashing,
                 move_dying,
+                debug,
             )
                 .chain()
                 .run_if(in_state(GameState::Gaming)),

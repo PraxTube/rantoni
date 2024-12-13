@@ -220,7 +220,6 @@ impl Plugin for MapLevelTransition {
                 (
                     despawn_world_entities.in_set(DespawnLevelSystemSet),
                     update_level_selection,
-                    update_player_position,
                     fade_black_screen_out,
                 )
                     .run_if(
