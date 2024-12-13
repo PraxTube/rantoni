@@ -1,3 +1,5 @@
+use std::f32::consts::SQRT_2;
+
 use bevy::{prelude::*, utils::HashMap};
 use generate_world_collisions::TILE_SIZE;
 
@@ -14,6 +16,26 @@ impl USVec2 {
 
     fn to_vec2(self) -> Vec2 {
         Vec2::new(self.x as f32 * TILE_SIZE, self.y as f32 * TILE_SIZE)
+    }
+
+    fn diff_sum(&self, other: Self) -> usize {
+        let dx = if self.x > other.x {
+            self.x - other.x
+        } else {
+            other.x - self.x
+        };
+
+        let dy = if self.y > other.y {
+            self.y - other.y
+        } else {
+            other.y - self.y
+        };
+
+        dx + dy
+    }
+
+    fn distance(&self, other: Self) -> f32 {
+        self.to_vec2().distance(other.to_vec2())
     }
 }
 
@@ -39,6 +61,12 @@ fn key_of_smallest_value(h: &HashMap<USVec2, f32>) -> USVec2 {
     *current_key.expect("Something went very wrong with you smallest value in hashmap fn")
 }
 
+/// Get the real point that maps to the int grid matrix.
+/// If the point is slightly outside of bounds the algorithm will perform a check around its
+/// neigbhours to find the closest node that is walkable nearby.
+///
+/// Note: If the point is out of bounds (and no neigbhours are walkable nodes),
+/// then `None` is returned.
 fn point_to_matrix_indices(grid_matrix: &[Vec<u8>], p: Vec2) -> Option<USVec2> {
     let u = if p.x < 0.0 || p.y < 0.0 {
         USVec2::new(0, 0)
@@ -62,12 +90,11 @@ fn point_to_matrix_indices(grid_matrix: &[Vec<u8>], p: Vec2) -> Option<USVec2> {
     for neigbhour in grid_neigbhours(grid_matrix, u) {
         distance_to_neighbours.push((neigbhour, neigbhour.to_vec2().distance_squared(p)));
     }
-    distance_to_neighbours.sort_by(|a, b| a.1.total_cmp(&b.1));
-    // This should ONLY happen when out of bounds
-    if distance_to_neighbours.is_empty() {
-        return None;
-    }
-    Some(distance_to_neighbours[0].0)
+
+    distance_to_neighbours
+        .iter()
+        .min_by(|a, b| a.1.total_cmp(&b.1))
+        .map(|(u, _)| *u)
 }
 
 fn grid_neigbhours(grid_matrix: &[Vec<u8>], u: USVec2) -> Vec<USVec2> {
@@ -140,21 +167,23 @@ pub fn a_star(
     _path: &Option<Vec<Vec2>>,
 ) -> Vec<Vec2> {
     fn h(v: Vec2, end: Vec2) -> f32 {
-        // TODO: This metric is wrong!
-        // It isn't the smallest actual distance which is required for A* to find the shortest path
-        // in all cases. Simply using `distance` would work, but that is kinda ass for performance
-        // (though I didn't really notice it, but it wouldn't be could from a theoretical view
-        // already).
-        v.distance_squared(end)
+        (v.x - end.x).abs().max((v.y - end.y).abs())
     }
 
-    fn d(v: Vec2, w: Vec2) -> f32 {
-        // TODO: This metric is wrong!
-        // It isn't the smallest actual distance which is required for A* to find the shortest path
-        // in all cases. Simply using `distance` would work, but that is kinda ass for performance
-        // (though I didn't really notice it, but it wouldn't be could from a theoretical view
-        // already).
-        v.distance_squared(w)
+    fn d(v: USVec2, w: USVec2) -> f32 {
+        let diff_sum = v.diff_sum(w);
+
+        if diff_sum == 1 {
+            TILE_SIZE
+        } else if diff_sum == 2 {
+            SQRT_2 * TILE_SIZE
+        } else {
+            error!(
+                "got diff_sum {} in pathfinding 'd()', should never happen, should only check neigbhours",
+                diff_sum
+            );
+            v.distance(w)
+        }
     }
 
     let Some(start_indices) = point_to_matrix_indices(grid_matrix, start) else {
@@ -206,8 +235,8 @@ pub fn a_star(
         for neigbhour in grid_neigbhours(grid_matrix, current_node) {
             assert_ne!(current_node, neigbhour, "adjacency graph invalid");
 
-            let tentative_score = global_scores[current_node.x][current_node.y]
-                + d(current_node.to_vec2(), neigbhour.to_vec2());
+            let tentative_score =
+                global_scores[current_node.x][current_node.y] + d(current_node, neigbhour);
             if tentative_score < global_scores[neigbhour.x][neigbhour.y] {
                 parents[neigbhour.x][neigbhour.y] = Some(current_node);
                 global_scores[neigbhour.x][neigbhour.y] = tentative_score;
