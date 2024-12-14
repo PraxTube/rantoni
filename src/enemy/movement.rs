@@ -244,23 +244,20 @@ fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
             continue;
         }
 
-        match enemy.state_machine.state() {
-            DudeState::Running => {
-                velocity.linvel = enemy.move_direction * enemy.pathfinding_move_speed;
-            }
+        let linvel = match enemy.state_machine.state() {
+            DudeState::Running => enemy.move_direction * enemy.pathfinding_move_speed,
             DudeState::Staggering => {
                 if !enemy.state_machine.stagger_state().is_recovering() {
-                    velocity.linvel = enemy.state_machine.stagger_linvel();
+                    enemy.state_machine.stagger_linvel()
+                } else {
+                    Vec2::ZERO
                 }
             }
-            DudeState::Stalking => {
-                velocity.linvel = enemy.move_direction * enemy.pathfinding_move_speed;
-            }
-            DudeState::Attacking => {
-                velocity.linvel = enemy.state_machine.attack_direction() * 100.0;
-            }
-            _ => {}
-        }
+            DudeState::Stalking => enemy.move_direction * enemy.pathfinding_move_speed,
+            DudeState::Attacking => enemy.state_machine.attack_direction() * 100.0,
+            _ => Vec2::ZERO,
+        };
+        velocity.linvel = linvel;
     }
 }
 

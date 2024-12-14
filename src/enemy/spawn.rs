@@ -29,10 +29,6 @@ fn spawn_dummy_enemy(commands: &mut Commands, assets: &Res<GameAssets>, pos: Vec
             RigidBody::Dynamic,
             LockedAxes::ROTATION_LOCKED,
             Velocity::zero(),
-            Damping {
-                linear_damping: 100.0,
-                ..default()
-            },
             YSort(0.0),
             SpriteBundle {
                 transform: Transform::from_translation(pos.extend(0.0)),
