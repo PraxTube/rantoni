@@ -25,6 +25,8 @@ pub use graph::{
     construct_adjacency_graph, disjoint_graphs_colliders, disjoint_graphs_walkable,
     outer_inner_polygons,
 };
-pub use ldtk_bridge::{ENEMY_LAYER_IDENTIFIER, LDTK_FILE, TILE_SIZE, WALKABLE_LAYER};
+pub use ldtk_bridge::{
+    ENEMY_LAYER_IDENTIFIER, LDTK_FILE, PLAYER_LAYER_IDENTIFIER, TILE_SIZE, WALKABLE_LAYER,
+};
 pub use matrix::{map_grid_matrix, Grid};
 pub use serialization::{deserialize_polygons, serialize_collider_polygons, serialize_grid_matrix};

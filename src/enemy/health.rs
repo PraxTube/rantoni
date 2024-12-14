@@ -4,7 +4,7 @@ use bevy_trickfilm::prelude::*;
 
 use crate::{
     dude::Health,
-    world::{LevelChanged, WorldEntity, WorldSpatialData},
+    world::{DespawnLevelSystemSet, LevelChanged, WorldEntity, WorldSpatialData},
     GameAssets, GameState,
 };
 
@@ -91,12 +91,19 @@ impl Plugin for EnemyHealthPlugin {
             .add_systems(
                 Update,
                 (
-                    spawn_bloodpiles_from_cached_data.run_if(
-                        in_state(GameState::TransitionLevel).and_then(on_event::<LevelChanged>()),
-                    ),
+                    spawn_bloodpiles_from_cached_data
+                        .run_if(
+                            in_state(GameState::TransitionLevel)
+                                .and_then(on_event::<LevelChanged>()),
+                        )
+                        .after(DespawnLevelSystemSet),
                     despawn_enemies,
                 )
                     .run_if(resource_exists::<GameAssets>),
+            )
+            .add_systems(
+                OnEnter(GameState::Restart),
+                spawn_bloodpiles_from_cached_data.after(DespawnLevelSystemSet),
             );
     }
 }

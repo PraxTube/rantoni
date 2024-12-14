@@ -1,18 +1,18 @@
 mod level_transition;
 mod pathfinding;
 
-use level_transition::LevelChangeDirection;
 pub use level_transition::{DespawnLevelSystemSet, LevelChanged};
+pub use pathfinding::a_star;
 
 use bevy_rancic::prelude::DebugState;
-pub use pathfinding::a_star;
 
 use std::{fs, str::from_utf8};
 
 use bevy::{color::palettes::css::*, prelude::*, utils::HashMap};
 use bevy_ecs_ldtk::prelude::*;
 
-use generate_world_collisions::{deserialize_polygons, MAP_POLYGON_DATA};
+use generate_world_collisions::{deserialize_polygons, MAP_POLYGON_DATA, TILE_SIZE};
+use level_transition::LevelChangeDirection;
 
 use crate::{GameAssets, GameState};
 
@@ -56,6 +56,7 @@ pub struct WorldSpatialData {
     previous_level: Option<(usize, usize)>,
     level_transition_offset: IVec2,
     level_transition_direction: LevelChangeDirection,
+    cached_player: Option<CachedPlayer>,
 }
 
 #[derive(Debug)]
@@ -73,8 +74,16 @@ pub struct CachedLevelData {
 }
 
 #[derive(Debug, Clone)]
+pub struct CachedPlayer {
+    pub pos: Vec2,
+    pub health: u32,
+}
+
+#[derive(Debug, Clone)]
 pub struct CachedEnemy {
     pub pos: Vec2,
+    // TODO: Cache health of enemy
+    // pub health: u32,
 }
 
 impl PathfindingSource {
@@ -146,11 +155,26 @@ impl WorldSpatialData {
         }
     }
 
+    pub fn cached_player(&self) -> Option<CachedPlayer> {
+        self.cached_player.clone()
+    }
+
+    pub fn set_cached_player(&mut self, cached_player: CachedPlayer) {
+        self.cached_player = Some(cached_player);
+    }
+
     pub fn level_dimensions(&self) -> UVec2 {
         let level = self.current_spatial_level();
         UVec2::new(
             level.grid_matrix.len() as u32,
             level.grid_matrix[0].len() as u32,
+        )
+    }
+
+    pub fn pixel_coords_to_translation(&self, px_coords: IVec2) -> Vec2 {
+        Vec2::new(
+            px_coords.x as f32,
+            self.level_dimensions().y as f32 * TILE_SIZE - px_coords.y as f32,
         )
     }
 
@@ -204,6 +228,7 @@ fn deserialize_and_insert_wrold_data(mut commands: Commands) {
         previous_level: None,
         level_transition_offset: IVec2::default(),
         level_transition_direction: LevelChangeDirection::North,
+        cached_player: None,
     });
 }
 

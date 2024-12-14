@@ -16,7 +16,8 @@ use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::prelude::*;
 use generate_world_collisions::{
     decompose_poly, map_grid_matrix, merge_convex_polygons, serialize_collider_polygons,
-    serialize_grid_matrix, Grid, LDTK_FILE, MAP_POLYGON_DATA, TILE_SIZE, WALKABLE_LAYER,
+    serialize_grid_matrix, Grid, LDTK_FILE, MAP_POLYGON_DATA, PLAYER_LAYER_IDENTIFIER, TILE_SIZE,
+    WALKABLE_LAYER,
 };
 use ldtk::WorldLayout;
 
@@ -178,6 +179,39 @@ fn level_neigbhours(world: &ldtk::World, level: &ldtk::Level) -> String {
         .join(";")
 }
 
+fn sanity_checks(world_index: usize, level_index: usize, level: &ldtk::Level) {
+    let layers = level
+        .layer_instances
+        .clone()
+        .expect("you should never use 'separate levels' option");
+
+    assert!(!layers.is_empty());
+
+    for layer in layers {
+        assert_eq!(layer.grid_size as f32, TILE_SIZE);
+
+        if layer.identifier == PLAYER_LAYER_IDENTIFIER {
+            assert_eq!(layer.layer_instance_type, ldtk::Type::Entities);
+            if level_index == 0 {
+                assert_eq!(
+                    layer.entity_instances.len(),
+                    1,
+                    "Must have exactly one player present in first level, world: {}, level: {}",
+                    world_index,
+                    level_index
+                );
+            } else {
+                assert!(
+                    layer.entity_instances.is_empty(),
+                    "There must not be any players in other levels, world: {}, level: {}",
+                    world_index,
+                    level_index
+                );
+            }
+        }
+    }
+}
+
 fn compute_and_save_shapes(
     asset_server: Res<AssetServer>,
     ldtk_project_assets: Res<Assets<LdtkProject>>,
@@ -196,6 +230,7 @@ fn compute_and_save_shapes(
 
             let neighbour_indices = level_neigbhours(world, level);
             let grid = grid_from_level(level.clone());
+            sanity_checks(i, j, &level);
 
             contents.push(format!(
                 "{},{}:{}@{}@{}",

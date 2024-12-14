@@ -3,7 +3,7 @@ use bevy_ecs_ldtk::prelude::*;
 use bevy_rancic::prelude::{YSort, YSortChild};
 use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
-use generate_world_collisions::{ENEMY_LAYER_IDENTIFIER, TILE_SIZE};
+use generate_world_collisions::ENEMY_LAYER_IDENTIFIER;
 
 use crate::{
     dude::{EnemyAnimations, Health},
@@ -101,10 +101,7 @@ fn spawn_enemies_from_ldtk(
         }
 
         for entity_instance in layer_instance.entity_instances {
-            let pos = Vec2::new(
-                entity_instance.px.x as f32,
-                world_data.level_dimensions().y as f32 * TILE_SIZE - entity_instance.px.y as f32,
-            );
+            let pos = world_data.pixel_coords_to_translation(entity_instance.px);
             spawn_dummy_enemy(commands, assets, pos);
         }
     }
@@ -120,7 +117,7 @@ fn spawn_enemies_from_cached_data(
     }
 }
 
-fn spawn_dummy_enemies(
+fn spawn_enemies(
     mut commands: Commands,
     assets: Res<GameAssets>,
     ldtk_project_assets: Res<Assets<LdtkProject>>,
@@ -132,7 +129,7 @@ fn spawn_dummy_enemies(
     };
 }
 
-fn cached_enemies(
+fn cache_enemies(
     mut world_data: ResMut<WorldSpatialData>,
     q_enemies: Query<&Transform, With<Enemy>>,
 ) {
@@ -154,10 +151,14 @@ impl Plugin for EnemySpawnPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            spawn_dummy_enemies
+            spawn_enemies
                 .run_if(in_state(GameState::TransitionLevel).and_then(on_event::<LevelChanged>()))
                 .after(DespawnLevelSystemSet),
         )
-        .add_systems(OnEnter(GameState::TransitionLevel), cached_enemies);
+        .add_systems(
+            OnEnter(GameState::Restart),
+            spawn_enemies.after(DespawnLevelSystemSet),
+        )
+        .add_systems(OnEnter(GameState::TransitionLevel), cache_enemies);
     }
 }

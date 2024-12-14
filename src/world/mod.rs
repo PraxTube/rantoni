@@ -5,8 +5,8 @@ mod map;
 mod state;
 
 pub use map::{
-    a_star, CachedEnemy, CachedLevelData, DespawnLevelSystemSet, LevelChanged, PathfindingSource,
-    PathfindingTarget, WorldSpatialData,
+    a_star, CachedEnemy, CachedLevelData, CachedPlayer, DespawnLevelSystemSet, LevelChanged,
+    PathfindingSource, PathfindingTarget, WorldSpatialData,
 };
 
 use bevy::prelude::*;

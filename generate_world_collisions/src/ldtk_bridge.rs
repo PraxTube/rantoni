@@ -3,3 +3,4 @@ pub const LDTK_FILE: &str = "map/map.ldtk";
 
 pub const WALKABLE_LAYER: &str = "Dummy";
 pub const ENEMY_LAYER_IDENTIFIER: &str = "Enemies";
+pub const PLAYER_LAYER_IDENTIFIER: &str = "Player";

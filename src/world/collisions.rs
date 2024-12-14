@@ -290,6 +290,13 @@ impl Plugin for WorldCollisionPlugin {
                     .run_if(
                         in_state(GameState::TransitionLevel).and_then(on_event::<LevelChanged>()),
                     ),
+            )
+            .add_systems(
+                OnEnter(GameState::Restart),
+                (
+                    despawn_map_collisions.in_set(DespawnLevelSystemSet),
+                    spawn_map_collisions.after(DespawnLevelSystemSet),
+                ),
             );
     }
 }

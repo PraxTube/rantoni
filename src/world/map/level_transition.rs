@@ -10,9 +10,9 @@ use bevy_tweening::{EaseFunction, TweenCompleted};
 
 use generate_world_collisions::TILE_SIZE;
 
-use crate::{player::Player, ui::FadeScreen, world::WorldEntity, GameState};
+use crate::{dude::Health, player::Player, ui::FadeScreen, world::WorldEntity, GameState};
 
-use super::{PathfindingTarget, WorldSpatialData};
+use super::{CachedPlayer, PathfindingTarget, WorldSpatialData};
 
 const MAX_BOUND_PADDING: f32 = 1.5;
 const MIN_BOUND_PADDING: f32 = 0.5;
@@ -129,10 +129,10 @@ fn despawn_world_entities(
 }
 
 fn update_player_position(
-    world_data: Res<WorldSpatialData>,
-    mut q_players: Query<&mut Transform, With<Player>>,
+    mut world_data: ResMut<WorldSpatialData>,
+    mut q_players: Query<(&mut Transform, &Health), With<Player>>,
 ) {
-    for mut transform in &mut q_players {
+    for (mut transform, health) in &mut q_players {
         let old_pos = transform.translation.truncate();
         let offset = world_data.level_transition_offset;
         let new_pos = match world_data.level_transition_direction {
@@ -161,6 +161,10 @@ fn update_player_position(
         };
 
         transform.translation = new_pos.extend(0.0);
+        world_data.set_cached_player(CachedPlayer {
+            pos: new_pos,
+            health: health.health,
+        });
     }
 }
 
@@ -226,6 +230,10 @@ impl Plugin for MapLevelTransition {
                     .run_if(
                         in_state(GameState::TransitionLevel).and_then(on_event::<LevelChanged>()),
                     ),
+            )
+            .add_systems(
+                OnEnter(GameState::Restart),
+                despawn_world_entities.in_set(DespawnLevelSystemSet),
             )
             .add_systems(
                 PreUpdate,
