@@ -7,18 +7,18 @@ use crate::{
     GameAssets,
 };
 
-use super::{input::PlayerInput, state::PlayerStateSystemSet, Player};
+use super::{input::GamingInput, state::PlayerStateSystemSet, Player};
 
-fn update_current_directions(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
+fn update_current_directions(gaming_input: Res<GamingInput>, mut q_players: Query<&mut Player>) {
     for mut player in &mut q_players {
-        if player_input.move_direction == Vec2::ZERO {
+        if gaming_input.move_direction == Vec2::ZERO {
             continue;
         }
         if !player.state_machine.can_change_direction() {
             continue;
         }
 
-        player.current_direction = player_input.move_direction;
+        player.current_direction = gaming_input.move_direction;
     }
 }
 

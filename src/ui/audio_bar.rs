@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rancic::prelude::*;
 
-use crate::{player::input::PlayerInput, GameAssets, GameState};
+use crate::{player::input::GamingInput, GameAssets, GameState};
 
 #[derive(Component)]
 struct Bar {
@@ -76,8 +76,8 @@ fn tick_bar_timer(time: Res<Time>, mut q_bar: Query<&mut Bar>) {
     bar.timer.tick(time.delta());
 }
 
-fn show_bar(player_input: Res<PlayerInput>, mut q_bar: Query<(&mut Visibility, &mut Bar)>) {
-    if player_input.scroll == 0 {
+fn show_bar(gaming_input: Res<GamingInput>, mut q_bar: Query<(&mut Visibility, &mut Bar)>) {
+    if gaming_input.scroll == 0 {
         return;
     }
 

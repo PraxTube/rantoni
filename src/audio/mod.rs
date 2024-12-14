@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rancic::prelude::*;
 
-use crate::player::input::PlayerInput;
+use crate::player::input::GamingInput;
 
 const VOLUME_DELTA: f64 = 0.05;
 
@@ -13,9 +13,9 @@ impl Plugin for GameAudioPlugin {
     }
 }
 
-fn update_main_volume(mut game_audio: ResMut<GameAudio>, player_input: Res<PlayerInput>) {
-    if player_input.scroll == 0 {
+fn update_main_volume(mut game_audio: ResMut<GameAudio>, gaming_input: Res<GamingInput>) {
+    if gaming_input.scroll == 0 {
         return;
     }
-    game_audio.increment_global_volume(player_input.scroll as f64 * VOLUME_DELTA);
+    game_audio.increment_global_volume(gaming_input.scroll as f64 * VOLUME_DELTA);
 }

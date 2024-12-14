@@ -10,7 +10,7 @@ use bevy::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::dude::{AttackForm, DudeState, Health, ParryState};
-use crate::player::{input::PlayerInput, Player};
+use crate::player::{input::GamingInput, Player};
 
 pub struct PlayerStatePlugin;
 
@@ -81,12 +81,12 @@ fn transition_stagger_state(mut q_players: Query<(&mut AnimationPlayer2D, &mut P
     }
 }
 
-fn transition_parry_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
+fn transition_parry_state(gaming_input: Res<GamingInput>, mut q_players: Query<&mut Player>) {
     for mut player in &mut q_players {
         if player.state_machine.just_changed() {
             continue;
         }
-        if !player_input.parry {
+        if !gaming_input.parry {
             continue;
         }
         if !player.state_machine.can_attack() {
@@ -99,12 +99,12 @@ fn transition_parry_state(player_input: Res<PlayerInput>, mut q_players: Query<&
     }
 }
 
-fn transition_dash_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
+fn transition_dash_state(gaming_input: Res<GamingInput>, mut q_players: Query<&mut Player>) {
     for mut player in &mut q_players {
         if player.state_machine.just_changed() {
             continue;
         }
-        if !player_input.dash {
+        if !gaming_input.dash {
             continue;
         }
         if player.state_machine.state() == DudeState::Staggering {
@@ -115,7 +115,7 @@ fn transition_dash_state(player_input: Res<PlayerInput>, mut q_players: Query<&m
     }
 }
 
-fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Query<&mut Player>) {
+fn transition_attacking_state(gaming_input: Res<GamingInput>, mut q_players: Query<&mut Player>) {
     for mut player in &mut q_players {
         if player.state_machine.just_changed() {
             continue;
@@ -126,20 +126,20 @@ fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Que
 
         // TODO: You would have to actually figure out which controls belong to which player in local
         // multiplayer
-        let attack_form = if player_input.light_attack {
+        let attack_form = if gaming_input.light_attack {
             AttackForm::Light
-        } else if player_input.heavy_attack {
+        } else if gaming_input.heavy_attack {
             AttackForm::Heavy
-        } else if player_input.special_light {
+        } else if gaming_input.special_light {
             AttackForm::SpecialLight
-        } else if player_input.special_heavy {
+        } else if gaming_input.special_heavy {
             AttackForm::SpecialHeavy
         } else {
             continue;
         };
 
-        let attack_direction = if player_input.aim_direction != Vec2::ZERO {
-            player_input.aim_direction
+        let attack_direction = if gaming_input.aim_direction != Vec2::ZERO {
+            gaming_input.aim_direction
         } else {
             player.current_direction
         };
@@ -150,7 +150,7 @@ fn transition_attacking_state(player_input: Res<PlayerInput>, mut q_players: Que
     }
 }
 
-fn transition_run_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut Player>) {
+fn transition_run_state(gaming_input: Res<GamingInput>, mut q_player: Query<&mut Player>) {
     let Ok(mut player) = q_player.get_single_mut() else {
         return;
     };
@@ -162,7 +162,7 @@ fn transition_run_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut
         return;
     }
 
-    if player_input.move_direction != Vec2::ZERO {
+    if gaming_input.move_direction != Vec2::ZERO {
         if player.state_machine.state() != DudeState::Running {
             player.state_machine.set_state(DudeState::Running);
         }
@@ -172,7 +172,7 @@ fn transition_run_state(player_input: Res<PlayerInput>, mut q_player: Query<&mut
 }
 
 fn transition_idle_state(
-    player_input: Res<PlayerInput>,
+    gaming_input: Res<GamingInput>,
     mut q_players: Query<(&AnimationPlayer2D, &mut Player)>,
 ) {
     for (animator, mut player) in &mut q_players {
@@ -189,7 +189,7 @@ fn transition_idle_state(
                 }
                 player
                     .state_machine
-                    .transition_chain_attack(player_input.move_direction);
+                    .transition_chain_attack(gaming_input.move_direction);
             }
             DudeState::Recovering => {
                 if animator.just_finished() {

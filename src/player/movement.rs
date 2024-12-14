@@ -5,7 +5,7 @@ use bevy_trickfilm::prelude::*;
 use crate::dude::{Attack, DudeState};
 use crate::GameState;
 
-use super::input::PlayerInput;
+use super::input::GamingInput;
 use super::Player;
 
 fn reset_velocity(mut q_player: Query<&mut Velocity, With<Player>>) {
@@ -15,7 +15,7 @@ fn reset_velocity(mut q_player: Query<&mut Velocity, With<Player>>) {
     velocity.linvel = Vec2::ZERO;
 }
 
-fn move_running(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &mut Velocity)>) {
+fn move_running(gaming_input: Res<GamingInput>, mut q_player: Query<(&Player, &mut Velocity)>) {
     let (player, mut velocity) = match q_player.get_single_mut() {
         Ok(p) => p,
         Err(_) => return,
@@ -26,7 +26,7 @@ fn move_running(player_input: Res<PlayerInput>, mut q_player: Query<(&Player, &m
         _ => 0.0,
     };
 
-    let direction = player_input.move_direction;
+    let direction = gaming_input.move_direction;
     velocity.linvel = direction * speed;
 }
 

@@ -20,9 +20,9 @@ impl Plugin for InputPlugin {
             relay::InputRelayPlugin,
             gamepad::InputGamepadPlugin,
         ))
-        .init_resource::<PlayerInput>()
+        .init_resource::<GamingInput>()
         .insert_resource(InputDevice::MouseKeyboard)
-        .add_systems(PreUpdate, reset_player_input.before(InputSystem));
+        .add_systems(PreUpdate, reset_gaming_input.before(InputSystem));
     }
 }
 
@@ -33,9 +33,8 @@ enum InputDevice {
 }
 
 #[derive(Resource, Default, Clone, Copy, PartialEq)]
-pub struct PlayerInput {
+pub struct GamingInput {
     pub scroll: i32,
-    pub escape: bool,
 
     pub move_direction: Vec2,
     pub aim_direction: Vec2,
@@ -52,7 +51,7 @@ pub struct PlayerInput {
     pub toggle_debug: bool,
 }
 
-impl BitOrAssign for PlayerInput {
+impl BitOrAssign for GamingInput {
     fn bitor_assign(&mut self, rhs: Self) {
         if self.move_direction == Vec2::ZERO {
             self.move_direction = rhs.move_direction;
@@ -73,12 +72,11 @@ impl BitOrAssign for PlayerInput {
         self.dash |= rhs.dash;
         self.special_light |= rhs.special_light;
         self.special_heavy |= rhs.special_heavy;
-        self.escape |= rhs.escape;
         self.toggle_debug |= rhs.toggle_debug;
         self.toggle_fullscreen |= rhs.toggle_fullscreen;
     }
 }
 
-fn reset_player_input(mut player_input: ResMut<PlayerInput>) {
-    *player_input = PlayerInput::default();
+fn reset_gaming_input(mut gaming_input: ResMut<GamingInput>) {
+    *gaming_input = GamingInput::default();
 }

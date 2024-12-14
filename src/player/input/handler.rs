@@ -8,10 +8,10 @@ use crate::player::Player;
 use crate::GameState;
 
 use super::gamepad::PlayerGamepad;
-use super::{InputDevice, PlayerInput};
+use super::{GamingInput, InputDevice};
 
 fn fetch_mouse_world_coords(
-    mut player_input: ResMut<PlayerInput>,
+    mut gaming_input: ResMut<GamingInput>,
     q_window: Query<&Window, With<PrimaryWindow>>,
     q_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
 ) {
@@ -29,12 +29,12 @@ fn fetch_mouse_world_coords(
         .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
         .map(|ray| ray.origin.truncate())
     {
-        player_input.mouse_world_coords = world_position;
+        gaming_input.mouse_world_coords = world_position;
     }
 }
 
 fn update_aim_direction(
-    mut player_input: ResMut<PlayerInput>,
+    mut gaming_input: ResMut<GamingInput>,
     q_players: Query<&Transform, With<Player>>,
     input_device: Res<InputDevice>,
 ) {
@@ -43,10 +43,10 @@ fn update_aim_direction(
     }
 
     for transform in &q_players {
-        let dir = player_input.mouse_world_coords - transform.translation.truncate();
+        let dir = gaming_input.mouse_world_coords - transform.translation.truncate();
 
         if dir != Vec2::ZERO {
-            player_input.aim_direction = dir.normalize_or_zero();
+            gaming_input.aim_direction = dir.normalize_or_zero();
         }
     }
 }
@@ -54,12 +54,11 @@ fn update_aim_direction(
 fn handle_keyboard_inputs(
     keys: Res<ButtonInput<KeyCode>>,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
-    mut player_input: ResMut<PlayerInput>,
+    mut gaming_input: ResMut<GamingInput>,
     mut input_device: ResMut<InputDevice>,
     mut scroll_evr: EventReader<MouseWheel>,
 ) {
-    let mut input = PlayerInput {
-        escape: keys.just_pressed(KeyCode::Escape),
+    let mut input = GamingInput {
         toggle_fullscreen: keys.just_pressed(KeyCode::KeyB),
         toggle_debug: keys.just_pressed(KeyCode::F3),
         ..default()
@@ -117,20 +116,20 @@ fn handle_keyboard_inputs(
     }
     input.scroll = zoom;
 
-    if input != PlayerInput::default() {
+    if input != GamingInput::default() {
         *input_device = InputDevice::MouseKeyboard;
     }
-    *player_input |= input;
+    *gaming_input |= input;
 }
 
 fn handle_gamepad_inputs(
     gamepad_buttons: Res<ButtonInput<GamepadButton>>,
     axes: Res<Axis<GamepadAxis>>,
     player_gamepad: Res<PlayerGamepad>,
-    mut player_input: ResMut<PlayerInput>,
+    mut gaming_input: ResMut<GamingInput>,
     mut input_device: ResMut<InputDevice>,
 ) {
-    let mut input = PlayerInput::default();
+    let mut input = GamingInput::default();
     let Some(gamepad) = player_gamepad.gamepad else {
         return;
     };
@@ -180,10 +179,10 @@ fn handle_gamepad_inputs(
     input.move_direction = left_stick_direction;
     input.aim_direction = left_stick_direction;
 
-    if input != PlayerInput::default() {
+    if input != GamingInput::default() {
         *input_device = InputDevice::Gamepad;
     }
-    *player_input |= input;
+    *gaming_input |= input;
 }
 
 pub struct InputControllerPlugin;

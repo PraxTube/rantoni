@@ -1,11 +1,11 @@
 use bevy::{input::InputSystem, prelude::*};
 
-use super::PlayerInput;
+use super::GamingInput;
 
 #[derive(Resource)]
 struct InputTimeline {
-    single_fire: Vec<(bool, f32, PlayerInput)>,
-    continues_action: Vec<(f32, f32, PlayerInput)>,
+    single_fire: Vec<(bool, f32, GamingInput)>,
+    continues_action: Vec<(f32, f32, GamingInput)>,
 }
 
 impl Default for InputTimeline {
@@ -15,7 +15,7 @@ impl Default for InputTimeline {
                 (
                     false,
                     0.1,
-                    PlayerInput {
+                    GamingInput {
                         toggle_debug: true,
                         ..default()
                     },
@@ -23,7 +23,7 @@ impl Default for InputTimeline {
                 (
                     false,
                     3.0,
-                    PlayerInput {
+                    GamingInput {
                         light_attack: true,
                         move_direction: Vec2::new(1.0, 0.0),
                         ..default()
@@ -32,7 +32,7 @@ impl Default for InputTimeline {
                 (
                     false,
                     3.2,
-                    PlayerInput {
+                    GamingInput {
                         light_attack: true,
                         move_direction: Vec2::new(-1.0, 0.0),
                         ..default()
@@ -41,7 +41,7 @@ impl Default for InputTimeline {
                 (
                     false,
                     4.0,
-                    PlayerInput {
+                    GamingInput {
                         light_attack: true,
                         move_direction: Vec2::new(-1.0, 0.0),
                         ..default()
@@ -50,7 +50,7 @@ impl Default for InputTimeline {
                 (
                     false,
                     4.26,
-                    PlayerInput {
+                    GamingInput {
                         heavy_attack: true,
                         move_direction: Vec2::new(1.0, 0.0),
                         ..default()
@@ -59,7 +59,7 @@ impl Default for InputTimeline {
                 (
                     false,
                     5.0,
-                    PlayerInput {
+                    GamingInput {
                         light_attack: true,
                         move_direction: Vec2::new(0.0, 0.0),
                         ..default()
@@ -68,7 +68,7 @@ impl Default for InputTimeline {
                 (
                     false,
                     5.5,
-                    PlayerInput {
+                    GamingInput {
                         heavy_attack: true,
                         move_direction: Vec2::new(-0.0001, 0.0),
                         ..default()
@@ -79,7 +79,7 @@ impl Default for InputTimeline {
                 (
                     0.0,
                     1.0,
-                    PlayerInput {
+                    GamingInput {
                         move_direction: Vec2::new(1.0, 0.0),
                         ..default()
                     },
@@ -87,7 +87,7 @@ impl Default for InputTimeline {
                 (
                     1.0,
                     2.0,
-                    PlayerInput {
+                    GamingInput {
                         move_direction: Vec2::new(0.0, 0.1),
                         ..default()
                     },
@@ -99,11 +99,11 @@ impl Default for InputTimeline {
 
 fn relay_input_timeline(
     time: Res<Time>,
-    mut player_input: ResMut<PlayerInput>,
+    mut gaming_input: ResMut<GamingInput>,
     mut input_timeline: ResMut<InputTimeline>,
     mut elapsed: Local<f32>,
 ) {
-    let mut combined_input = PlayerInput::default();
+    let mut combined_input = GamingInput::default();
     for input in &mut input_timeline.single_fire {
         if !input.0 && *elapsed > input.1 {
             input.0 = true;
@@ -115,7 +115,7 @@ fn relay_input_timeline(
             combined_input |= input.2;
         }
     }
-    *player_input = combined_input;
+    *gaming_input = combined_input;
     *elapsed += time.delta_seconds();
 }
 
