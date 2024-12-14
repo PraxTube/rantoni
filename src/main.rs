@@ -23,7 +23,6 @@ use bevy::window::{PresentMode, Window, WindowMode, WindowResolution};
 use bevy_asset_loader::prelude::*;
 use bevy_particle_systems::ParticleSystemPlugin;
 use bevy_prototype_lyon::plugin::ShapePlugin;
-use bevy_rancic::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::Animation2DPlugin;
 use bevy_tweening::*;
@@ -73,7 +72,6 @@ fn main() {
             ParticleSystemPlugin,
             Animation2DPlugin,
             TweeningPlugin,
-            RancicPlugin,
         ))
         .insert_resource(Msaa::Off)
         .init_state::<GameState>()

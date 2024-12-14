@@ -1,10 +1,9 @@
 use bevy::prelude::*;
-use bevy_rancic::prelude::YSort;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
     dude::Health,
-    world::{DespawnLevelSystemSet, LevelChanged, WorldEntity, WorldSpatialData},
+    world::{DespawnLevelSystemSet, LevelChanged, WorldEntity, WorldSpatialData, YSort},
     GameAssets, GameState,
 };
 

@@ -1,7 +1,6 @@
 use bevy::prelude::*;
-use bevy_rancic::prelude::*;
 
-use crate::{player::input::GamingInput, GameAssets, GameState};
+use crate::{audio::GameAudio, player::input::GamingInput, GameAssets, GameState};
 
 #[derive(Component)]
 struct Bar {

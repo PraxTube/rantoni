@@ -4,8 +4,6 @@ mod pathfinding;
 pub use level_transition::{DespawnLevelSystemSet, LevelChanged};
 pub use pathfinding::a_star;
 
-use bevy_rancic::prelude::DebugState;
-
 use std::{fs, str::from_utf8};
 
 use bevy::{color::palettes::css::*, prelude::*, utils::HashMap};
@@ -15,6 +13,8 @@ use generate_world_collisions::{deserialize_polygons, MAP_POLYGON_DATA, TILE_SIZ
 use level_transition::LevelChangeDirection;
 
 use crate::{GameAssets, GameState};
+
+use super::DebugState;
 
 const Z_LEVEL_BACKGROUND: f32 = -999.0;
 

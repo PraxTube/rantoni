@@ -2,9 +2,9 @@ use bevy::input::mouse::{MouseScrollUnit, MouseWheel};
 use bevy::input::InputSystem;
 use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, Window};
-use bevy_rancic::prelude::*;
 
 use crate::player::Player;
+use crate::world::MainCamera;
 use crate::GameState;
 
 use super::gamepad::PlayerGamepad;

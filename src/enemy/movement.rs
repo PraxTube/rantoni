@@ -1,12 +1,11 @@
 use std::f32::consts::FRAC_1_SQRT_2;
 
 use bevy::{color::palettes::css::RED, prelude::*};
-use bevy_rancic::prelude::DebugState;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
     dude::DudeState,
-    world::{a_star, collisions::WORLD_GROUP, PathfindingSource, WorldSpatialData},
+    world::{a_star, collisions::WORLD_GROUP, DebugState, PathfindingSource, WorldSpatialData},
 };
 
 use super::{

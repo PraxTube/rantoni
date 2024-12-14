@@ -1,5 +1,6 @@
 use bevy::prelude::*;
-use bevy_rancic::prelude::*;
+
+use crate::world::{ToggleDebugStateEvent, ToggleFullscreenEvent, ZoomCameraScaleEvent};
 
 use super::{GamingInput, GlobalInput};
 

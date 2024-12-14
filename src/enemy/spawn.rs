@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
-use bevy_rancic::prelude::{YSort, YSortChild};
 use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 use generate_world_collisions::ENEMY_LAYER_IDENTIFIER;
@@ -10,7 +9,7 @@ use crate::{
     world::{
         collisions::{spawn_hurtbox_collision, Hurtbox, ENEMY_GROUP, PLAYER_GROUP, WORLD_GROUP},
         CachedEnemy, CachedLevelData, DespawnLevelSystemSet, LevelChanged, PathfindingSource,
-        WorldEntity, WorldSpatialData,
+        WorldEntity, WorldSpatialData, YSort, YSortChild,
     },
     GameAssets, GameState,
 };
