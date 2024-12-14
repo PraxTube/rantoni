@@ -1,6 +1,4 @@
-mod auto_input;
 mod gamepad;
-#[cfg(not(feature = "auto_input"))]
 mod handler;
 mod relay;
 
@@ -13,9 +11,6 @@ pub struct InputPlugin;
 impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
-            #[cfg(feature = "auto_input")]
-            auto_input::InputTestingPlugin,
-            #[cfg(not(feature = "auto_input"))]
             handler::InputControllerPlugin,
             relay::InputRelayPlugin,
             gamepad::InputGamepadPlugin,
