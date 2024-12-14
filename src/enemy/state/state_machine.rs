@@ -15,6 +15,7 @@ pub struct EnemyStateMachine {
     new_state: Option<DudeState>,
     animation_state: EnemyAnimations,
     attack_handler: AttackHandler,
+    can_move_during_attack: bool,
 }
 
 impl EnemyStateMachine {
@@ -40,6 +41,7 @@ Attempted new state: {:?}",
         self.set_just_changed(true);
         self.previous_state = self.state;
         self.state = state;
+        self.can_move_during_attack = true;
     }
 
     pub fn can_attack(&self) -> bool {
@@ -154,5 +156,15 @@ Attempted new state: {:?}",
 
     pub fn set_stagger_state_recover(&mut self) {
         self.stagger.set_recover_state();
+    }
+
+    /// This will be `true` at the start of the animation and will turn `false` once the hitbox
+    /// gets activated.
+    pub fn can_move_during_attack(&self) -> bool {
+        self.can_move_during_attack
+    }
+
+    pub fn disable_can_move_during_attack(&mut self) {
+        self.can_move_during_attack = false;
     }
 }

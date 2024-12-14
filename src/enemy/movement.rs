@@ -254,7 +254,15 @@ fn move_enemies(mut q_enemies: Query<(&mut Velocity, &Enemy)>) {
                 }
             }
             DudeState::Stalking => enemy.move_direction * enemy.pathfinding_move_speed,
-            DudeState::Attacking => enemy.state_machine.attack_direction() * 100.0,
+            DudeState::Attacking => {
+                let can_move = if enemy.state_machine.can_move_during_attack() {
+                    1.0
+                } else {
+                    0.0
+                };
+                enemy.state_machine.attack_direction() * can_move * 100.0
+            }
+
             _ => Vec2::ZERO,
         };
         velocity.linvel = linvel;

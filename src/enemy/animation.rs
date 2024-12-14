@@ -3,11 +3,12 @@ use bevy_rapier2d::prelude::*;
 use bevy_trickfilm::prelude::*;
 
 use crate::{
+    assets::events::SpawnHitboxEvent,
     dude::{dude_state_animation_enemy, DudeState},
     GameAssets,
 };
 
-use super::Enemy;
+use super::{state::EnemyStateSystemSet, Enemy};
 
 fn update_animations(
     assets: Res<GameAssets>,
@@ -67,11 +68,28 @@ fn update_animations(
     }
 }
 
+fn disable_can_move_during_attack(
+    mut q_enemies: Query<&mut Enemy>,
+    mut ev_spawn_hitbox: EventReader<SpawnHitboxEvent>,
+) {
+    for ev in ev_spawn_hitbox.read() {
+        let Ok(mut enemy) = q_enemies.get_mut(*ev.target) else {
+            continue;
+        };
+
+        enemy.state_machine.disable_can_move_during_attack();
+    }
+}
+
 pub struct EnemyAnimationPlugin;
 
 impl Plugin for EnemyAnimationPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
+            Update,
+            disable_can_move_during_attack.after(EnemyStateSystemSet),
+        )
+        .add_systems(
             PostUpdate,
             (update_animations,)
                 .before(AnimationPlayer2DSystemSet)
