@@ -99,11 +99,22 @@ pub fn spawn_ui(mut commands: Commands) {
         .push_children(&[background, fill_container]);
 }
 
+fn despawn_health_bars(
+    mut commands: Commands,
+    q_health_bars: Query<Entity, With<HealthBarContainer>>,
+) {
+    for entity in &q_health_bars {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
 pub struct UiHealthPlugin;
 
 impl Plugin for UiHealthPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnExit(GameState::AssetLoading), spawn_ui)
+            .add_systems(OnEnter(GameState::Restart), spawn_ui)
+            .add_systems(OnEnter(GameState::GameOver), despawn_health_bars)
             .add_systems(Update, update_health_bar);
     }
 }

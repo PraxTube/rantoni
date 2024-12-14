@@ -2,6 +2,7 @@ pub mod collisions;
 
 mod camera;
 mod map;
+mod state;
 
 pub use map::{
     a_star, CachedEnemy, CachedLevelData, DespawnLevelSystemSet, LevelChanged, PathfindingSource,
@@ -18,6 +19,7 @@ impl Plugin for WorldPlugin {
             collisions::WorldCollisionPlugin,
             map::WorldMapPlugin,
             camera::CameraPlugin,
+            state::WorldStatePlugin,
         ));
     }
 }

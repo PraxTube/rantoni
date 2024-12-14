@@ -36,7 +36,9 @@ pub enum GameState {
     AssetLoading,
     Gaming,
     TransitionLevel,
-    Ending,
+    GameOverPadding,
+    GameOver,
+    Restart,
 }
 
 fn main() {
