@@ -1,5 +1,7 @@
 mod gamepad;
-mod handler;
+mod gaming_input;
+mod global_input;
+mod menu_input;
 mod relay;
 
 use std::ops::BitOrAssign;
@@ -11,13 +13,17 @@ pub struct InputPlugin;
 impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
-            handler::InputControllerPlugin,
+            global_input::GlobalInputPlugin,
+            menu_input::MenuInputPlugin,
+            gaming_input::GamingInputPlugin,
             relay::InputRelayPlugin,
             gamepad::InputGamepadPlugin,
         ))
+        .init_resource::<GlobalInput>()
+        .init_resource::<MenuInput>()
         .init_resource::<GamingInput>()
         .insert_resource(InputDevice::MouseKeyboard)
-        .add_systems(PreUpdate, reset_gaming_input.before(InputSystem));
+        .add_systems(PreUpdate, reset_inputs.before(InputSystem));
     }
 }
 
@@ -25,6 +31,17 @@ impl Plugin for InputPlugin {
 enum InputDevice {
     MouseKeyboard,
     Gamepad,
+}
+
+#[derive(Resource, Default, Clone, Copy, PartialEq)]
+pub struct GlobalInput {
+    pub toggle_fullscreen: bool,
+    pub toggle_debug: bool,
+}
+
+#[derive(Resource, Default, Clone, Copy, PartialEq)]
+pub struct MenuInput {
+    pub restart: bool,
 }
 
 #[derive(Resource, Default, Clone, Copy, PartialEq)]
@@ -41,9 +58,19 @@ pub struct GamingInput {
     pub special_heavy: bool,
 
     pub mouse_world_coords: Vec2,
+}
 
-    pub toggle_fullscreen: bool,
-    pub toggle_debug: bool,
+impl BitOrAssign for GlobalInput {
+    fn bitor_assign(&mut self, rhs: Self) {
+        self.toggle_debug |= rhs.toggle_debug;
+        self.toggle_fullscreen |= rhs.toggle_fullscreen;
+    }
+}
+
+impl BitOrAssign for MenuInput {
+    fn bitor_assign(&mut self, rhs: Self) {
+        self.restart |= rhs.restart;
+    }
 }
 
 impl BitOrAssign for GamingInput {
@@ -67,11 +94,15 @@ impl BitOrAssign for GamingInput {
         self.dash |= rhs.dash;
         self.special_light |= rhs.special_light;
         self.special_heavy |= rhs.special_heavy;
-        self.toggle_debug |= rhs.toggle_debug;
-        self.toggle_fullscreen |= rhs.toggle_fullscreen;
     }
 }
 
-fn reset_gaming_input(mut gaming_input: ResMut<GamingInput>) {
+fn reset_inputs(
+    mut global_input: ResMut<GlobalInput>,
+    mut menu_input: ResMut<MenuInput>,
+    mut gaming_input: ResMut<GamingInput>,
+) {
+    *global_input = GlobalInput::default();
+    *menu_input = MenuInput::default();
     *gaming_input = GamingInput::default();
 }

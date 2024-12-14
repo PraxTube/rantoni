@@ -1,22 +1,22 @@
 use bevy::prelude::*;
 use bevy_rancic::prelude::*;
 
-use super::GamingInput;
+use super::{GamingInput, GlobalInput};
 
 fn toggle_fullscreen(
-    gaming_input: Res<GamingInput>,
+    global_input: Res<GlobalInput>,
     mut ev_toggle_fullscreen: EventWriter<ToggleFullscreenEvent>,
 ) {
-    if gaming_input.toggle_fullscreen {
+    if global_input.toggle_fullscreen {
         ev_toggle_fullscreen.send(ToggleFullscreenEvent);
     }
 }
 
 fn toggle_debug_state(
-    gaming_input: Res<GamingInput>,
+    global_input: Res<GlobalInput>,
     mut ev_toggle_debug_state: EventWriter<ToggleDebugStateEvent>,
 ) {
-    if gaming_input.toggle_debug {
+    if global_input.toggle_debug {
         ev_toggle_debug_state.send(ToggleDebugStateEvent);
     }
 }

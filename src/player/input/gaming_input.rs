@@ -58,11 +58,7 @@ fn handle_keyboard_inputs(
     mut input_device: ResMut<InputDevice>,
     mut scroll_evr: EventReader<MouseWheel>,
 ) {
-    let mut input = GamingInput {
-        toggle_fullscreen: keys.just_pressed(KeyCode::KeyB),
-        toggle_debug: keys.just_pressed(KeyCode::F3),
-        ..default()
-    };
+    let mut input = GamingInput::default();
 
     input.light_attack =
         keys.just_pressed(KeyCode::KeyL) || mouse_buttons.just_pressed(MouseButton::Left);
@@ -146,10 +142,6 @@ fn handle_gamepad_inputs(
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::East));
     input.special_heavy =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::South));
-    input.toggle_fullscreen =
-        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::DPadDown));
-    input.toggle_debug =
-        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::DPadUp));
 
     let mut zoom = 0;
     if gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::DPadLeft)) {
@@ -185,9 +177,9 @@ fn handle_gamepad_inputs(
     *gaming_input |= input;
 }
 
-pub struct InputControllerPlugin;
+pub struct GamingInputPlugin;
 
-impl Plugin for InputControllerPlugin {
+impl Plugin for GamingInputPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             PreUpdate,

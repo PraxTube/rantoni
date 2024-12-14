@@ -1,7 +1,8 @@
 #![allow(
     clippy::too_many_arguments,
     clippy::type_complexity,
-    clippy::needless_range_loop
+    clippy::needless_range_loop,
+    clippy::field_reassign_with_default
 )]
 
 mod assets;
