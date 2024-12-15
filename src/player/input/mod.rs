@@ -41,6 +41,7 @@ pub struct GlobalInput {
 
 #[derive(Resource, Default, Clone, Copy, PartialEq)]
 pub struct MenuInput {
+    pub confirm: bool,
     pub restart: bool,
 }
 
@@ -69,6 +70,7 @@ impl BitOrAssign for GlobalInput {
 
 impl BitOrAssign for MenuInput {
     fn bitor_assign(&mut self, rhs: Self) {
+        self.confirm |= rhs.confirm;
         self.restart |= rhs.restart;
     }
 }

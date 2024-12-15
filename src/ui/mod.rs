@@ -1,6 +1,7 @@
 mod audio_bar;
 mod game_over;
 mod health;
+mod main_menu;
 mod screen_fade;
 mod splash_screen;
 
@@ -16,10 +17,11 @@ impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
             screen_fade::ScreenFadeUiPlugin,
-            game_over::GameOverUiPlugin,
             audio_bar::AudioBarPlugin,
             splash_screen::SplashScreenPlugin,
             health::UiHealthPlugin,
+            main_menu::MainMenuUiPlugin,
+            game_over::GameOverUiPlugin,
         ))
         .add_systems(Update, scale_ui);
     }

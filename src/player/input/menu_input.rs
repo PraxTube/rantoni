@@ -13,6 +13,7 @@ fn handle_keyboard_inputs(
 ) {
     let mut input = MenuInput::default();
 
+    input.confirm = keys.just_pressed(KeyCode::Enter);
     input.restart = keys.just_pressed(KeyCode::KeyR);
 
     if input != MenuInput::default() {
@@ -32,6 +33,8 @@ fn handle_gamepad_inputs(
         return;
     };
 
+    input.confirm =
+        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::South));
     input.restart =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::South));
 
@@ -49,7 +52,7 @@ impl Plugin for MenuInputPlugin {
             PreUpdate,
             (handle_keyboard_inputs, handle_gamepad_inputs)
                 .chain()
-                .run_if(in_state(GameState::GameOver))
+                .run_if(in_state(GameState::MainMenu).or_else(in_state(GameState::GameOver)))
                 .after(InputSystem),
         );
     }

@@ -112,8 +112,7 @@ pub struct UiHealthPlugin;
 
 impl Plugin for UiHealthPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnExit(GameState::AssetLoading), spawn_ui)
-            .add_systems(OnEnter(GameState::Restart), spawn_ui)
+        app.add_systems(OnEnter(GameState::Restart), spawn_ui)
             .add_systems(OnEnter(GameState::GameOver), despawn_health_bars)
             .add_systems(Update, update_health_bar);
     }

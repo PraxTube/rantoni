@@ -9,8 +9,9 @@ use bevy::{math::bounding::Aabb2d, prelude::*};
 use bevy_kira_audio::prelude::AudioReceiver;
 use bevy_rapier2d::plugin::PhysicsSet;
 
-use super::{DebugState, LevelChanged, WorldSpatialData};
+use super::{DebugState, WorldSpatialData};
 use crate::player::Player;
+use crate::GameState;
 use generate_world_collisions::TILE_SIZE;
 
 // Only relevant for the backend.
@@ -51,12 +52,10 @@ impl Plugin for CameraPlugin {
                     .after(PhysicsSet::Writeback)
                     .before(TransformSystem::TransformPropagate),
             )
+            .add_systems(OnEnter(GameState::Gaming), update_camera_bounds)
             .add_systems(
                 PostUpdate,
-                (
-                    update_camera_target.in_set(CameraSystem::TargetUpdate),
-                    update_camera_bounds.run_if(on_event::<LevelChanged>()),
-                ),
+                (update_camera_target.in_set(CameraSystem::TargetUpdate),),
             );
     }
 }

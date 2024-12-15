@@ -30,6 +30,14 @@ fn transition_gaming_state(mut next_state: ResMut<NextState<GameState>>) {
     next_state.set(GameState::Gaming);
 }
 
+fn start_game(mut next_state: ResMut<NextState<GameState>>, menu_input: Res<MenuInput>) {
+    if !menu_input.confirm {
+        return;
+    }
+
+    next_state.set(GameState::Restart);
+}
+
 pub struct WorldStatePlugin;
 
 impl Plugin for WorldStatePlugin {
@@ -39,6 +47,7 @@ impl Plugin for WorldStatePlugin {
             (
                 transition_game_over_state.run_if(in_state(GameState::Gaming)),
                 transition_restart_state.run_if(in_state(GameState::GameOver)),
+                start_game.run_if(in_state(GameState::MainMenu)),
             ),
         )
         .add_systems(OnEnter(GameState::Restart), transition_gaming_state);

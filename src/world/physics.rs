@@ -15,8 +15,9 @@ fn configure_physics(
 ) {
     rapier_config.gravity = Vec2::ZERO;
     rapier_context.integration_parameters = IntegrationParameters {
-        normalized_max_corrective_velocity: f32::MAX,
-        contact_damping_ratio: 1.0,
+        normalized_max_corrective_velocity: 1.0e10,
+        contact_damping_ratio: 0.0001,
+        normalized_allowed_linear_error: 0.00001,
         ..default()
     };
 }

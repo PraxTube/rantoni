@@ -119,7 +119,7 @@ fn spawn_game_over_screen(mut commands: Commands, assets: Res<GameAssets>) {
         .push_children(&[background, text_container]);
 }
 
-fn despawn_game_over_screens(
+fn despawn_game_over_screen(
     mut commands: Commands,
     q_game_over_screen: Query<Entity, With<GameOverScreen>>,
 ) {
@@ -141,6 +141,6 @@ impl Plugin for GameOverUiPlugin {
                     .chain()
                     .run_if(in_state(GameState::GameOverPadding)),
             )
-            .add_systems(OnExit(GameState::GameOver), despawn_game_over_screens);
+            .add_systems(OnExit(GameState::GameOver), despawn_game_over_screen);
     }
 }

@@ -1,10 +1,4 @@
-use std::time::Duration;
-
-use bevy::{
-    color::palettes::css::BLACK,
-    prelude::*,
-    time::common_conditions::{once_after_delay, repeating_after_delay},
-};
+use bevy::{color::palettes::css::BLACK, prelude::*};
 use bevy_ecs_ldtk::prelude::*;
 use bevy_tweening::{EaseFunction, TweenCompleted};
 
@@ -103,14 +97,6 @@ fn transition_level(
     }
 }
 
-fn change_level_on_start(
-    mut next_state: ResMut<NextState<GameState>>,
-    mut ev_level_changed: EventWriter<LevelChanged>,
-) {
-    next_state.set(GameState::TransitionLevel);
-    ev_level_changed.send(LevelChanged);
-}
-
 fn update_level_selection(
     mut level_selection: ResMut<LevelSelection>,
     world_data: Res<WorldSpatialData>,
@@ -201,23 +187,8 @@ impl Plugin for MapLevelTransition {
             .add_systems(
                 Update,
                 transition_level
-                    .run_if(
-                        in_state(GameState::Gaming)
-                            // TODO: Remove this, right now only necessary because position is Vec2::ZERO for the first frame,
-                            // that triggers a false transition.
-                            // Once main menu and stuff is in place remove the repeat after delay thing
-                            .and_then(repeating_after_delay(Duration::from_secs_f32(0.1))),
-                    )
+                    .run_if(in_state(GameState::Gaming))
                     .before(DespawnLevelSystemSet),
-            )
-            .add_systems(
-                Update,
-                // TODO: Remove this, right now only necessary because we don't really know which
-                // level to spawn, once main menu and stuff is in place modify this
-                change_level_on_start.run_if(
-                    in_state(GameState::Gaming)
-                        .and_then(once_after_delay(Duration::from_secs_f32(0.5))),
-                ),
             )
             .add_systems(
                 Update,
@@ -237,7 +208,7 @@ impl Plugin for MapLevelTransition {
             )
             .add_systems(
                 PreUpdate,
-                (trigger_level_changed,).run_if(in_state(GameState::TransitionLevel)),
+                trigger_level_changed.run_if(in_state(GameState::TransitionLevel)),
             )
             .add_systems(
                 PostUpdate,

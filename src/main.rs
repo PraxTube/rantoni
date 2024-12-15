@@ -34,6 +34,7 @@ const DEFAULT_WINDOW_WIDTH: f32 = 1280.0;
 pub enum GameState {
     #[default]
     AssetLoading,
+    MainMenu,
     Gaming,
     TransitionLevel,
     GameOverPadding,
@@ -77,7 +78,7 @@ fn main() {
         .init_state::<GameState>()
         .add_loading_state(
             LoadingState::new(GameState::AssetLoading)
-                .continue_to_state(GameState::Gaming)
+                .continue_to_state(GameState::MainMenu)
                 .load_collection::<GameAssets>(),
         )
         .insert_resource(ClearColor(BACKGROUND_COLOR))
