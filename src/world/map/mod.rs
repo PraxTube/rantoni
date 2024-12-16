@@ -1,3 +1,4 @@
+mod debug;
 mod level_transition;
 mod pathfinding;
 
@@ -6,15 +7,13 @@ pub use pathfinding::a_star;
 
 use std::{fs, str::from_utf8};
 
-use bevy::{color::palettes::css::*, prelude::*, utils::HashMap};
+use bevy::{prelude::*, utils::HashMap};
 use bevy_ecs_ldtk::prelude::*;
 
 use generate_world_collisions::{deserialize_polygons, MAP_POLYGON_DATA, TILE_SIZE};
 use level_transition::LevelChangeDirection;
 
 use crate::{GameAssets, GameState};
-
-use super::DebugState;
 
 const Z_LEVEL_BACKGROUND: f32 = -999.0;
 
@@ -23,17 +22,13 @@ pub struct WorldMapPlugin;
 impl Plugin for WorldMapPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(LdtkPlugin)
-            .add_plugins((level_transition::MapLevelTransition,))
+            .add_plugins((level_transition::MapLevelTransition, debug::MapDebugPlugin))
             .insert_resource(LevelSelection::indices(0, 0))
             .add_systems(
                 OnExit(GameState::AssetLoading),
                 (spawn_ldtk_world, deserialize_and_insert_wrold_data),
             )
-            .add_systems(PreUpdate, update_pf_source_target_positions)
-            .add_systems(
-                Update,
-                (debug_enemy_pathfinding.run_if(resource_exists::<WorldSpatialData>),),
-            );
+            .add_systems(PreUpdate, update_pf_source_target_positions);
     }
 }
 
@@ -241,41 +236,6 @@ fn update_pf_source_target_positions(
             if let Ok(transform) = q_transforms.get(target) {
                 pf_source.target_pos = transform.translation().truncate();
             }
-        }
-    }
-}
-
-fn debug_enemy_pathfinding(
-    mut gizmos: Gizmos,
-    debug_state: Res<DebugState>,
-    q_targets: Query<&GlobalTransform, With<PathfindingTarget>>,
-    q_sources: Query<(&GlobalTransform, &PathfindingSource), Without<PathfindingTarget>>,
-) {
-    if !debug_state.0 {
-        return;
-    }
-
-    for (source_transform, pf_source) in &q_sources {
-        let Some(target) = pf_source.target else {
-            continue;
-        };
-        let Some(mut path) = pf_source.path.clone() else {
-            continue;
-        };
-        let Ok(goal_transform) = q_targets.get(target) else {
-            continue;
-        };
-        path.insert(0, source_transform.translation().truncate());
-        path.push(goal_transform.translation().truncate());
-
-        for i in 0..path.len() - 1 {
-            let color = Srgba::new(
-                LIGHT_GREEN.red,
-                LIGHT_GREEN.green * i as f32 / (path.len() - 1) as f32,
-                LIGHT_GREEN.blue,
-                1.0,
-            );
-            gizmos.line_2d(path[i], path[i + 1], color);
         }
     }
 }

@@ -98,6 +98,19 @@ fn point_to_matrix_indices(grid_matrix: &[Vec<u8>], p: Vec2) -> Option<USVec2> {
 }
 
 fn grid_neigbhours(grid_matrix: &[Vec<u8>], u: USVec2) -> Vec<USVec2> {
+    // TODO: You could probably optimize this quite a bit, instead of creating a Vec every time you
+    // call this function you could instead return something like a mask array, as our neigbhours
+    // will only every be 8 anyways. Then just set the mask on which neigbhour is actually walkable
+    // and done.
+    //
+    // YOO, you could even use a single u8 and set the bits on that one. That would be fun.
+    //
+    // Though I am not really sure if this would result in a perf boost, you would definitely want
+    // to profile this to make sure you aren't actually making things worse.
+    //
+    // Hm on second thought, you could also save the neigbhours in a look up table and just compute
+    // that once on level transition and use that to get a reference to all neigbhours of a given
+    // node.
     let mut neigbhours = Vec::new();
     let (width, height) = (grid_matrix.len() - 1, grid_matrix[0].len() - 1);
 

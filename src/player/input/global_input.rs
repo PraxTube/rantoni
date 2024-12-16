@@ -9,6 +9,7 @@ fn handle_keyboard_inputs(keys: Res<ButtonInput<KeyCode>>, mut global_input: Res
 
     input.toggle_fullscreen = keys.just_pressed(KeyCode::KeyB);
     input.toggle_debug = keys.just_pressed(KeyCode::F3);
+    input.toggle_grid_debug_visuals = keys.just_pressed(KeyCode::KeyG);
 
     *global_input |= input;
 }
@@ -27,6 +28,8 @@ fn handle_gamepad_inputs(
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::DPadDown));
     input.toggle_debug =
         gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::DPadUp));
+    input.toggle_grid_debug_visuals =
+        gamepad_buttons.just_pressed(GamepadButton::new(gamepad, GamepadButtonType::DPadLeft));
 
     *global_input |= input;
 }

@@ -2,7 +2,6 @@ mod gamepad;
 mod gaming_input;
 mod global_input;
 mod menu_input;
-mod relay;
 
 use std::ops::BitOrAssign;
 
@@ -16,7 +15,6 @@ impl Plugin for InputPlugin {
             global_input::GlobalInputPlugin,
             menu_input::MenuInputPlugin,
             gaming_input::GamingInputPlugin,
-            relay::InputRelayPlugin,
             gamepad::InputGamepadPlugin,
         ))
         .init_resource::<GlobalInput>()
@@ -37,6 +35,7 @@ enum InputDevice {
 pub struct GlobalInput {
     pub toggle_fullscreen: bool,
     pub toggle_debug: bool,
+    pub toggle_grid_debug_visuals: bool,
 }
 
 #[derive(Resource, Default, Clone, Copy, PartialEq)]
@@ -63,8 +62,9 @@ pub struct GamingInput {
 
 impl BitOrAssign for GlobalInput {
     fn bitor_assign(&mut self, rhs: Self) {
-        self.toggle_debug |= rhs.toggle_debug;
         self.toggle_fullscreen |= rhs.toggle_fullscreen;
+        self.toggle_debug |= rhs.toggle_debug;
+        self.toggle_grid_debug_visuals |= rhs.toggle_grid_debug_visuals;
     }
 }
 

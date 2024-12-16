@@ -10,6 +10,7 @@ use bevy_kira_audio::prelude::AudioReceiver;
 use bevy_rapier2d::plugin::PhysicsSet;
 
 use super::{DebugState, WorldSpatialData};
+use crate::player::input::{GamingInput, GlobalInput};
 use crate::player::Player;
 use crate::GameState;
 use generate_world_collisions::TILE_SIZE;
@@ -29,17 +30,8 @@ pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(update::CameraUpdatePlugin)
-            .add_event::<ZoomCameraScaleEvent>()
-            .add_event::<ToggleFullscreenEvent>()
             .add_systems(Startup, spawn_camera)
-            .add_systems(
-                Update,
-                (
-                    zoom_camera,
-                    toggle_full_screen.run_if(on_event::<ToggleFullscreenEvent>()),
-                    take_screenshot,
-                ),
-            )
+            .add_systems(Update, (zoom_camera, toggle_full_screen, take_screenshot))
             .add_systems(
                 PostUpdate,
                 (
@@ -85,13 +77,6 @@ pub struct YSortStatic(pub f32);
 /// but only once (when this component is added to an entity).
 #[derive(Component)]
 pub struct YSortStaticChild(pub f32);
-
-/// Send this `Event` to toggle the window fullscreen.
-#[derive(Event)]
-pub struct ToggleFullscreenEvent;
-/// Zoom the camera scale level by this amount.
-#[derive(Event)]
-pub struct ZoomCameraScaleEvent(pub i32);
 
 fn apply_y_sort(mut q_transforms: Query<(&mut Transform, &GlobalTransform, &YSort)>) {
     for (mut transform, global_transform, ysort) in &mut q_transforms {
@@ -149,25 +134,33 @@ fn spawn_camera(mut commands: Commands) {
 
 fn zoom_camera(
     debug_active: Res<DebugState>,
+    gaming_input: Res<GamingInput>,
     mut q_projection: Query<&mut OrthographicProjection, With<MainCamera>>,
-    mut ev_zoom_camera_level: EventReader<ZoomCameraScaleEvent>,
 ) {
-    for ev in ev_zoom_camera_level.read() {
-        if !**debug_active {
-            continue;
-        }
-
-        let mut projection = match q_projection.get_single_mut() {
-            Ok(p) => p,
-            Err(_) => continue,
-        };
-
-        projection.scale = (projection.scale + ev.0 as f32).clamp(1.0, 10.0);
+    if !debug_active.active {
+        return;
     }
+    if gaming_input.scroll == 0 {
+        return;
+    }
+
+    let mut projection = match q_projection.get_single_mut() {
+        Ok(p) => p,
+        Err(_) => return,
+    };
+
+    projection.scale = (projection.scale + gaming_input.scroll as f32).clamp(1.0, 10.0);
 }
 
-fn toggle_full_screen(mut main_window: Query<&mut Window, With<PrimaryWindow>>) {
-    let mut window = match main_window.get_single_mut() {
+fn toggle_full_screen(
+    global_input: Res<GlobalInput>,
+    mut q_main_window: Query<&mut Window, With<PrimaryWindow>>,
+) {
+    if !global_input.toggle_fullscreen {
+        return;
+    }
+
+    let mut window = match q_main_window.get_single_mut() {
         Ok(w) => w,
         Err(err) => {
             error!("there is not exactly one window, {}", err);

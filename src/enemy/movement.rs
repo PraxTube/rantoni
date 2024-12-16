@@ -95,7 +95,7 @@ fn clear_line_of_sight(
         }
     }
 
-    if debug_state.0 {
+    if debug_state.active {
         for offset in [dir.perp(), -dir.perp()] {
             gizmos.line_2d(pf_source_pos + offset, target_pos + offset, RED);
         }
