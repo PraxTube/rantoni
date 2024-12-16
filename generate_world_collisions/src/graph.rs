@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     geometry::{collinear_ivec, is_ccw_ivec},
-    matrix::{get_vertex_pairs, index_matrix},
+    matrix::{get_diagonal_edges, index_matrix, is_square},
     Edge, Grid, Polygon, ATOL, TILE_SIZE,
 };
 
@@ -11,14 +11,15 @@ type IPolygon = Vec<IVec2>;
 /// Get the disjoint vertices (essentially just the collection of raw edges).
 /// Uses the given grid to get the positions and then apply marching squares to get the countour of
 /// the polygons, which we save as edges (v1, v2).
-fn disjoint_vertices(grid: &Grid) -> Vec<Vec<IVec2>> {
+fn disjoint_vertices(main_grid: &Grid, grid: &Grid) -> Vec<Vec<IVec2>> {
     let index_matrix = index_matrix(grid);
     let mut vertices: Vec<Vec<IVec2>> = Vec::new();
 
     // Convert indices to vertices
     for i in 0..index_matrix.len() {
         for j in 0..index_matrix[i].len() {
-            let vertex_pairs = get_vertex_pairs(index_matrix[i][j], i, j);
+            let vertex_pairs =
+                get_diagonal_edges(index_matrix[i][j], i, j, is_square(main_grid, i, j));
             for vertex_pair in vertex_pairs {
                 let v_pair = vertex_pair
                     .iter()
@@ -133,8 +134,8 @@ fn extract_single_polygon(vertices: &mut Vec<Vec<IVec2>>) -> IPolygon {
 ///
 /// Take this for example, the first three vertices are already connected into one graph, then 2 and
 /// 0 share one vertex (edge in this case because I didn't draw it propely).
-fn outer_inner_ipolygons(grid: &Grid) -> (IPolygon, Vec<IPolygon>) {
-    let mut disjoint_vertices = disjoint_vertices(grid);
+fn outer_inner_ipolygons(main_grid: &Grid, grid: &Grid) -> (IPolygon, Vec<IPolygon>) {
+    let mut disjoint_vertices = disjoint_vertices(main_grid, grid);
     let mut disjoint_polygons = Vec::new();
 
     while !disjoint_vertices.is_empty() {
@@ -160,20 +161,24 @@ fn outer_inner_ipolygons(grid: &Grid) -> (IPolygon, Vec<IPolygon>) {
 /// Calculate the outer and inner polygons of the given `Grid`.
 /// First is the outer polygon and the second is a list of inner polygons
 /// (empty if no inner polygons, i.e. no holes).
-pub fn outer_inner_polygons(grid: &Grid) -> (Polygon, Vec<Polygon>) {
+pub fn outer_inner_polygons(main_grid: &Grid, grid: &Grid) -> (Polygon, Vec<Polygon>) {
     fn ivec_to_vec2(i: &IVec2) -> Vec2 {
         Vec2::new(i.x as f32, i.y as f32) / 2.0 * TILE_SIZE
     }
 
-    let (outer_polygon, inner_polygons) = outer_inner_ipolygons(grid);
+    let (outer_polygon, inner_polygons) = outer_inner_ipolygons(main_grid, grid);
     let outer_polygon = minimal_vertices(&outer_polygon)
         .iter()
         .map(ivec_to_vec2)
         .collect();
-    let inner_polygons = inner_polygons
+    let inner_polygons: Vec<Polygon> = inner_polygons
         .iter()
         .map(|polygon| minimal_vertices(polygon).iter().map(ivec_to_vec2).collect())
         .collect();
+
+    // TODO: We don't use holes anymore right? The whole inner stuff is redundant then and should
+    // be removed.
+    assert!(inner_polygons.is_empty());
 
     (outer_polygon, inner_polygons)
 }

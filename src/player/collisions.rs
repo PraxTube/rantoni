@@ -15,6 +15,7 @@ use super::{Player, PlayerStateSystemSet};
 
 pub const DEFAULT_PLAYER_COLLISION_GROUPS: CollisionGroups =
     CollisionGroups::new(PLAYER_GROUP, WORLD_GROUP.union(ENEMY_GROUP));
+// CollisionGroups::new(PLAYER_GROUP, ENEMY_GROUP);
 const DASHING_PLAYER_COLLISION_GROUPS: CollisionGroups =
     CollisionGroups::new(PLAYER_GROUP, WORLD_GROUP);
 

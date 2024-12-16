@@ -16,8 +16,9 @@ use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::prelude::*;
 use generate_world_collisions::{
     decompose_poly, map_grid_matrix, merge_convex_polygons, serialize_collider_polygons,
-    serialize_grid_matrix, Grid, DIAGONAL_CONCRETE, LDTK_FILE, MAP_POLYGON_DATA,
-    PLAYER_LAYER_IDENTIFIER, SQUARE_CONCRETE_IDENTIFIER, TILE_SIZE,
+    serialize_grid_matrix, Grid, DIAGONAL_CONCRETE, DIAGONAL_WALKABLE_INDEX, LDTK_FILE,
+    MAP_POLYGON_DATA, PLAYER_LAYER_IDENTIFIER, SQUARE_CONCRETE_IDENTIFIER, STRAIGHT_WALKABLE_INDEX,
+    TILE_SIZE,
 };
 use ldtk::WorldLayout;
 
@@ -83,7 +84,7 @@ fn compute_collier_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
     polygons
 }
 
-fn grid_from_layer(width: usize, height: usize, layer: &LayerInstance) -> Grid {
+fn grid_from_layer(width: usize, height: usize, layer: &LayerInstance, value: u8) -> Grid {
     assert_eq!(layer.grid_size as f32, TILE_SIZE);
     assert_eq!(layer.layer_instance_type, ldtk::Type::IntGrid);
     assert_eq!(layer.int_grid_csv.len(), height * width);
@@ -94,17 +95,17 @@ fn grid_from_layer(width: usize, height: usize, layer: &LayerInstance) -> Grid {
             if layer.int_grid_csv[y * width + x] == 0 {
                 continue;
             }
-            grid.set_grid_value(x, y, 1);
+            grid.set_grid_value(x, y, value);
         }
     }
     grid
 }
 
-fn grid_from_levels(level: &ldtk::Level) -> Grid {
+fn grids_from_level(level: &ldtk::Level) -> Grid {
     let width = (level.px_wid as f32 / TILE_SIZE) as usize;
     let height = (level.px_hei as f32 / TILE_SIZE) as usize;
 
-    let mut grid = Grid::new(width + 1, height + 1);
+    let mut combined_grid = Grid::new(width + 1, height + 1);
 
     for layer in level
         .layer_instances
@@ -115,24 +116,19 @@ fn grid_from_levels(level: &ldtk::Level) -> Grid {
         if layer.layer_instance_type != ldtk::Type::IntGrid {
             continue;
         }
-        if &layer.identifier != DIAGONAL_CONCRETE {
-            continue;
-        }
 
-        assert_eq!(layer.layer_instance_type, ldtk::Type::IntGrid);
-        assert_eq!(&layer.identifier, DIAGONAL_CONCRETE);
-        assert_eq!(layer.int_grid_csv.len(), height * width);
-
-        for x in 0..width {
-            for y in 0..height {
-                if layer.int_grid_csv[y * width + x] == 0 {
-                    continue;
-                }
-                grid.set_grid_value(x, y, 1);
+        let grid = match layer.identifier.as_str() {
+            SQUARE_CONCRETE_IDENTIFIER => {
+                grid_from_layer(width, height, &layer, STRAIGHT_WALKABLE_INDEX)
             }
-        }
+            DIAGONAL_CONCRETE => grid_from_layer(width, height, &layer, DIAGONAL_WALKABLE_INDEX),
+            _ => continue,
+        };
+
+        info!("{}, {}", level.identifier, layer.identifier);
+        combined_grid.or_grid(&grid);
     }
-    grid
+    combined_grid
 }
 
 fn level_neigbhours(world: &ldtk::World, level: &ldtk::Level) -> String {
@@ -226,6 +222,40 @@ fn sanity_checks(world_index: usize, level_index: usize, level: &ldtk::Level) {
     }
 }
 
+/// Make sure that the diagonals of the grid aren't mixed, meaning that there are no invalid 1's
+/// and 2's mixing together. This makes sure that the pathfinding is correct, it doesn't however
+/// check for visual correctness.
+fn grid_validation_check(grid: &Grid) {
+    fn validate_diagonals(grid: &Grid, x: usize, y: usize) {
+        for (i, j) in [
+            (x.max(1) - 1, y.max(1) - 1),
+            ((x + 1).min(grid.width - 1), y.max(1) - 1),
+            (x.max(1) - 1, (y + 1).min(grid.height - 1)),
+            ((x + 1).min(grid.width - 1), (y + 1).min(grid.height - 1)),
+        ] {
+            if grid.grid[x][y] == STRAIGHT_WALKABLE_INDEX
+                && grid.grid[i][j] == DIAGONAL_WALKABLE_INDEX
+            {
+                assert_ne!(
+                    grid.grid[i][y], 0,
+                    "grid with width: {}, height: {} at x: {}, y: {} with problematic diagonal: i: {}, j: {}",
+                    grid.width, grid.height, x, y, i, y
+                );
+                assert_ne!(grid.grid[x][j], 0,
+                    "grid with width: {}, height: {} at x: {}, y: {} with problematic diagonal: i: {}, j: {}",
+                    grid.width, grid.height, x, y, x, j
+                );
+            }
+        }
+    }
+
+    for i in 0..grid.width - 1 {
+        for j in 0..grid.height - 1 {
+            validate_diagonals(grid, i, j);
+        }
+    }
+}
+
 fn compute_and_save_shapes(
     asset_server: Res<AssetServer>,
     ldtk_project_assets: Res<Assets<LdtkProject>>,
@@ -244,7 +274,8 @@ fn compute_and_save_shapes(
             sanity_checks(i, j, &level);
 
             let neighbour_indices = level_neigbhours(world, level);
-            let grid = grid_from_levels(&level);
+            let grid = grids_from_level(&level);
+            grid_validation_check(&grid);
 
             contents.push(format!(
                 "{},{}:{}@{}@{}",

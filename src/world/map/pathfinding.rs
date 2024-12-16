@@ -1,7 +1,7 @@
 use std::f32::consts::SQRT_2;
 
 use bevy::{prelude::*, utils::HashMap};
-use generate_world_collisions::TILE_SIZE;
+use generate_world_collisions::{DIAGONAL_WALKABLE_INDEX, STRAIGHT_WALKABLE_INDEX, TILE_SIZE};
 
 #[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
 struct USVec2 {
@@ -82,7 +82,7 @@ fn point_to_matrix_indices(grid_matrix: &[Vec<u8>], p: Vec2) -> Option<USVec2> {
         )
     };
 
-    if grid_matrix[u.x][u.y] == 1 {
+    if grid_matrix[u.x][u.y] != 0 {
         return Some(u);
     }
 
@@ -117,6 +117,22 @@ fn grid_neigbhours(grid_matrix: &[Vec<u8>], u: USVec2) -> Vec<USVec2> {
     let mut neigbhours = Vec::new();
     let (width, height) = (grid_matrix.len() - 1, grid_matrix[0].len() - 1);
 
+    fn check_diagonal(grid_matrix: &[Vec<u8>], u: USVec2, w: USVec2) -> bool {
+        if grid_matrix[u.x][u.y] == 0 {
+            return false;
+        }
+        if grid_matrix[u.x][u.y] == STRAIGHT_WALKABLE_INDEX {
+            grid_matrix[w.x][w.y] == STRAIGHT_WALKABLE_INDEX
+                && grid_matrix[w.x][u.y] == STRAIGHT_WALKABLE_INDEX
+                && grid_matrix[u.x][w.y] == STRAIGHT_WALKABLE_INDEX
+        } else if grid_matrix[u.x][u.y] == DIAGONAL_WALKABLE_INDEX {
+            grid_matrix[w.x][w.y] == DIAGONAL_WALKABLE_INDEX
+        } else {
+            error!("grid index doesn't match any known walkable indices. You may have forgotten to add them in the pathfinding.");
+            false
+        }
+    }
+
     // Left
     if u.x > 0 {
         let w = USVec2::new(u.x - 1, u.y);
@@ -148,33 +164,28 @@ fn grid_neigbhours(grid_matrix: &[Vec<u8>], u: USVec2) -> Vec<USVec2> {
     // Down Left
     if u.x > 0 && u.y > 0 {
         let w = USVec2::new(u.x - 1, u.y - 1);
-        if grid_matrix[w.x][w.y] == 2 {
-            neigbhours.push(w);
-        } else if grid_matrix[w.x][w.y] == 1
-            && grid_matrix[w.x - 1][w.y] == 1
-            && grid_matrix[w.x][w.y - 1] == 1
-        {
+        if check_diagonal(grid_matrix, u, w) {
             neigbhours.push(w);
         }
     }
     // Down Right
     if u.x < width && u.y > 0 {
         let w = USVec2::new(u.x + 1, u.y - 1);
-        if grid_matrix[w.x][w.y] != 0 {
+        if check_diagonal(grid_matrix, u, w) {
             neigbhours.push(w);
         }
     }
     // Up Left
     if u.x > 0 && u.y < height {
         let w = USVec2::new(u.x - 1, u.y + 1);
-        if grid_matrix[w.x][w.y] != 0 {
+        if check_diagonal(grid_matrix, u, w) {
             neigbhours.push(w);
         }
     }
     // Up Right
     if u.x < width && u.y < height {
         let w = USVec2::new(u.x + 1, u.y + 1);
-        if grid_matrix[w.x][w.y] != 0 {
+        if check_diagonal(grid_matrix, u, w) {
             neigbhours.push(w);
         }
     }

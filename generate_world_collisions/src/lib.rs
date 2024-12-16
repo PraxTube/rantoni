@@ -15,6 +15,8 @@ use bevy::prelude::Vec2;
 
 pub const ATOL: f32 = 1e-05;
 pub const MAP_POLYGON_DATA: &str = "assets/map/polygons.data";
+pub const DIAGONAL_WALKABLE_INDEX: u8 = 1;
+pub const STRAIGHT_WALKABLE_INDEX: u8 = 2;
 
 pub type Polygon = Vec<Vec2>;
 pub type Edge = (Vec2, Vec2);

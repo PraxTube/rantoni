@@ -34,8 +34,8 @@ pub fn decompose_poly(grid: &Grid) -> Vec<Polygon> {
     let mut collider_polygons = Vec::new();
 
     for graph in disjoint_graphs(grid) {
-        let grid = Grid::from_positions(grid.width, grid.height, &graph);
-        let (outer_polygon, inner_polygons) = outer_inner_polygons(&grid);
+        let polygon_grid = Grid::from_positions(grid.width, grid.height, &graph);
+        let (outer_polygon, inner_polygons) = outer_inner_polygons(&grid, &polygon_grid);
 
         collider_polygons.append(&mut triangulate_concave_polygon(
             &outer_polygon,
