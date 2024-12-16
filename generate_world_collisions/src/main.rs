@@ -16,8 +16,8 @@ use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::prelude::*;
 use generate_world_collisions::{
     decompose_poly, map_grid_matrix, merge_convex_polygons, serialize_collider_polygons,
-    serialize_grid_matrix, Grid, LDTK_FILE, MAP_POLYGON_DATA, PLAYER_LAYER_IDENTIFIER,
-    SQUARE_CONCRETE_IDENTIFIER, TILE_SIZE, WALKABLE_LAYER,
+    serialize_grid_matrix, Grid, DIAGONAL_CONCRETE, LDTK_FILE, MAP_POLYGON_DATA,
+    PLAYER_LAYER_IDENTIFIER, SQUARE_CONCRETE_IDENTIFIER, TILE_SIZE,
 };
 use ldtk::WorldLayout;
 
@@ -78,35 +78,29 @@ fn setup(
 }
 
 fn compute_collier_shapes(grid: &Grid) -> Vec<Vec<Vec2>> {
-    let mut polygons = decompose_poly(&Grid {
-        width: grid.width,
-        height: grid.height,
-        positions: grid.positions.clone(),
-    });
+    let mut polygons = decompose_poly(grid);
     merge_convex_polygons(&mut polygons);
     polygons
 }
 
-fn grid_from_square_concrete(width: usize, height: usize, layer: &LayerInstance) -> Grid {
+fn grid_from_layer(width: usize, height: usize, layer: &LayerInstance) -> Grid {
     assert_eq!(layer.grid_size as f32, TILE_SIZE);
     assert_eq!(layer.layer_instance_type, ldtk::Type::IntGrid);
-    assert_eq!(layer.identifier, SQUARE_CONCRETE_IDENTIFIER.to_string());
     assert_eq!(layer.int_grid_csv.len(), height * width);
 
     let mut grid = Grid::new(width + 1, height + 1);
-    for inv_y in 0..height {
-        for x in 0..width {
-            if layer.int_grid_csv[inv_y * width + x] == 0 {
+    for x in 0..width {
+        for y in 0..height {
+            if layer.int_grid_csv[y * width + x] == 0 {
                 continue;
             }
-            grid.positions
-                .push(IVec2::new(x as i32, (height - 1 - inv_y) as i32));
+            grid.set_grid_value(x, y, 1);
         }
     }
     grid
 }
 
-fn grid_from_level(level: ldtk::Level) -> Grid {
+fn grid_from_levels(level: &ldtk::Level) -> Grid {
     let width = (level.px_wid as f32 / TILE_SIZE) as usize;
     let height = (level.px_hei as f32 / TILE_SIZE) as usize;
 
@@ -121,18 +115,20 @@ fn grid_from_level(level: ldtk::Level) -> Grid {
         if layer.layer_instance_type != ldtk::Type::IntGrid {
             continue;
         }
+        if &layer.identifier != DIAGONAL_CONCRETE {
+            continue;
+        }
 
         assert_eq!(layer.layer_instance_type, ldtk::Type::IntGrid);
-        assert_eq!(layer.identifier, WALKABLE_LAYER.to_string());
+        assert_eq!(&layer.identifier, DIAGONAL_CONCRETE);
         assert_eq!(layer.int_grid_csv.len(), height * width);
 
-        for inv_y in 0..height {
-            for x in 0..width {
-                if layer.int_grid_csv[inv_y * width + x] == 0 {
+        for x in 0..width {
+            for y in 0..height {
+                if layer.int_grid_csv[y * width + x] == 0 {
                     continue;
                 }
-                grid.positions
-                    .push(IVec2::new(x as i32, (height - 1 - inv_y) as i32));
+                grid.set_grid_value(x, y, 1);
             }
         }
     }
@@ -245,10 +241,10 @@ fn compute_and_save_shapes(
         for (j, level) in world.levels.iter().enumerate() {
             assert!(level.px_wid > 0);
             assert!(level.px_hei > 0);
+            sanity_checks(i, j, &level);
 
             let neighbour_indices = level_neigbhours(world, level);
-            let grid = grid_from_level(level.clone());
-            sanity_checks(i, j, &level);
+            let grid = grid_from_levels(&level);
 
             contents.push(format!(
                 "{},{}:{}@{}@{}",

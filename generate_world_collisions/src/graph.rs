@@ -6,7 +6,6 @@ use crate::{
     Edge, Grid, Polygon, ATOL, TILE_SIZE,
 };
 
-type IGraph = Vec<IVec2>;
 type IPolygon = Vec<IVec2>;
 
 /// Get the disjoint vertices (essentially just the collection of raw edges).
@@ -184,11 +183,24 @@ pub fn outer_inner_polygons(grid: &Grid) -> (Polygon, Vec<Polygon>) {
 /// The returned `Vec` contains the positions of the nodes in the graphs in the 2D
 /// grid. There are no vertices or edges at this point, it's only about the position of the
 /// nodes of the disjointed graphs.
-fn construct_disjoint_graphs(
-    grid: &Grid,
-    positions: &mut Vec<IVec2>,
-    graph: &mut [Vec<i32>],
-) -> Vec<IGraph> {
+pub fn disjoint_graphs(grid: &Grid) -> Vec<Vec<UVec2>> {
+    assert_ne!(grid.width, 0);
+    assert_ne!(grid.height, 0);
+
+    let mut positions = Vec::new();
+    for i in 0..grid.width - 1 {
+        for j in 0..grid.height - 1 {
+            if grid.grid[i][j] == 0 {
+                positions.push(IVec2::new(i as i32, j as i32));
+            }
+        }
+    }
+
+    let mut graph = vec![vec![0; grid.height]; grid.width];
+    for pos in &positions {
+        graph[pos.x as usize][pos.y as usize] = 1;
+    }
+
     let mut disjoint_graphs = Vec::new();
     while !positions.is_empty() {
         let mut current_positions = Vec::new();
@@ -206,7 +218,9 @@ fn construct_disjoint_graphs(
             }
             graph[x][y] = 0;
 
-            current_positions.push(n);
+            assert!(n.x >= 0);
+            assert!(n.y >= 0);
+            current_positions.push(UVec2::new(n.x as u32, n.y as u32));
             // Delete the node from the positions, it should always be valid
             positions.swap_remove(
                 positions
@@ -223,35 +237,6 @@ fn construct_disjoint_graphs(
         disjoint_graphs.push(current_positions);
     }
     disjoint_graphs
-}
-
-/// Construct the disjoint graphs of the given grid for COLLIDERS!
-/// This will reverse the positions (as it treats the positions in the grid as walkable).
-/// The returned `Vec` contains disjoint graphs with their positions on the 2D grid.
-pub fn disjoint_graphs_colliders(grid: &Grid) -> Vec<IGraph> {
-    assert_ne!(grid.width, 0);
-    assert_ne!(grid.height, 0);
-
-    let mut reversed_matrix = vec![vec![1; grid.height - 1]; grid.width - 1];
-    for pos in &grid.positions {
-        reversed_matrix[pos.x as usize][pos.y as usize] = 0;
-    }
-
-    let mut positions = Vec::new();
-    for i in 0..grid.width - 1 {
-        for j in 0..grid.height - 1 {
-            if reversed_matrix[i][j] == 1 {
-                positions.push(IVec2::new(i as i32, j as i32));
-            }
-        }
-    }
-
-    let mut graph = vec![vec![0; grid.height]; grid.width];
-    for pos in &positions {
-        graph[pos.x as usize][pos.y as usize] = 1;
-    }
-
-    construct_disjoint_graphs(grid, &mut positions, &mut graph)
 }
 
 /// Return the edge that both polygons share.

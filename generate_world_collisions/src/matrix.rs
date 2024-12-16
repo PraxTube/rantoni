@@ -3,16 +3,44 @@ use bevy::prelude::*;
 pub struct Grid {
     pub width: usize,
     pub height: usize,
-    pub positions: Vec<IVec2>,
+    pub grid: Vec<Vec<u8>>,
 }
 
 impl Grid {
+    fn clone_grid(&self) -> Vec<Vec<u8>> {
+        assert_eq!(self.grid.len(), self.width);
+        assert_eq!(self.grid[0].len(), self.height);
+        self.grid.clone()
+    }
+
     pub fn new(width: usize, height: usize) -> Self {
         Self {
             width,
             height,
-            positions: Vec::new(),
+            grid: vec![vec![0; height]; width],
         }
+    }
+
+    pub fn from_positions(width: usize, height: usize, positions: &Vec<UVec2>) -> Self {
+        let mut grid = vec![vec![0; height]; width];
+        for pos in positions {
+            grid[pos.x as usize][pos.y as usize] = 1;
+        }
+
+        Self {
+            width,
+            height,
+            grid,
+        }
+    }
+
+    pub fn set_grid_value(&mut self, x: usize, y: usize, value: u8) {
+        // Why do we need to subtract 2 here? I have no idea :)
+        // It's most likely due to the fact that we have to adjust the size of the grid, we are
+        // using actual_size but the final grid has actual_size - 1.
+        //
+        // Though why do we not need to adjust x then? No clue.
+        self.grid[x][self.height - 2 - y] = value;
     }
 }
 
@@ -109,16 +137,6 @@ fn index_to_vertices_y_zero_edge_collider(index: u8) -> Vec<IVec2> {
     }
 }
 
-/// Create `grid.size.x` x `grid.size.y` matrix with the given `Grid`.
-/// Treats the `Grid.positions` as `1`, everything else is `0`.
-pub fn grid_matrix(grid: &Grid) -> Vec<Vec<u8>> {
-    let mut matrix = vec![vec![0; grid.height]; grid.width];
-    for pos in &grid.positions {
-        matrix[pos.x as usize][pos.y as usize] = 1;
-    }
-    matrix
-}
-
 /// Create `grid.size.x - 1` x `grid.size.y - 1` matrix with the given `Grid`.
 /// Treats the `Grid.positions` as `1`, everything else is `0`.
 ///
@@ -126,7 +144,7 @@ pub fn grid_matrix(grid: &Grid) -> Vec<Vec<u8>> {
 /// The collision generation requires the grid size to be one bigger than it actually is because of
 /// the 2x2 bitmasking we apply. However the final pathfinding only requires size - 1.
 pub fn map_grid_matrix(grid: &Grid) -> Vec<Vec<u8>> {
-    let mut matrix = grid_matrix(grid);
+    let mut matrix = grid.clone_grid();
     assert!(matrix.len() > 2);
     matrix.pop();
 
@@ -137,7 +155,7 @@ pub fn map_grid_matrix(grid: &Grid) -> Vec<Vec<u8>> {
 }
 
 pub fn index_matrix(grid: &Grid) -> Vec<Vec<u8>> {
-    let matrix = grid_matrix(grid);
+    let matrix = grid.clone_grid();
     let mut index_matrix = vec![vec![0; grid.height]; grid.width];
 
     assert_eq!(matrix.len(), index_matrix.len());

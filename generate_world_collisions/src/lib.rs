@@ -21,10 +21,10 @@ pub type Edge = (Vec2, Vec2);
 
 pub use decomposition::decompose_poly;
 pub use geometry::{is_ccw, merge_convex_polygons, point_to_polygon_index};
-pub use graph::{construct_adjacency_graph, disjoint_graphs_colliders, outer_inner_polygons};
+pub use graph::{construct_adjacency_graph, disjoint_graphs, outer_inner_polygons};
 pub use ldtk_bridge::{
-    ENEMY_LAYER_IDENTIFIER, LDTK_FILE, PLAYER_LAYER_IDENTIFIER, SQUARE_CONCRETE_IDENTIFIER,
-    TILE_SIZE, WALKABLE_LAYER,
+    DIAGONAL_CONCRETE, ENEMY_LAYER_IDENTIFIER, LDTK_FILE, PLAYER_LAYER_IDENTIFIER,
+    SQUARE_CONCRETE_IDENTIFIER, TILE_SIZE,
 };
 pub use matrix::{map_grid_matrix, Grid};
 pub use serialization::{deserialize_polygons, serialize_collider_polygons, serialize_grid_matrix};
