@@ -29,8 +29,17 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-#[derive(Component, Default)]
+#[derive(Component)]
 pub struct Player {
     pub state_machine: PlayerStateMachine,
     pub current_direction: Vec2,
+}
+
+impl Default for Player {
+    fn default() -> Self {
+        Self {
+            state_machine: PlayerStateMachine::default(),
+            current_direction: Vec2::NEG_Y,
+        }
+    }
 }
