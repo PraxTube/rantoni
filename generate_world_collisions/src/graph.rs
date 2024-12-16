@@ -19,7 +19,7 @@ fn disjoint_vertices(grid: &Grid) -> Vec<Vec<IVec2>> {
     // Convert indices to vertices
     for i in 0..index_matrix.len() {
         for j in 0..index_matrix[i].len() {
-            let vertex_pairs = get_vertex_pairs(index_matrix[i][j], i, j, grid.is_walkable);
+            let vertex_pairs = get_vertex_pairs(index_matrix[i][j], i, j);
             for vertex_pair in vertex_pairs {
                 let v_pair = vertex_pair
                     .iter()
@@ -180,15 +180,14 @@ pub fn outer_inner_polygons(grid: &Grid) -> (Polygon, Vec<Polygon>) {
 }
 
 /// Construct the disjoint graph for the given parameters.
-/// This will perform a flood algorithm, either 4-directional or 8-directional, depending on
-/// `connect_with_diagonals`. The returned `Vec` contains the positions of the graphs in the 2D
-/// grid. There are no vertices or edges at this point. It's only about the position of the
-/// disjointed graphs.
+/// This will perform a flood algorithm in a 4-directional manner.
+/// The returned `Vec` contains the positions of the nodes in the graphs in the 2D
+/// grid. There are no vertices or edges at this point, it's only about the position of the
+/// nodes of the disjointed graphs.
 fn construct_disjoint_graphs(
     grid: &Grid,
     positions: &mut Vec<IVec2>,
     graph: &mut [Vec<i32>],
-    connect_with_diagonals: bool,
 ) -> Vec<IGraph> {
     let mut disjoint_graphs = Vec::new();
     while !positions.is_empty() {
@@ -220,38 +219,16 @@ fn construct_disjoint_graphs(
             stack.push(n + IVec2::Y);
             stack.push(n + IVec2::NEG_X);
             stack.push(n + IVec2::NEG_Y);
-            if connect_with_diagonals {
-                stack.push(n + IVec2::ONE);
-                stack.push(n + IVec2::NEG_ONE);
-                stack.push(n + IVec2::new(1, -1));
-                stack.push(n + IVec2::new(-1, 1));
-            }
         }
         disjoint_graphs.push(current_positions);
     }
     disjoint_graphs
 }
 
-/// Construct the disjoint graphs of the given grid for the NAVMESH!
-/// It treats the positions in the `Grid` as walkable.
-/// The returned `Vec` contains disjoint graphs with their positions on the 2D grid.
-pub fn disjoint_graphs_walkable(grid: &Grid) -> Vec<IGraph> {
-    assert!(grid.is_walkable);
-    let mut positions = grid.positions.clone();
-
-    let mut graph = vec![vec![0; grid.height]; grid.width];
-    for pos in &grid.positions {
-        graph[pos.x as usize][pos.y as usize] = 1;
-    }
-
-    construct_disjoint_graphs(grid, &mut positions, &mut graph, true)
-}
-
 /// Construct the disjoint graphs of the given grid for COLLIDERS!
 /// This will reverse the positions (as it treats the positions in the grid as walkable).
 /// The returned `Vec` contains disjoint graphs with their positions on the 2D grid.
 pub fn disjoint_graphs_colliders(grid: &Grid) -> Vec<IGraph> {
-    assert!(!grid.is_walkable);
     assert_ne!(grid.width, 0);
     assert_ne!(grid.height, 0);
 
@@ -274,7 +251,7 @@ pub fn disjoint_graphs_colliders(grid: &Grid) -> Vec<IGraph> {
         graph[pos.x as usize][pos.y as usize] = 1;
     }
 
-    construct_disjoint_graphs(grid, &mut positions, &mut graph, false)
+    construct_disjoint_graphs(grid, &mut positions, &mut graph)
 }
 
 /// Return the edge that both polygons share.

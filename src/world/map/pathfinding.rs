@@ -75,6 +75,7 @@ fn point_to_matrix_indices(grid_matrix: &[Vec<u8>], p: Vec2) -> Option<USVec2> {
             ((p.x + TILE_SIZE / 2.0) / TILE_SIZE) as usize,
             ((p.y + TILE_SIZE / 2.0) / TILE_SIZE) as usize,
         );
+
         USVec2::new(
             u.x.min(grid_matrix.len() - 1),
             u.y.min(grid_matrix[0].len() - 1),
@@ -84,6 +85,8 @@ fn point_to_matrix_indices(grid_matrix: &[Vec<u8>], p: Vec2) -> Option<USVec2> {
     if grid_matrix[u.x][u.y] == 1 {
         return Some(u);
     }
+
+    warn!("not in! {:?}", u);
 
     // Find closest walkable grid index
     let mut distance_to_neighbours = Vec::new();
@@ -145,7 +148,12 @@ fn grid_neigbhours(grid_matrix: &[Vec<u8>], u: USVec2) -> Vec<USVec2> {
     // Down Left
     if u.x > 0 && u.y > 0 {
         let w = USVec2::new(u.x - 1, u.y - 1);
-        if grid_matrix[w.x][w.y] != 0 {
+        if grid_matrix[w.x][w.y] == 2 {
+            neigbhours.push(w);
+        } else if grid_matrix[w.x][w.y] == 1
+            && grid_matrix[w.x - 1][w.y] == 1
+            && grid_matrix[w.x][w.y - 1] == 1
+        {
             neigbhours.push(w);
         }
     }

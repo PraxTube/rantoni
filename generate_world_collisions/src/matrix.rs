@@ -4,7 +4,6 @@ pub struct Grid {
     pub width: usize,
     pub height: usize,
     pub positions: Vec<IVec2>,
-    pub is_walkable: bool,
 }
 
 impl Grid {
@@ -13,7 +12,6 @@ impl Grid {
             width,
             height,
             positions: Vec::new(),
-            is_walkable: true,
         }
     }
 }
@@ -42,50 +40,6 @@ fn index_to_vertices(index: u8) -> Vec<Vec<IVec2>> {
         13 => vec![vec![IVec2::X, IVec2::new(2, 1)]],
         14 => vec![vec![IVec2::Y, IVec2::X]],
         15 => Vec::new(),
-        _ => {
-            error!("should never happen! Got bitmasks that are >15, {}", index);
-            Vec::new()
-        }
-    }
-}
-
-fn index_to_vertices_x_zero_edge(index: u8) -> Vec<IVec2> {
-    match index {
-        0 | 2 | 4 | 6 => Vec::new(),
-        1 => vec![IVec2::Y, IVec2::ZERO],
-        3 => vec![IVec2::Y, IVec2::ZERO],
-        5 => vec![IVec2::Y, IVec2::ZERO],
-        7 => vec![IVec2::Y, IVec2::ZERO],
-        8 => vec![IVec2::new(0, 2), IVec2::Y],
-        9 => vec![IVec2::new(0, 2), IVec2::ZERO],
-        10 => vec![IVec2::new(0, 2), IVec2::Y],
-        11 => vec![IVec2::new(0, 2), IVec2::ZERO],
-        12 => vec![IVec2::new(0, 2), IVec2::Y],
-        13 => vec![IVec2::new(0, 2), IVec2::ZERO],
-        14 => vec![IVec2::new(0, 2), IVec2::Y],
-        15 => vec![IVec2::new(0, 2), IVec2::ZERO],
-        _ => {
-            error!("should never happen! Got bitmasks that are >15, {}", index);
-            Vec::new()
-        }
-    }
-}
-
-fn index_to_vertices_y_zero_edge(index: u8) -> Vec<IVec2> {
-    match index {
-        0 | 4 | 8 | 12 => Vec::new(),
-        1 => vec![IVec2::ZERO, IVec2::X],
-        2 => vec![IVec2::X, IVec2::new(2, 0)],
-        3 => vec![IVec2::ZERO, IVec2::new(2, 0)],
-        5 => vec![IVec2::ZERO, IVec2::X],
-        6 => vec![IVec2::X, IVec2::new(2, 0)],
-        7 => vec![IVec2::ZERO, IVec2::new(2, 0)],
-        9 => vec![IVec2::ZERO, IVec2::X],
-        10 => vec![IVec2::X, IVec2::new(2, 0)],
-        11 => vec![IVec2::ZERO, IVec2::new(2, 0)],
-        13 => vec![IVec2::ZERO, IVec2::X],
-        14 => vec![IVec2::X, IVec2::new(2, 0)],
-        15 => vec![IVec2::ZERO, IVec2::new(2, 0)],
         _ => {
             error!("should never happen! Got bitmasks that are >15, {}", index);
             Vec::new()
@@ -200,29 +154,17 @@ pub fn index_matrix(grid: &Grid) -> Vec<Vec<u8>> {
     index_matrix
 }
 
-pub fn get_vertex_pairs(index: u8, x: usize, y: usize, is_walkable: bool) -> Vec<Vec<IVec2>> {
-    let mut vertex_pairs = if is_walkable {
-        index_to_vertices(index)
-    } else {
-        index_to_vertices_collider(index)
-    };
+pub fn get_vertex_pairs(index: u8, x: usize, y: usize) -> Vec<Vec<IVec2>> {
+    let mut vertex_pairs = index_to_vertices_collider(index);
 
     if x == 0 {
-        let edge_vertices = if is_walkable {
-            index_to_vertices_x_zero_edge(index)
-        } else {
-            index_to_vertices_x_zero_edge_collider(index)
-        };
+        let edge_vertices = index_to_vertices_x_zero_edge_collider(index);
         if !edge_vertices.is_empty() {
             vertex_pairs.push(edge_vertices);
         }
     }
     if y == 0 {
-        let edge_vertices = if is_walkable {
-            index_to_vertices_y_zero_edge(index)
-        } else {
-            index_to_vertices_y_zero_edge_collider(index)
-        };
+        let edge_vertices = index_to_vertices_y_zero_edge_collider(index);
         if !edge_vertices.is_empty() {
             vertex_pairs.push(edge_vertices);
         }

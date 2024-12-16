@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 use poly2tri_rs::{Point, SweeperBuilder};
 
-use crate::{
-    disjoint_graphs_colliders, disjoint_graphs_walkable, outer_inner_polygons, Grid, Polygon,
-};
+use crate::{disjoint_graphs_colliders, outer_inner_polygons, Grid, Polygon};
 
 fn vec_to_point(v: &Vec2) -> Point {
     Point::new(v.x as f64, v.y as f64)
@@ -34,18 +32,12 @@ fn triangulate_concave_polygon(
 
 pub fn decompose_poly(grid: &Grid) -> Vec<Polygon> {
     let mut collider_polygons = Vec::new();
-    let disjoin_graphs = if grid.is_walkable {
-        disjoint_graphs_walkable(grid)
-    } else {
-        disjoint_graphs_colliders(grid)
-    };
 
-    for graph in disjoin_graphs {
+    for graph in disjoint_graphs_colliders(grid) {
         let grid = Grid {
             width: grid.width,
             height: grid.height,
             positions: graph,
-            is_walkable: grid.is_walkable,
         };
         let (outer_polygon, inner_polygons) = outer_inner_polygons(&grid);
 
