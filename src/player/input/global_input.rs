@@ -2,7 +2,7 @@ use bevy::input::InputSystem;
 use bevy::prelude::*;
 
 use super::gamepad::PlayerGamepad;
-use super::GlobalInput;
+use super::{GlobalInput, InputControllerSystem};
 
 fn handle_keyboard_inputs(keys: Res<ButtonInput<KeyCode>>, mut global_input: ResMut<GlobalInput>) {
     let mut input = GlobalInput::default();
@@ -42,6 +42,7 @@ impl Plugin for GlobalInputPlugin {
             PreUpdate,
             (handle_keyboard_inputs, handle_gamepad_inputs)
                 .chain()
+                .in_set(InputControllerSystem)
                 .after(InputSystem),
         );
     }

@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use crate::GameState;
 
 use super::gamepad::PlayerGamepad;
-use super::{InputDevice, MenuInput};
+use super::{InputControllerSystem, InputDevice, MenuInput};
 
 fn handle_keyboard_inputs(
     keys: Res<ButtonInput<KeyCode>>,
@@ -53,6 +53,7 @@ impl Plugin for MenuInputPlugin {
             (handle_keyboard_inputs, handle_gamepad_inputs)
                 .chain()
                 .run_if(in_state(GameState::MainMenu).or_else(in_state(GameState::GameOver)))
+                .in_set(InputControllerSystem)
                 .after(InputSystem),
         );
     }

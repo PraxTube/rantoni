@@ -8,7 +8,7 @@ use crate::world::MainCamera;
 use crate::GameState;
 
 use super::gamepad::PlayerGamepad;
-use super::{GamingInput, InputDevice};
+use super::{GamingInput, InputControllerSystem, InputDevice};
 
 fn fetch_mouse_world_coords(
     mut gaming_input: ResMut<GamingInput>,
@@ -191,6 +191,7 @@ impl Plugin for GamingInputPlugin {
             )
                 .chain()
                 .run_if(in_state(GameState::Gaming))
+                .in_set(InputControllerSystem)
                 .after(InputSystem),
         );
     }

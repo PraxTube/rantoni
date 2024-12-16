@@ -6,7 +6,7 @@ use generate_world_collisions::TILE_SIZE;
 
 use crate::{player::input::GlobalInput, world::DebugState, GameAssets};
 
-use super::{PathfindingSource, PathfindingTarget, WorldSpatialData};
+use super::{LevelChanged, PathfindingSource, PathfindingTarget, WorldSpatialData};
 
 const GRID_DEBUG_TEXT_Z_LEVEL: f32 = 100.0;
 
@@ -119,6 +119,15 @@ fn toggle_grid_debug_visuals(
     world_data: Res<WorldSpatialData>,
     q_grid_debug_visuals: Query<Entity, With<GridDebugVisual>>,
 ) {
+    if global_input.toggle_debug {
+        if debug_state.active && debug_state.grid_visuals_active {
+            spawn_grid_debug_visuals(&mut commands, &assets, &world_data);
+        } else if !debug_state.active {
+            despawn_grid_debug_visuals(&mut commands, &q_grid_debug_visuals);
+        }
+        return;
+    }
+
     if !debug_state.active {
         return;
     }
@@ -135,17 +144,46 @@ fn toggle_grid_debug_visuals(
     }
 }
 
+fn despawn_grid_debug_visuals_on_level_transition(
+    mut commands: Commands,
+    q_grid_debug_visuals: Query<Entity, With<GridDebugVisual>>,
+) {
+    despawn_grid_debug_visuals(&mut commands, &q_grid_debug_visuals);
+}
+
+fn spawn_grid_debug_visuals_on_level_transition(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+    debug_state: Res<DebugState>,
+    world_data: Res<WorldSpatialData>,
+) {
+    if !debug_state.active {
+        return;
+    }
+    if !debug_state.grid_visuals_active {
+        return;
+    }
+
+    spawn_grid_debug_visuals(&mut commands, &assets, &world_data);
+}
+
 pub struct MapDebugPlugin;
 
 impl Plugin for MapDebugPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (debug_enemy_pathfinding.run_if(resource_exists::<WorldSpatialData>),),
+            (debug_enemy_pathfinding, toggle_grid_debug_visuals)
+                .run_if(resource_exists::<WorldSpatialData>),
         )
         .add_systems(
             Update,
-            (toggle_grid_debug_visuals.run_if(resource_exists::<WorldSpatialData>),),
+            (
+                despawn_grid_debug_visuals_on_level_transition,
+                spawn_grid_debug_visuals_on_level_transition,
+            )
+                .chain()
+                .run_if(resource_exists::<WorldSpatialData>.and_then(on_event::<LevelChanged>())),
         );
     }
 }

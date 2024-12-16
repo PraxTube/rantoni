@@ -25,6 +25,9 @@ impl Plugin for InputPlugin {
     }
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, SystemSet)]
+pub struct InputControllerSystem;
+
 #[derive(Resource, PartialEq)]
 enum InputDevice {
     MouseKeyboard,

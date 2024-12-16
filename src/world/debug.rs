@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::player::input::GlobalInput;
+use crate::player::input::{GlobalInput, InputControllerSystem};
 
 /// Indicates whether the game is currently in debug mode.
 /// This can be used for just debugging info to the player (developer),
@@ -31,7 +31,9 @@ pub struct DebugPlugin;
 
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<DebugState>()
-            .add_systems(Update, (toggle_debug_state, toggle_rapier_debug));
+        app.init_resource::<DebugState>().add_systems(
+            PreUpdate,
+            (toggle_debug_state, toggle_rapier_debug).after(InputControllerSystem),
+        );
     }
 }
